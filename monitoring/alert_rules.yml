@@ -1,0 +1,140 @@
+# Prometheus alerting rules for OPERA Cloud MCP
+groups:
+  - name: opera-cloud-mcp.rules
+    rules:
+      # Service availability alerts
+      - alert: OperaMCPDown
+        expr: up{job="opera-cloud-mcp"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: opera-cloud-mcp
+        annotations:
+          summary: "OPERA Cloud MCP server is down"
+          description: "OPERA Cloud MCP server has been down for more than 1 minute."
+
+      - alert: OperaMCPHealthCheckFailing
+        expr: opera_health_check_status_unhealthy > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: opera-cloud-mcp
+        annotations:
+          summary: "OPERA Cloud MCP health check failing"
+          description: "OPERA Cloud MCP health check has been failing for more than 2 minutes."
+
+      # Authentication alerts
+      - alert: OperaMCPAuthFailures
+        expr: increase(opera_auth_failure[5m]) > 3
+        for: 1m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: authentication
+        annotations:
+          summary: "High authentication failure rate in OPERA Cloud MCP"
+          description: "OPERA Cloud MCP has had {{ $value }} authentication failures in the last 5 minutes."
+
+      - alert: OperaMCPTokenExpiringSoon
+        expr: opera_auth_token_expires_in < 300
+        for: 1m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: authentication
+        annotations:
+          summary: "OPERA Cloud MCP authentication token expiring soon"
+          description: "OPERA Cloud MCP authentication token will expire in {{ $value }} seconds."
+
+      # Performance alerts
+      - alert: OperaMCPHighResponseTime
+        expr: opera_api_request_duration_seconds{quantile="0.95"} > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: performance
+        annotations:
+          summary: "High response time in OPERA Cloud MCP"
+          description: "95th percentile response time is {{ $value }} seconds for the last 5 minutes."
+
+      - alert: OperaMCPHighErrorRate
+        expr: rate(opera_api_error_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: critical
+          service: opera-cloud-mcp
+          component: api
+        annotations:
+          summary: "High error rate in OPERA Cloud MCP"
+          description: "API error rate is {{ $value }} errors per second over the last 5 minutes."
+
+      # Resource utilization alerts
+      - alert: OperaMCPHighMemoryUsage
+        expr: process_resident_memory_bytes / (1024*1024*1024) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: resources
+        annotations:
+          summary: "High memory usage in OPERA Cloud MCP"
+          description: "OPERA Cloud MCP is using {{ $value }} GB of memory."
+
+      - alert: OperaMCPTooManyActiveSpans
+        expr: opera_tracing_active_spans > 1000
+        for: 3m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: tracing
+        annotations:
+          summary: "Too many active tracing spans in OPERA Cloud MCP"
+          description: "OPERA Cloud MCP has {{ $value }} active tracing spans, which may indicate a memory leak."
+
+      # Business logic alerts
+      - alert: OperaMCPNoRecentOperations
+        expr: increase(opera_operations_total[15m]) == 0
+        for: 15m
+        labels:
+          severity: info
+          service: opera-cloud-mcp
+          component: business
+        annotations:
+          summary: "No recent operations in OPERA Cloud MCP"
+          description: "OPERA Cloud MCP has not processed any operations in the last 15 minutes."
+
+      - alert: OperaMCPHighReservationFailures
+        expr: rate(opera_reservations_failed_total[10m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: opera-cloud-mcp
+          component: reservations
+        annotations:
+          summary: "High reservation failure rate"
+          description: "Reservation failure rate is {{ $value }} per second over the last 10 minutes."
+
+  - name: infrastructure.rules
+    rules:
+      # Infrastructure alerts
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: redis
+          component: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache has been down for more than 2 minutes. Caching is disabled."
+
+      - alert: PrometheusTargetDown
+        expr: up{job!="prometheus"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: monitoring
+        annotations:
+          summary: "Prometheus target is down"
+          description: "Prometheus target {{ $labels.job }} has been down for more than 5 minutes."

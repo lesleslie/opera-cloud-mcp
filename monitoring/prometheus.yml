@@ -1,0 +1,63 @@
+# Prometheus configuration for OPERA Cloud MCP monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+# rule_files:
+#   - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # OPERA Cloud MCP Server
+  - job_name: 'opera-cloud-mcp'
+    static_configs:
+      - targets: ['opera-cloud-mcp:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    honor_labels: false
+    honor_timestamps: true
+    scheme: http
+
+    # Health check endpoint
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: opera-cloud-mcp:8000
+
+  # Health check endpoint
+  - job_name: 'opera-cloud-mcp-health'
+    static_configs:
+      - targets: ['opera-cloud-mcp:8000']
+    metrics_path: '/health'
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    scheme: http
+
+  # System metrics (if running node_exporter)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # Redis metrics (if using Redis with redis_exporter)
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
