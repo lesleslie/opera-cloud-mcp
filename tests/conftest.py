@@ -19,11 +19,12 @@ def mock_global_audit_logger():
     mock_logger.get_audit_trail.return_value = []
     mock_logger.get_security_report.return_value = {}
 
-    with patch("opera_cloud_mcp.auth.audit_logger.audit_logger", mock_logger):
-        # Also patch the module-level import to prevent initialization
-        with patch("opera_cloud_mcp.auth.audit_logger.AuditLogger") as mock_class:
-            mock_class.return_value = mock_logger
-            yield mock_logger
+    with (
+        patch("opera_cloud_mcp.auth.audit_logger.audit_logger", mock_logger),
+        patch("opera_cloud_mcp.auth.audit_logger.AuditLogger") as mock_class,
+    ):
+        mock_class.return_value = mock_logger
+        yield mock_logger
 
 
 # Ensure clean test environment
@@ -33,7 +34,7 @@ def clean_test_environment():
     # Clear any cached modules that might interfere with testing
     modules_to_clear = [
         mod
-        for mod in sys.modules.keys()
+        for mod in sys.modules
         if mod.startswith("opera_cloud_mcp.auth") and "audit" in mod
     ]
     for mod in modules_to_clear:

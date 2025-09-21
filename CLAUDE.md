@@ -1,58 +1,124 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this opera-cloud-mcp project.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-This is an MCP (Model Context Protocol) server for the Opera Cloud API. It enables AI agents to interact with Opera Cloud services and infrastructure.
-
-## Development Guidelines
-
-### Code Quality
-
-- Follow PEP 8 style guidelines
-- Use type hints for all functions and methods
-- Write comprehensive docstrings
-- Maintain test coverage above 80%
-
-### Testing
-
-- Write unit tests for all new functionality
-- Use pytest for testing framework
-- Mock external API calls in tests
-- Test both success and error scenarios
-
-### Security
-
-- Never commit API keys or sensitive credentials
-- Use environment variables for configuration
-- Validate all inputs from external sources
-- Follow security best practices for API integrations
-
-### Documentation
-
-- Keep README.md updated with setup and usage instructions
-- Document all public APIs
-- Include example usage in docstrings
-- Update this CLAUDE.md file when project structure changes
-
-## Project Structure
-
-- `main.py` - Main MCP server entry point
-- `pyproject.toml` - Project configuration and dependencies
-- `.pre-commit-config.yaml` - Code quality hooks
-- `.mcp.json` - MCP server configuration
+This is an MCP (Model Context Protocol) server for Oracle OPERA Cloud API integration. It provides AI agents with comprehensive access to hospitality management functions through 45+ tools across 5 domains: reservations, guests, rooms, operations, and financial management.
 
 ## Development Commands
 
-- `uv run main.py` - Start the MCP server
-- `uv run pytest` - Run tests
-- `uv run ruff check` - Lint code
-- `uv run mypy` - Type checking
+### Core Commands
 
-## MCP Integration
+- `python -m opera_cloud_mcp` - Start the MCP server
+- `uv run python -m opera_cloud_mcp` - Alternative server startup with UV
+- `uv sync` - Install/sync dependencies
 
-This server is designed to work with Claude Code and other MCP-compatible clients. Ensure all MCP protocol requirements are met when making changes.
+### Testing
+
+- `uv run pytest` - Run all tests
+- `uv run pytest tests/unit/` - Run unit tests only
+- `uv run pytest tests/integration/` - Run integration tests only
+- `uv run pytest --cov=opera_cloud_mcp --cov-report=html` - Test with coverage report
+- `uv run pytest tests/unit/test_reservation_tools.py::TestReservationTools::test_search_reservations` - Run single test
+
+### Code Quality
+
+- `uv run crackerjack` - Run all quality checks (recommended)
+- `uv run ruff check --fix` - Lint and auto-fix code
+- `uv run mypy .` - Type checking
+- `uv run bandit -r opera_cloud_mcp/` - Security scanning
+
+### Production
+
+- `docker build -t opera-cloud-mcp .` - Build Docker image
+- `docker-compose up -d` - Run full stack with monitoring
+
+## Architecture Overview
+
+### Core Components
+
+**FastMCP Server (`opera_cloud_mcp/server.py`)**
+
+- Main MCP server using FastMCP framework
+- Registers all tool modules and handles MCP protocol
+
+**Base Client (`opera_cloud_mcp/clients/base_client.py`)**
+
+- Foundation for all OPERA Cloud API interactions
+- Handles OAuth2 authentication, rate limiting, circuit breaker
+- Provides retry logic, error handling, and observability
+
+**Tool Modules (`opera_cloud_mcp/tools/`)**
+
+- `reservation_tools.py` - Booking and reservation management
+- `guest_tools.py` - Guest profiles and loyalty programs
+- `room_tools.py` - Room inventory and housekeeping
+- `operation_tools.py` - Daily operations and reporting
+- `financial_tools.py` - Billing and revenue management
+
+**Authentication (`opera_cloud_mcp/auth/`)**
+
+- OAuth2 handler with automatic token refresh
+- Security middleware and audit logging
+- Production-grade security enhancements
+
+**API Clients (`opera_cloud_mcp/clients/api_clients/`)**
+
+- Specialized clients for each OPERA Cloud module
+- Handle endpoint-specific logic and data transformation
+
+### Key Patterns
+
+**Tool Registration**: Each tool module exports a `register_*_tools(app)` function that registers FastMCP tools
+
+**Error Handling**: Custom exception hierarchy with specific error types for different failure modes
+
+**Observability**: Structured logging, metrics, and distributed tracing through `utils/observability.py`
+
+**Configuration**: Pydantic settings with environment variable support and security validation
+
+## Testing Architecture
+
+### Test Structure
+
+- `tests/unit/` - Fast unit tests with mocking
+- `tests/integration/` - Full API integration tests
+- `tests/performance/` - Load and performance testing
+- `tests/fixtures/` - Shared test data and mock responses
+
+### Mock Strategy
+
+Use `tests/fixtures/mock_responses.py` for consistent API mocking. Always mock external OPERA Cloud API calls in unit tests.
+
+## Configuration
+
+### Environment Setup
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+OPERA_CLOUD_BASE_URL=https://your-instance.com/api/v1
+OPERA_CLOUD_CLIENT_ID=your_client_id
+OPERA_CLOUD_CLIENT_SECRET=your_secret
+OPERA_CLOUD_USERNAME=your_username
+OPERA_CLOUD_PASSWORD=your_password
+```
+
+### MCP Client Integration
+
+See `example.mcp.json` for production config and `example.mcp.dev.json` for development setup.
+
+## Security Considerations
+
+The `opera_cloud_mcp/config/security_settings.py` provides enterprise-grade security configuration including:
+
+- Rate limiting and circuit breakers
+- Audit logging and security monitoring
+- Token binding and credential rotation
+- Network restrictions and compliance features
+
+Always use the security settings in production and never commit credentials to the repository.
 
 <!-- CRACKERJACK_START -->
 

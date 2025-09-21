@@ -25,12 +25,6 @@ from opera_cloud_mcp.utils.exceptions import SecurityError
 logger = logging.getLogger(__name__)
 
 
-class SecurityError(Exception):
-    """Raised when security violations occur."""
-
-    pass
-
-
 class TokenBinding(BaseModel):
     """Token binding information for enhanced security."""
 
@@ -63,7 +57,7 @@ class AuditEvent(BaseModel):
 class SecurityMonitor:
     """Monitors authentication security events and detects anomalies."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._failed_attempts: dict[str, list] = {}
         self._successful_auths: dict[str, datetime] = {}
         self._blocked_clients: set[str] = set()
@@ -121,7 +115,8 @@ class SecurityMonitor:
             if recent_failures >= self._max_failed_attempts:
                 self._blocked_clients.add(client_id)
                 logger.warning(
-                    f"Client blocked due to {recent_failures} failed authentication attempts",
+                    f"Client blocked due to {recent_failures} "
+                    + "failed authentication attempts",
                     extra={
                         "client_id_hash": client_id_hash,
                         "failed_attempts": recent_failures,
@@ -249,7 +244,7 @@ class SecureTokenCache:
         if key_file.exists():
             # Load existing key
             try:
-                with open(key_file, "rb") as f:
+                with key_file.open("rb") as f:
                     salt = f.read(32)
                     if len(salt) != 32:
                         raise ValueError("Invalid salt length")
@@ -260,8 +255,7 @@ class SecureTokenCache:
         if not key_file.exists():
             # Generate new key
             salt = secrets.token_bytes(32)
-            with open(key_file, "wb") as f:
-                f.write(salt)
+            key_file.write_bytes(salt)
             # Set restrictive permissions
             key_file.chmod(0o600)
 
@@ -315,8 +309,7 @@ class SecureTokenCache:
 
             # Atomic write with restrictive permissions
             temp_file = cache_file.with_suffix(".tmp")
-            with open(temp_file, "wb") as f:
-                f.write(encrypted_data)
+            temp_file.write_bytes(encrypted_data)
             temp_file.chmod(0o600)
             temp_file.rename(cache_file)
 
@@ -341,7 +334,7 @@ class SecureTokenCache:
 
             cipher = self._get_cipher(client_id)
 
-            with open(cache_file, "rb") as f:
+            with cache_file.open("rb") as f:
                 encrypted_data = f.read()
 
             decrypted_data = cipher.decrypt(encrypted_data)
@@ -436,7 +429,7 @@ class SecureTokenCache:
             cache_file = self._get_cache_file(client_id)
             if cache_file.exists():
                 # Secure deletion - overwrite before deleting
-                with open(cache_file, "r+b") as f:
+                with cache_file.open("r+b") as f:
                     f.seek(0)
                     f.write(secrets.token_bytes(f.seek(0, 2)))
                     f.flush()

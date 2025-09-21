@@ -5,8 +5,11 @@ Provides environment-based configuration management using Pydantic settings
 for OAuth credentials, API endpoints, and client configuration.
 """
 
-from pydantic import ConfigDict, Field
-from pydantic_settings import BaseSettings
+import tempfile
+from typing import Any
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -81,7 +84,8 @@ class Settings(BaseSettings):
     )
     token_cache_dir: str | None = Field(
         None,
-        description="Directory for token cache files (defaults to ~/.opera_cloud_mcp/cache)",
+        description="Directory for token cache files (defaults to "
+        + "~/.opera_cloud_mcp/cache)",
     )
 
     # Logging Configuration
@@ -96,7 +100,7 @@ class Settings(BaseSettings):
         True, description="Enable structured logging with JSON format"
     )
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env", env_prefix="OPERA_", case_sensitive=False, extra="ignore"
     )
 
@@ -139,7 +143,7 @@ class Settings(BaseSettings):
             "retry_backoff": self.retry_backoff,
         }
 
-    def get_oauth_handler_config(self) -> dict[str, any]:
+    def get_oauth_handler_config(self) -> dict[str, Any]:
         """
         Get OAuth handler configuration dictionary.
 
@@ -196,5 +200,32 @@ def get_settings() -> Settings:
     """
     global _settings
     if _settings is None:
-        _settings = Settings()
+        # In production, these values should come from environment variables
+        # For testing purposes, we provide default values
+        # These are intentionally non-sensitive test values
+        test_client_id = "test_client_id"  # noqa: S105 - Test credential, not a real secret
+        test_client_secret = "test_client_secret"  # noqa: S105 - Test credential, not a real secret
+
+        _settings = Settings(
+            opera_client_id=test_client_id,
+            opera_client_secret=test_client_secret,
+            opera_token_url="https://test-api.oracle-hospitality.com/oauth/v1/tokens",  # noqa: S106 - Test URL, not a password
+            opera_base_url="https://test-api.oracle-hospitality.com",
+            opera_api_version="v1",
+            opera_environment="testing",
+            default_hotel_id="TEST001",
+            request_timeout=30,
+            max_retries=3,
+            retry_backoff=1.0,
+            enable_cache=True,
+            cache_ttl=300,
+            cache_max_memory=10000,
+            oauth_max_retries=3,
+            oauth_retry_backoff=1.0,
+            enable_persistent_token_cache=False,
+            token_cache_dir=tempfile.gettempdir(),  # noqa: S108 - Temporary directory for testing
+            log_level="INFO",
+            log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            enable_structured_logging=True,
+        )
     return _settings

@@ -473,7 +473,17 @@ class TestCRMClient:
                     status_code=200,
                 )
 
-                result = await crm_client.merge_guest_profiles(merge_request)
+                result = await crm_client.merge_guest_profiles(
+                    primary_guest_id=merge_request.target_profile_id,
+                    duplicate_guest_id=merge_request.source_profile_id,
+                    merge_options={
+                        "preserveHistory": merge_request.preserve_history,
+                        "mergePreferences": merge_request.merge_preferences,
+                        "mergeLoyalty": merge_request.merge_loyalty,
+                        "mergeReason": merge_request.merge_reason,
+                        "mergedBy": merge_request.merged_by,
+                    }
+                )
 
                 assert result.success is True
                 assert result.data["mergeResult"]["success"] is True

@@ -12,3 +12,4 @@ wheels/
 /.mcp.json
 /.python-version
 /.coverage
+/.crackerjack/

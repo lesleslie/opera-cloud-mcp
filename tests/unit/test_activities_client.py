@@ -5,6 +5,7 @@ Tests activities management functionality including CRUD operations,
 booking management, and schedule handling.
 """
 
+import json
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -81,7 +82,23 @@ class TestActivitiesClient:
             ],
             "totalCount": 1,
         }
-        mock_response.content = b'{"activities": [{"activityId": "ACT123", "activityCode": "SPA001", "activityName": "Spa Treatment", "category": "spa", "description": "Relaxing spa treatment", "capacity": 10, "durationMinutes": 60, "price": "150.00", "currencyCode": "USD"}], "totalCount": 1}'
+        content_data = {
+            "activities": [
+                {
+                    "activityId": "ACT123",
+                    "activityCode": "SPA001",
+                    "activityName": "Spa Treatment",
+                    "category": "spa",
+                    "description": "Relaxing spa treatment",
+                    "capacity": 10,
+                    "durationMinutes": 60,
+                    "price": "150.00",
+                    "currencyCode": "USD",
+                }
+            ],
+            "totalCount": 1,
+        }
+        mock_response.content = json.dumps(content_data).encode()
         mock_response.headers = {"content-type": "application/json"}
         mock_response.url = (
             "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/activities"
@@ -117,7 +134,18 @@ class TestActivitiesClient:
             "price": "150.00",
             "currencyCode": "USD",
         }
-        mock_response.content = b'{"activityId": "ACT123", "activityCode": "SPA001", "activityName": "Spa Treatment", "category": "spa", "description": "Relaxing spa treatment", "capacity": 10, "durationMinutes": 60, "price": "150.00", "currencyCode": "USD"}'
+        content_data = {
+            "activityId": "ACT123",
+            "activityCode": "SPA001",
+            "activityName": "Spa Treatment",
+            "category": "spa",
+            "description": "Relaxing spa treatment",
+            "capacity": 10,
+            "durationMinutes": 60,
+            "price": "150.00",
+            "currencyCode": "USD",
+        }
+        mock_response.content = json.dumps(content_data).encode()
         mock_response.headers = {"content-type": "application/json"}
         mock_response.url = (
             "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/activities/ACT123"
@@ -155,7 +183,19 @@ class TestActivitiesClient:
             "paymentStatus": "pending",
             "createdBy": "test_user",
         }
-        mock_response.content = b'{"bookingId": "BK123456", "activityId": "ACT123", "guestName": "John Doe", "bookingDate": "2024-12-15", "bookingTime": "14:00:00", "partySize": 2, "totalPrice": "300.00", "status": "confirmed", "paymentStatus": "pending", "createdBy": "test_user"}'
+        content_data = {
+            "bookingId": "BK123456",
+            "activityId": "ACT123",
+            "guestName": "John Doe",
+            "bookingDate": "2024-12-15",
+            "bookingTime": "14:00:00",
+            "partySize": 2,
+            "totalPrice": "300.00",
+            "status": "confirmed",
+            "paymentStatus": "pending",
+            "createdBy": "test_user",
+        }
+        mock_response.content = json.dumps(content_data).encode()
         mock_response.headers = {"content-type": "application/json"}
         mock_response.url = "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/bookings"
         mock_response.request = Mock(method="POST")
@@ -205,7 +245,21 @@ class TestActivitiesClient:
             "maximumBookings": 20,
             "currentBookings": 5,
         }
-        mock_response.content = b'{"scheduleId": "SCH123", "activityId": "ACT123", "scheduleDate": "2024-12-15", "timeSlots": [{"time": "10:00", "available": 5}, {"time": "11:00", "available": 3}, {"time": "14:00", "available": 8}], "operatingHours": {"start": "09:00", "end": "18:00"}, "closed": false, "maximumBookings": 20, "currentBookings": 5}'
+        content_data = {
+            "scheduleId": "SCH123",
+            "activityId": "ACT123",
+            "scheduleDate": "2024-12-15",
+            "timeSlots": [
+                {"time": "10:00", "available": 5},
+                {"time": "11:00", "available": 3},
+                {"time": "14:00", "available": 8},
+            ],
+            "operatingHours": {"start": "09:00", "end": "18:00"},
+            "closed": False,
+            "maximumBookings": 20,
+            "currentBookings": 5,
+        }
+        mock_response.content = json.dumps(content_data).encode()
         mock_response.headers = {"content-type": "application/json"}
         mock_response.url = "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/activities/ACT123/schedule/2024-12-15"
         mock_response.request = Mock(method="GET")
@@ -239,7 +293,12 @@ class TestActivitiesClient:
             "status": "cancelled",
             "cancellationDate": "2024-12-10T10:30:00Z",
         }
-        mock_response.content = b'{"bookingId": "BK123456", "status": "cancelled", "cancellationDate": "2024-12-10T10:30:00Z"}'
+        content_data = {
+            "bookingId": "BK123456",
+            "status": "cancelled",
+            "cancellationDate": "2024-12-10T10:30:00Z",
+        }
+        mock_response.content = json.dumps(content_data).encode()
         mock_response.headers = {"content-type": "application/json"}
         mock_response.url = (
             "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/bookings/BK123456/cancel"

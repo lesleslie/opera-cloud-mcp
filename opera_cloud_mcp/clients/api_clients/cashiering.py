@@ -61,8 +61,8 @@ class PaymentRequest(OperaBaseModel):
     comments: str | None = None
 
     @validator("card_number")
-    def validate_card_number(cls, v, values):
-        if values.get("payment_method") in ["CREDIT", "DEBIT"] and not v:
+    def validate_card_number(self, v, values):
+        if values.get("payment_method") in ("CREDIT", "DEBIT") and not v:
             raise ValueError("Card number required for credit/debit payments")
         return v
 
@@ -253,13 +253,17 @@ class CashieringClient(BaseAPIClient):
         }
 
         # Add payment method specific fields
-        if payment_data.payment_method in ["CREDIT", "DEBIT"]:
+        if payment_data.payment_method in ("CREDIT", "DEBIT"):
             payload.update(
                 {
                     "cardNumber": payment_data.card_number,
                     "cardHolderName": payment_data.card_holder_name,
-                    "expiryMonth": payment_data.expiry_month,
-                    "expiryYear": payment_data.expiry_year,
+                    "expiryMonth": str(payment_data.expiry_month)
+                    if payment_data.expiry_month
+                    else None,
+                    "expiryYear": str(payment_data.expiry_year)
+                    if payment_data.expiry_year
+                    else None,
                     "cvv": payment_data.cvv,
                 }
             )
@@ -318,7 +322,10 @@ class CashieringClient(BaseAPIClient):
         Returns:
             APIResponse with capture confirmation
         """
-        endpoint = f"{self.api_domain}/v1/credit-cards/authorizations/{authorization_id}/capture"
+        endpoint = (
+            f"{self.api_domain}/v1/credit-cards/authorizations/"
+            + f"{authorization_id}/capture"
+        )
 
         payload = {}
         if capture_amount:
@@ -596,9 +603,9 @@ class CashieringClient(BaseAPIClient):
                         "error": str(result),
                     }
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "confirmation_number": payments[i].confirmation_number,
@@ -703,9 +710,21 @@ class CashieringClient(BaseAPIClient):
             APIResponse with payment confirmation
         """
         payment_data = PaymentRequest(
-            confirmation_number=confirmation_number,
+            confirmationNumber=confirmation_number,
             amount=amount,
-            payment_method="CASH",
+            paymentMethod="CASH",
+            currency="USD",
+            folioType="master",
+            cardNumber=None,
+            cardHolderName=None,
+            expiryMonth=None,
+            expiryYear=None,
+            cvv=None,
+            checkNumber=None,
+            bankName=None,
+            routingNumber=None,
+            authorizationCode=None,
+            referenceNumber=None,
             comments=comments,
         )
 
@@ -727,16 +746,23 @@ class CashieringClient(BaseAPIClient):
             return summary_response
 
         summary_data = summary_response.data
-        is_settled = summary_data.get("outstandingBalance", 0) == 0
+        is_settled = (
+            summary_data.get("outstandingBalance", 0) == 0 if summary_data else False
+        )
 
         return APIResponse(
             success=True,
             data={
                 "settled": is_settled,
-                "outstanding_balance": summary_data.get("outstandingBalance", 0),
-                "total_charges": summary_data.get("totalCharges", 0),
-                "total_payments": summary_data.get("totalPayments", 0),
-                "payment_summary": summary_data,
+                "outstanding_balance": summary_data.get("outstandingBalance", 0)
+                if summary_data
+                else 0,
+                "total_charges": summary_data.get("totalCharges", 0)
+                if summary_data
+                else 0,
+                "total_payments": summary_data.get("totalPayments", 0)
+                if summary_data
+                else 0,
             },
         )
 

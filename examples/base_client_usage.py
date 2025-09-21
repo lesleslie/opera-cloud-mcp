@@ -9,6 +9,7 @@ data transformation, and comprehensive error handling.
 
 import asyncio
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -35,10 +36,15 @@ async def main():
 
     # Initialize settings (you would normally set these in environment variables)
     settings = Settings(
-        opera_client_id="demo_client_id",
-        opera_client_secret="demo_secret_value",
-        opera_token_url="https://api.oracle-hospitality.com/oauth/v1/tokens",
-        opera_base_url="https://api.oracle-hospitality.com",
+        opera_client_id=os.getenv("OPERA_CLIENT_ID", "your_client_id"),
+        opera_client_secret=os.getenv("OPERA_CLIENT_SECRET", "your_client_secret"),
+        opera_token_url=os.getenv(
+            "OPERA_TOKEN_URL",
+            "https://your-domain.oracle-hospitality.com/oauth/v1/tokens",
+        ),
+        opera_base_url=os.getenv(
+            "OPERA_BASE_URL", "https://your-domain.oracle-hospitality.com"
+        ),
         opera_api_version="v1",
         request_timeout=30,
         max_retries=3,
@@ -94,7 +100,7 @@ async def main():
                 if not date_str:
                     return ""
                 try:
-                    dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                    dt = datetime.fromisoformat(date_str)
                     return dt.strftime("%Y-%m-%d %H:%M:%S UTC")
                 except (ValueError, TypeError):
                     return date_str

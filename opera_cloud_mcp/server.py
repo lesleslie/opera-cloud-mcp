@@ -28,7 +28,7 @@ register_financial_tools(app)
 
 def main() -> None:
     """Main entry point for running the server."""
-    asyncio.run(app.run())
+    asyncio.run(app.run())  # type: ignore[func-returns-value]
 
 
 if __name__ == "__main__":

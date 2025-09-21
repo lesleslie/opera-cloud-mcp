@@ -13,8 +13,255 @@ from opera_cloud_mcp.utils.client_factory import create_crm_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
 
 
-def register_guest_tools(app: FastMCP):
-    """Register all guest profile management MCP tools."""
+def _validate_search_guests_params(hotel_id: str | None, limit: int) -> None:
+    """Validate search guests parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if limit < 1 or limit > 100:
+        raise ValidationError("limit must be between 1 and 100")
+
+
+def _validate_search_guests_criteria(
+    first_name: str | None,
+    last_name: str | None,
+    email: str | None,
+    phone: str | None,
+    loyalty_number: str | None,
+    company_name: str | None,
+) -> None:
+    """Validate that at least one search criteria is provided."""
+    if not any([first_name, last_name, email, phone, loyalty_number, company_name]):
+        raise ValidationError("At least one search criteria must be provided")
+
+
+def _validate_get_guest_profile_params(hotel_id: str | None) -> None:
+    """Validate get guest profile parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _validate_create_guest_profile_params(hotel_id: str | None) -> None:
+    """Validate create guest profile parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_profile_data(
+    first_name: str,
+    last_name: str,
+    email: str | None,
+    phone: str | None,
+    address_line1: str | None,
+    address_line2: str | None,
+    city: str | None,
+    state: str | None,
+    postal_code: str | None,
+    country: str | None,
+    date_of_birth: str | None,
+    gender: str | None,
+    nationality: str | None,
+    language: str | None,
+    company_name: str | None,
+    loyalty_number: str | None,
+) -> dict[str, Any]:
+    """Build profile data dictionary."""
+    profile_data = {"firstName": first_name, "lastName": last_name}
+
+    # Add optional fields
+    optional_fields = {
+        "email": email,
+        "phoneNumber": phone,
+        "addressLine1": address_line1,
+        "addressLine2": address_line2,
+        "city": city,
+        "state": state,
+        "postalCode": postal_code,
+        "country": country,
+        "dateOfBirth": date_of_birth,
+        "gender": gender,
+        "nationality": nationality,
+        "language": language,
+        "companyName": company_name,
+        "loyaltyNumber": loyalty_number,
+    }
+
+    for key, value in optional_fields.items():
+        if value is not None:
+            profile_data[key] = value
+
+    return profile_data
+
+
+def _validate_update_guest_profile_params(hotel_id: str | None) -> None:
+    """Validate update guest profile parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_update_data(
+    first_name: str | None,
+    last_name: str | None,
+    email: str | None,
+    phone: str | None,
+    address_line1: str | None,
+    address_line2: str | None,
+    city: str | None,
+    state: str | None,
+    postal_code: str | None,
+    country: str | None,
+    date_of_birth: str | None,
+    gender: str | None,
+    nationality: str | None,
+    language: str | None,
+    company_name: str | None,
+    loyalty_number: str | None,
+) -> dict[str, Any]:
+    """Build update data dictionary."""
+    updates = {}
+    update_fields = {
+        "firstName": first_name,
+        "lastName": last_name,
+        "email": email,
+        "phoneNumber": phone,
+        "addressLine1": address_line1,
+        "addressLine2": address_line2,
+        "city": city,
+        "state": state,
+        "postalCode": postal_code,
+        "country": country,
+        "dateOfBirth": date_of_birth,
+        "gender": gender,
+        "nationality": nationality,
+        "language": language,
+        "companyName": company_name,
+        "loyaltyNumber": loyalty_number,
+    }
+
+    for key, value in update_fields.items():
+        if value is not None:
+            updates[key] = value
+
+    return updates
+
+
+def _validate_get_guest_preferences_params(hotel_id: str | None) -> None:
+    """Validate get guest preferences parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _validate_update_guest_preferences_params(
+    hotel_id: str | None, preferences: list[dict[str, Any]]
+) -> None:
+    """Validate update guest preferences parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if not preferences:
+        raise ValidationError("At least one preference must be provided")
+
+    # Validate preference format
+    for pref in preferences:
+        if not all(key in pref for key in ("category", "type", "value")):
+            raise ValidationError(
+                "Each preference must have 'category', 'type', and 'value' fields"
+            )
+
+
+def _validate_get_guest_stay_history_params(hotel_id: str | None) -> None:
+    """Validate get guest stay history parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_history_params(
+    date_from: str | None, date_to: str | None, limit: int
+) -> dict[str, str | int]:
+    """Build history parameters dictionary."""
+    history_params: dict[str, str | int] = {"limit": limit}
+    if date_from:
+        history_params["dateFrom"] = date_from
+    if date_to:
+        history_params["dateTo"] = date_to
+
+    return history_params
+
+
+def _validate_merge_guest_profiles_params(
+    hotel_id: str | None, primary_guest_id: str, duplicate_guest_id: str
+) -> None:
+    """Validate merge guest profiles parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if primary_guest_id == duplicate_guest_id:
+        raise ValidationError("Primary and duplicate guest IDs cannot be the same")
+
+
+def _build_merge_options(
+    merge_preferences: bool, merge_history: bool, merge_loyalty: bool
+) -> dict[str, bool]:
+    """Build merge options dictionary."""
+    return {
+        "mergePreferences": merge_preferences,
+        "mergeHistory": merge_history,
+        "mergeLoyalty": merge_loyalty,
+    }
+
+
+def _validate_get_guest_loyalty_info_params(hotel_id: str | None) -> None:
+    """Validate get guest loyalty info parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_search_name(first_name: str | None, last_name: str | None) -> str | None:
+    """Build search name by combining first and last names."""
+    name_parts = []
+    if first_name:
+        name_parts.append(first_name)
+    if last_name:
+        name_parts.append(last_name)
+    return " ".join(name_parts) if name_parts else None
+
+
+def _build_address_data(
+    address_line1: str | None,
+    address_line2: str | None,
+    city: str | None,
+    state: str | None,
+    postal_code: str | None,
+    country: str | None,
+) -> dict[str, str | None] | None:
+    """Build address dictionary if any address fields are provided."""
+    if any([address_line1, city, state, postal_code, country]):
+        return {
+            "addressLine1": address_line1,
+            "addressLine2": address_line2,
+            "city": city,
+            "state": state,
+            "postalCode": postal_code,
+            "country": country,
+        }
+    return None
+
+
+def _parse_birth_date(date_of_birth: str | None) -> Any:
+    """Parse birth date string to date object if provided."""
+    if not date_of_birth:
+        return None
+
+    from contextlib import suppress
+    from datetime import datetime
+
+    with suppress(ValueError):
+        return datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+    return None
+
+
+def _register_search_guests_tool(app: FastMCP) -> None:
+    """Register the search_guests tool."""
 
     @app.tool()
     async def search_guests(
@@ -43,50 +290,50 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing matching guest profiles
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if limit < 1 or limit > 100:
-            raise ValidationError("limit must be between 1 and 100")
-
-        # At least one search criteria must be provided
-        if not any([first_name, last_name, email, phone, loyalty_number, company_name]):
-            raise ValidationError("At least one search criteria must be provided")
+        _validate_search_guests_params(hotel_id, limit)
+        _validate_search_guests_criteria(
+            first_name, last_name, email, phone, loyalty_number, company_name
+        )
 
         client = create_crm_client(hotel_id=hotel_id)
+        search_name = _build_search_name(first_name, last_name)
 
-        search_criteria = {"limit": limit}
-        if first_name:
-            search_criteria["firstName"] = first_name
-        if last_name:
-            search_criteria["lastName"] = last_name
-        if email:
-            search_criteria["email"] = email
-        if phone:
-            search_criteria["phone"] = phone
-        if loyalty_number:
-            search_criteria["loyaltyNumber"] = loyalty_number
-        if company_name:
-            search_criteria["companyName"] = company_name
+        response = await client.search_guests(
+            name=search_name,
+            email=email,
+            phone=phone,
+            loyalty_number=loyalty_number,
+            page_size=min(limit, 100),
+        )
 
-        response = await client.search_guests(search_criteria)
+        search_criteria = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+            "loyalty_number": loyalty_number,
+            "limit": limit,
+        }
 
         if response.success:
+            data = response.data or {}
             return {
                 "success": True,
-                "guests": response.data.get("profiles", []),
-                "total_count": response.data.get("total_count", 0),
+                "guests": data.get("profiles", []),
+                "total_count": data.get("total_count", 0),
                 "search_criteria": search_criteria,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "search_criteria": search_criteria,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error or "Unknown error occurred",
+            "search_criteria": search_criteria,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_get_guest_profile_tool(app: FastMCP) -> None:
+    """Register the get_guest_profile tool."""
 
     @app.tool()
     async def get_guest_profile(
@@ -109,9 +356,7 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing complete guest profile
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_guest_profile_params(hotel_id)
 
         client = create_crm_client(hotel_id=hotel_id)
 
@@ -129,13 +374,16 @@ def register_guest_tools(app: FastMCP):
                 "guest_id": guest_id,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_create_guest_profile_tool(app: FastMCP) -> None:
+    """Register the create_guest_profile tool."""
 
     @app.tool()
     async def create_guest_profile(
@@ -182,52 +430,44 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing new guest profile details
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_create_guest_profile_params(hotel_id)
 
         client = create_crm_client(hotel_id=hotel_id)
 
-        profile_data = {"firstName": first_name, "lastName": last_name}
+        address_data = _build_address_data(
+            address_line1, address_line2, city, state, postal_code, country
+        )
+        birth_date_obj = _parse_birth_date(date_of_birth)
 
-        # Add optional fields
-        optional_fields = {
-            "email": email,
-            "phoneNumber": phone,
-            "addressLine1": address_line1,
-            "addressLine2": address_line2,
-            "city": city,
-            "state": state,
-            "postalCode": postal_code,
-            "country": country,
-            "dateOfBirth": date_of_birth,
-            "gender": gender,
-            "nationality": nationality,
-            "language": language,
-            "companyName": company_name,
-            "loyaltyNumber": loyalty_number,
-        }
-
-        for key, value in optional_fields.items():
-            if value is not None:
-                profile_data[key] = value
-
-        response = await client.create_guest_profile(profile_data)
+        response = await client.create_guest_profile(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            address=address_data,
+            birth_date=birth_date_obj,
+            gender=gender,
+            nationality=nationality,
+            language=language,
+        )
 
         if response.success:
             return {
                 "success": True,
                 "guest_profile": response.data,
-                "guest_id": response.data.get("guestId"),
+                "guest_id": response.data.get("guestId") if response.data else None,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "hotel_id": hotel_id,
-                "guest_name": f"{first_name} {last_name}",
-            }
+        return {
+            "success": False,
+            "error": response.error or "Unknown error occurred",
+            "hotel_id": hotel_id,
+            "guest_name": f"{first_name} {last_name}",
+        }
+
+
+def _register_update_guest_profile_tool(app: FastMCP) -> None:
+    """Register the update_guest_profile tool."""
 
     @app.tool()
     async def update_guest_profile(
@@ -276,34 +516,27 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing updated guest profile
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_update_guest_profile_params(hotel_id)
 
         # Build update data from provided fields
-        updates = {}
-        update_fields = {
-            "firstName": first_name,
-            "lastName": last_name,
-            "email": email,
-            "phoneNumber": phone,
-            "addressLine1": address_line1,
-            "addressLine2": address_line2,
-            "city": city,
-            "state": state,
-            "postalCode": postal_code,
-            "country": country,
-            "dateOfBirth": date_of_birth,
-            "gender": gender,
-            "nationality": nationality,
-            "language": language,
-            "companyName": company_name,
-            "loyaltyNumber": loyalty_number,
-        }
-
-        for key, value in update_fields.items():
-            if value is not None:
-                updates[key] = value
+        updates = _build_update_data(
+            first_name,
+            last_name,
+            email,
+            phone,
+            address_line1,
+            address_line2,
+            city,
+            state,
+            postal_code,
+            country,
+            date_of_birth,
+            gender,
+            nationality,
+            language,
+            company_name,
+            loyalty_number,
+        )
 
         if not updates:
             raise ValidationError("At least one field must be provided for update")
@@ -320,13 +553,16 @@ def register_guest_tools(app: FastMCP):
                 "updates_applied": updates,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_get_guest_preferences_tool(app: FastMCP) -> None:
+    """Register get guest preferences tool."""
 
     @app.tool()
     async def get_guest_preferences(
@@ -345,9 +581,7 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing guest preferences
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_guest_preferences_params(hotel_id)
 
         client = create_crm_client(hotel_id=hotel_id)
 
@@ -355,22 +589,30 @@ def register_guest_tools(app: FastMCP):
         if preference_category:
             params["category"] = preference_category
 
-        response = await client.get_guest_preferences(guest_id, params)
+        # Extract preference_type from params if provided
+        preference_type = params.get("type") if params else None
+
+        response = await client.get_guest_preferences(guest_id, preference_type)
 
         if response.success:
             return {
                 "success": True,
-                "preferences": response.data.get("preferences", []),
+                "preferences": response.data.get("preferences", [])
+                if response.data
+                else [],
                 "guest_id": guest_id,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_update_guest_preferences_tool(app: FastMCP) -> None:
+    """Register update guest preferences tool."""
 
     @app.tool()
     async def update_guest_preferences(
@@ -386,33 +628,22 @@ def register_guest_tools(app: FastMCP):
 
         Example preferences format:
             [
-                {"category": "room", "type": "floor_preference", "value": "high"},
-                {"category": "dining", "type": "dietary_restriction", "value": "vegetarian"},
-                {"category": "amenities", "type": "pillow_type", "value": "hypoallergenic"}
+                {"category": "room", "type": "floor_preference",
+                 "value": "high"},
+                {"category": "dining", "type": "dietary_restriction",
+                 "value": "vegetarian"},
+                {"category": "amenities", "type": "pillow_type",
+                 "value": "hypoallergenic"}
             ]
 
         Returns:
             Dictionary containing updated preferences
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if not preferences:
-            raise ValidationError("At least one preference must be provided")
-
-        # Validate preference format
-        for pref in preferences:
-            if not all(key in pref for key in ["category", "type", "value"]):
-                raise ValidationError(
-                    "Each preference must have 'category', 'type', and 'value' fields"
-                )
+        _validate_update_guest_preferences_params(hotel_id, preferences)
 
         client = create_crm_client(hotel_id=hotel_id)
 
-        response = await client.update_guest_preferences(
-            guest_id, {"preferences": preferences}
-        )
+        response = await client.update_guest_preferences(guest_id, preferences)
 
         if response.success:
             return {
@@ -421,13 +652,16 @@ def register_guest_tools(app: FastMCP):
                 "guest_id": guest_id,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error or "Unknown error occurred",
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_get_guest_stay_history_tool(app: FastMCP) -> None:
+    """Register get guest stay history tool."""
 
     @app.tool()
     async def get_guest_stay_history(
@@ -450,35 +684,33 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing guest's historical stays
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_guest_stay_history_params(hotel_id)
 
         client = create_crm_client(hotel_id=hotel_id)
 
-        history_params = {"limit": limit}
-        if date_from:
-            history_params["dateFrom"] = date_from
-        if date_to:
-            history_params["dateTo"] = date_to
+        history_params = _build_history_params(date_from, date_to, limit)
 
         response = await client.get_guest_stay_history(guest_id, history_params)
 
         if response.success:
+            data = response.data or {}
             return {
                 "success": True,
-                "stay_history": response.data.get("stays", []),
-                "total_stays": response.data.get("total_count", 0),
+                "stay_history": data.get("stays", []),
+                "total_count": data.get("total_count", 0),
                 "guest_id": guest_id,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_merge_guest_profiles_tool(app: FastMCP) -> None:
+    """Register merge guest profiles tool."""
 
     @app.tool()
     async def merge_guest_profiles(
@@ -503,20 +735,15 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing merge operation results
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if primary_guest_id == duplicate_guest_id:
-            raise ValidationError("Primary and duplicate guest IDs cannot be the same")
+        _validate_merge_guest_profiles_params(
+            hotel_id, primary_guest_id, duplicate_guest_id
+        )
 
         client = create_crm_client(hotel_id=hotel_id)
 
-        merge_options = {
-            "mergePreferences": merge_preferences,
-            "mergeHistory": merge_history,
-            "mergeLoyalty": merge_loyalty,
-        }
+        merge_options = _build_merge_options(
+            merge_preferences, merge_history, merge_loyalty
+        )
 
         response = await client.merge_guest_profiles(
             primary_guest_id, duplicate_guest_id, merge_options
@@ -531,14 +758,17 @@ def register_guest_tools(app: FastMCP):
                 "merge_options": merge_options,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "primary_guest_id": primary_guest_id,
-                "duplicate_guest_id": duplicate_guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "primary_guest_id": primary_guest_id,
+            "duplicate_guest_id": duplicate_guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_get_guest_loyalty_info_tool(app: FastMCP) -> None:
+    """Register get guest loyalty info tool."""
 
     @app.tool()
     async def get_guest_loyalty_info(
@@ -554,9 +784,7 @@ def register_guest_tools(app: FastMCP):
         Returns:
             Dictionary containing loyalty program details
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_guest_loyalty_info_params(hotel_id)
 
         client = create_crm_client(hotel_id=hotel_id)
 
@@ -569,10 +797,22 @@ def register_guest_tools(app: FastMCP):
                 "guest_id": guest_id,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "guest_id": guest_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "guest_id": guest_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_guest_tools(app: FastMCP) -> None:
+    """Register all guest profile management MCP tools."""
+    _register_search_guests_tool(app)
+    _register_get_guest_profile_tool(app)
+    _register_create_guest_profile_tool(app)
+    _register_update_guest_profile_tool(app)
+    _register_get_guest_preferences_tool(app)
+    _register_update_guest_preferences_tool(app)
+    _register_get_guest_stay_history_tool(app)
+    _register_merge_guest_profiles_tool(app)
+    _register_get_guest_loyalty_info_tool(app)

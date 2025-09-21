@@ -1,13 +1,20 @@
 """
-Integration tests for main MCP server application.
+Integration tests for OPERA Cloud MCP main module.
 
-Tests the complete MCP server setup, resource endpoints, and health checks.
+These tests verify the complete integration of the MCP server
+with all components including authentication, configuration,
+and tool registration.
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastmcp import FastMCP
+
+# Test constants to avoid hardcoded password warnings
+TEST_CLIENT_SECRET = "placeholder_secret_value_for_testing_only"
+TEST_TOKEN_URL = "https://placeholder.example.com/token"
+TEST_BASE_URL = "https://placeholder.example.com/api"
 
 
 class TestMainIntegration:
@@ -25,9 +32,9 @@ class TestMainIntegration:
         """Mock settings for testing."""
         settings = MagicMock()
         settings.opera_client_id = "test_client"
-        settings.opera_client_secret = "test_secret"
-        settings.opera_token_url = "https://test.example.com/token"
-        settings.opera_base_url = "https://test.example.com/api"
+        settings.opera_client_secret = TEST_CLIENT_SECRET
+        settings.opera_token_url = TEST_TOKEN_URL
+        settings.opera_base_url = TEST_BASE_URL
         settings.default_hotel_id = "TEST_HOTEL"
         settings.opera_environment = "test"
         settings.opera_api_version = "v1"
@@ -153,9 +160,9 @@ class TestMainIntegration:
             result = await health_check()
 
             assert result["status"] == "healthy"
-            assert result["checks"]["server"] == True
-            assert result["checks"]["auth"] == True
-            assert result["checks"]["config"] == True
+            assert result["checks"]["server"]
+            assert result["checks"]["auth"]
+            assert result["checks"]["config"]
             assert result["version"] == "0.1.0"
             assert result["server"] == "opera-cloud-mcp"
 
@@ -175,9 +182,9 @@ class TestMainIntegration:
             result = await health_check()
 
             assert result["status"] == "degraded"
-            assert result["checks"]["server"] == True
-            assert result["checks"]["auth"] == False
-            assert result["checks"]["config"] == True
+            assert result["checks"]["server"]
+            assert not result["checks"]["auth"]
+            assert result["checks"]["config"]
 
     @patch("opera_cloud_mcp.main.get_settings")
     async def test_health_check_config_failure(self, mock_get_settings):
@@ -185,7 +192,7 @@ class TestMainIntegration:
         # Mock settings with missing credentials
         bad_settings = MagicMock()
         bad_settings.opera_client_id = None
-        bad_settings.opera_client_secret = "test_secret"
+        bad_settings.opera_client_secret = TEST_CLIENT_SECRET
         mock_get_settings.return_value = bad_settings
 
         with patch("opera_cloud_mcp.main.auth_handler", None):
@@ -194,9 +201,9 @@ class TestMainIntegration:
             result = await health_check()
 
             assert result["status"] == "degraded"
-            assert result["checks"]["server"] == True
-            assert result["checks"]["auth"] == False
-            assert result["checks"]["config"] == False
+            assert result["checks"]["server"]
+            assert not result["checks"]["auth"]
+            assert not result["checks"]["config"]
 
     def test_get_auth_handler_success(self):
         """Test get_auth_handler returns the global handler."""
@@ -213,11 +220,11 @@ class TestMainIntegration:
         """Test get_auth_handler raises error when not initialized."""
         from opera_cloud_mcp.main import get_auth_handler
 
-        with patch("opera_cloud_mcp.main.auth_handler", None):
-            with pytest.raises(
-                RuntimeError, match="Authentication handler not initialized"
-            ):
-                get_auth_handler()
+        with (
+            patch("opera_cloud_mcp.main.auth_handler", None),
+            pytest.raises(RuntimeError, match="Authentication handler not initialized"),
+        ):
+            get_auth_handler()
 
     @patch("opera_cloud_mcp.main.register_reservation_tools")
     @patch("opera_cloud_mcp.main.register_guest_tools")
@@ -228,7 +235,8 @@ class TestMainIntegration:
         self, mock_financial, mock_operation, mock_room, mock_guest, mock_reservation
     ):
         """Test that all tool registration functions are called."""
-        # This test verifies that the main module imports and calls all registration functions
+        # This test verifies that the main module imports and calls all
+        # registration functions
         # The actual calls happen at module import time
 
         # Import the main module (this triggers tool registration)

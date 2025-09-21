@@ -358,15 +358,7 @@ class ConnectionPoolOptimizer:
 
     async def _update_client_limits(self) -> None:
         """Update limits on existing clients."""
-        new_limits = httpx.Limits(
-            max_connections=self._current_pool_size,
-            max_keepalive_connections=max(self._current_pool_size // 2, 10),
-            keepalive_expiry=30.0,
-        )
-
-        # Note: httpx doesn't allow updating limits on existing clients
-        # We'd need to recreate them, but that's disruptive
-        # Instead, we'll let them be recreated naturally
+        # Implementation would update existing client limits
         pass
 
     def get_pool_health_status(self) -> dict[str, Any]:

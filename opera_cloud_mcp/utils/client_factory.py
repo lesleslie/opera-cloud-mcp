@@ -6,6 +6,8 @@ authentication and configuration, avoiding circular imports.
 """
 
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
+from opera_cloud_mcp.clients.api_clients.crm import CRMClient
+from opera_cloud_mcp.clients.api_clients.reservations import ReservationsClient
 from opera_cloud_mcp.config.settings import Settings, get_settings
 
 # Global instances to avoid recreation
@@ -30,13 +32,12 @@ def get_oauth_handler() -> OAuthHandler:
             client_id=_settings.opera_client_id,
             client_secret=_settings.opera_client_secret,
             token_url=_settings.opera_token_url,
-            base_url=_settings.opera_base_url,
         )
 
     return _oauth_handler
 
 
-def create_reservations_client(hotel_id: str | None = None):
+def create_reservations_client(hotel_id: str | None = None) -> ReservationsClient:
     """
     Create a ReservationsClient instance.
 
@@ -46,20 +47,20 @@ def create_reservations_client(hotel_id: str | None = None):
     Returns:
         ReservationsClient instance
     """
-    from opera_cloud_mcp.clients.api_clients.reservations import ReservationsClient
-
     settings = get_settings()
     auth_handler = get_oauth_handler()
 
     if hotel_id is None:
         hotel_id = settings.default_hotel_id
 
+    if hotel_id is None:
+        raise ValueError("Hotel ID must be provided or set in settings")
     return ReservationsClient(
         auth_handler=auth_handler, hotel_id=hotel_id, settings=settings
     )
 
 
-def create_crm_client(hotel_id: str | None = None):
+def create_crm_client(hotel_id: str | None = None) -> CRMClient:
     """
     Create a CRMClient instance.
 
@@ -69,14 +70,14 @@ def create_crm_client(hotel_id: str | None = None):
     Returns:
         CRMClient instance
     """
-    from opera_cloud_mcp.clients.api_clients.crm import CRMClient
-
     settings = get_settings()
     auth_handler = get_oauth_handler()
 
     if hotel_id is None:
         hotel_id = settings.default_hotel_id
 
+    if hotel_id is None:
+        raise ValueError("Hotel ID must be provided or set in settings")
     return CRMClient(auth_handler=auth_handler, hotel_id=hotel_id, settings=settings)
 
 

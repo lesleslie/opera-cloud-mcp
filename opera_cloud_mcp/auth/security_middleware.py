@@ -81,35 +81,61 @@ class ThreatDetector:
         Returns:
             Tuple of (risk_score, threat_indicators)
         """
-        risk_score = 0
-        threats = []
+        # Perform all threat analyses in parallel
+        analysis_results = await asyncio.gather(
+            self._analyze_ip_threats(context),
+            self._analyze_user_agent_threats(context),
+            self._analyze_frequency_threats(context),
+            self._analyze_behavioral_patterns(context),
+            return_exceptions=True,
+        )
 
-        # IP-based analysis
+        # Handle any exceptions and combine results
+        risk_scores = []
+        all_threats = []
+
+        for result in analysis_results:
+            if isinstance(result, Exception):
+                logger.warning(f"Threat analysis failed: {result}")
+                continue
+            elif isinstance(result, tuple) and len(result) == 2:
+                risk_score, threats = result
+                risk_scores.append(risk_score)
+                all_threats.extend(threats)
+
+        # Combine all threats with a maximum cap
+        total_risk = sum(risk_scores)
+        return min(100, total_risk), all_threats
+
+    async def _analyze_ip_threats(
+        self, context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze IP-based threats."""
         if context.ip_address:
-            ip_risk, ip_threats = await self._analyze_ip_address(context.ip_address)
-            risk_score += ip_risk
-            threats.extend(ip_threats)
+            return await self._analyze_ip_address(context.ip_address)
+        return 0, []
 
-        # User agent analysis
+    async def _analyze_user_agent_threats(
+        self, context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze user agent threats."""
         if context.user_agent:
-            ua_risk, ua_threats = self._analyze_user_agent(context.user_agent)
-            risk_score += ua_risk
-            threats.extend(ua_threats)
+            return self._analyze_user_agent(context.user_agent)
+        return 0, []
 
-        # Request frequency analysis
-        freq_risk, freq_threats = await self._analyze_request_frequency(context)
-        risk_score += freq_risk
-        threats.extend(freq_threats)
+    async def _analyze_frequency_threats(
+        self, context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze request frequency threats."""
+        return await self._analyze_request_frequency(context)
 
-        # Behavioral pattern analysis
+    async def _analyze_behavioral_threats(
+        self, context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze behavioral pattern threats."""
         if self.settings.enable_anomaly_detection:
-            behavior_risk, behavior_threats = await self._analyze_behavioral_patterns(
-                context
-            )
-            risk_score += behavior_risk
-            threats.extend(behavior_threats)
-
-        return min(100, risk_score), threats
+            return await self._analyze_behavioral_patterns(context)
+        return 0, []
 
     async def _analyze_ip_address(self, ip_address: str) -> tuple[int, list[str]]:
         """Analyze IP address for threats."""
@@ -120,10 +146,13 @@ class ThreatDetector:
             ip = ipaddress.ip_address(ip_address)
 
             # Check for private/local addresses in production
-            if self.settings.require_https and (ip.is_private or ip.is_loopback):
-                if not self.settings.security_testing_mode:
-                    risk_score += 20
-                    threats.append("private_ip_in_production")
+            if (
+                self.settings.require_https
+                and (ip.is_private or ip.is_loopback)
+                and not self.settings.security_testing_mode
+            ):
+                risk_score += 20
+                threats.append("private_ip_in_production")
 
             # Check for known malicious ranges (this would normally use threat intel)
             if self._is_suspicious_ip_range(ip):
@@ -222,7 +251,7 @@ class ThreatDetector:
     ) -> tuple[int, list[str]]:
         """Analyze request frequency patterns."""
         risk_score = 0
-        threats = []
+        threats: list[str] = []
 
         if not context.client_id:
             return risk_score, threats
@@ -267,27 +296,27 @@ class ThreatDetector:
 
         return risk_score, threats
 
-    async def _analyze_behavioral_patterns(
-        self, context: SecurityContext
-    ) -> tuple[int, list[str]]:
-        """Analyze behavioral patterns for anomaly detection."""
-        risk_score = 0
-        threats = []
+    def _get_historical_events(self, context: SecurityContext) -> list[Any]:
+        """Get historical events for behavioral analysis."""
+        if not context.client_id:
+            return []
 
-        if not context.client_id or not self.settings.enable_anomaly_detection:
-            return risk_score, threats
-
-        # Get historical behavior pattern
-        historical_events = audit_logger.get_audit_trail(
+        return audit_logger.get_audit_trail(
             client_id=context.client_id,
             hours=24 * 7,  # Last week
             success_only=True,
         )
 
+    def _analyze_time_based_patterns(
+        self, historical_events: list[Any], context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze time-based patterns."""
+        risk_score = 0
+        threats: list[str] = []
+
         if len(historical_events) < 10:  # Not enough data
             return risk_score, threats
 
-        # Analyze time-based patterns
         request_hours = [event.timestamp.hour for event in historical_events]
         typical_hours = set(request_hours)
 
@@ -296,16 +325,41 @@ class ThreatDetector:
             risk_score += 15
             threats.append("unusual_request_time")
 
-        # Analyze IP patterns
-        historical_ips = set(
-            event.ip_address for event in historical_events if event.ip_address
-        )
-        if context.ip_address and context.ip_address not in historical_ips:
-            if len(historical_ips) > 0:  # Only if we have historical data
-                risk_score += 20
-                threats.append("unusual_source_ip")
+        return risk_score, threats
 
-        # Check for rapid pattern changes
+    def _analyze_ip_patterns(
+        self, historical_events: list[Any], context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze IP pattern anomalies."""
+        risk_score = 0
+        threats: list[str] = []
+
+        if len(historical_events) < 10:  # Not enough data
+            return risk_score, threats
+
+        historical_ips = {
+            event.ip_address for event in historical_events if event.ip_address
+        }
+        if (
+            context.ip_address
+            and context.ip_address not in historical_ips
+            and historical_ips
+        ):  # Only if we have historical data
+            risk_score += 20
+            threats.append("unusual_source_ip")
+
+        return risk_score, threats
+
+    def _analyze_activity_spikes(
+        self, historical_events: list[Any]
+    ) -> tuple[int, list[str]]:
+        """Analyze unusual activity spikes."""
+        risk_score = 0
+        threats: list[str] = []
+
+        if len(historical_events) < 10:  # Not enough data
+            return risk_score, threats
+
         recent_events = [
             e
             for e in historical_events
@@ -317,6 +371,40 @@ class ThreatDetector:
         ):  # 30% of total activity in 2 hours
             risk_score += 25
             threats.append("unusual_activity_spike")
+
+        return risk_score, threats
+
+    async def _analyze_behavioral_patterns(
+        self, context: SecurityContext
+    ) -> tuple[int, list[str]]:
+        """Analyze behavioral patterns for anomaly detection."""
+        risk_score = 0
+        threats: list[str] = []
+
+        if not context.client_id or not self.settings.enable_anomaly_detection:
+            return risk_score, threats
+
+        # Get historical behavior pattern
+        historical_events = self._get_historical_events(context)
+        if len(historical_events) < 10:  # Not enough data
+            return risk_score, threats
+
+        # Analyze time-based patterns
+        time_risk, time_threats = self._analyze_time_based_patterns(
+            historical_events, context
+        )
+        risk_score += time_risk
+        threats.extend(time_threats)
+
+        # Analyze IP patterns
+        ip_risk, ip_threats = self._analyze_ip_patterns(historical_events, context)
+        risk_score += ip_risk
+        threats.extend(ip_threats)
+
+        # Check for rapid pattern changes
+        spike_risk, spike_threats = self._analyze_activity_spikes(historical_events)
+        risk_score += spike_risk
+        threats.extend(spike_threats)
 
         return risk_score, threats
 
@@ -516,7 +604,7 @@ class SecurityMiddleware:
                 risk_score=50,
             )
 
-            raise SecurityError("Access denied: Invalid IP address")
+            raise SecurityError("Access denied: Invalid IP address") from None
 
     async def _check_blocked_entities(self, context: SecurityContext) -> None:
         """Check if IP or client is blocked."""
@@ -604,7 +692,8 @@ class SecurityMiddleware:
                     self._blocked_clients[context.client_id] = now + block_duration
 
                 logger.warning(
-                    f"Temporarily blocked {rate_limit_key} for severe rate limit violation"
+                    f"Temporarily blocked {rate_limit_key} "
+                    + "for severe rate limit violation"
                 )
 
             oldest_request = min(self._rate_limits[rate_limit_key])
@@ -701,7 +790,8 @@ class SecurityMiddleware:
         # Email notification would be implemented here
         if self.settings.security_notification_email:
             logger.info(
-                f"Security incident notification needed for {self.settings.security_notification_email}"
+                "Security incident notification needed for "
+                + str(self.settings.security_notification_email)
             )
 
     def get_security_status(self) -> dict[str, Any]:

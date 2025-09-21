@@ -7,6 +7,7 @@ the MCP server and its dependencies.
 
 import asyncio
 import logging
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -15,8 +16,69 @@ from opera_cloud_mcp.main import app, get_settings, oauth_handler
 logger = logging.getLogger(__name__)
 
 
-@app.resource("health://status")
-async def health_status():
+def _check_authentication(oauth_handler) -> dict[str, Any]:
+    """Check authentication status."""
+    if not oauth_handler:
+        return {
+            "status": "not_initialized",
+        }
+
+    try:
+        token_info = oauth_handler.get_token_info()
+        auth_check = {
+            "has_token": token_info["has_token"],
+            "status": token_info["status"],
+            "refresh_count": token_info["refresh_count"],
+            "expires_in": token_info.get("expires_in"),
+        }
+
+        # Test token validity if we have one
+        if token_info["has_token"] and token_info["status"] in (
+            "valid",
+            "expiring_soon",
+        ):
+            auth_check["token_valid"] = True
+        else:
+            auth_check["token_valid"] = False
+
+        return auth_check
+
+    except Exception as e:
+        logger.warning(f"Authentication health check failed: {e}")
+        return {
+            "error": str(e),
+            "status": "error",
+        }
+
+
+def _check_observability() -> dict[str, Any]:
+    """Check observability status."""
+    try:
+        from opera_cloud_mcp.utils.observability import get_observability
+
+        observability = get_observability()
+        return observability.get_health_dashboard()
+    except Exception as e:
+        logger.debug(f"Observability not available: {e}")
+        return {"status": "not_initialized"}
+
+
+def _determine_overall_status(checks: dict[str, Any]) -> str:
+    """Determine overall health status."""
+    has_errors = False
+    if not checks["configuration"] or not checks["oauth_handler"]:
+        has_errors = True
+    if (
+        isinstance(checks.get("authentication"), dict)
+        and checks["authentication"].get("status") == "error"
+    ):
+        has_errors = True
+
+    return "unhealthy" if has_errors else "healthy"
+
+
+@app.resource("health://status/{component}")
+async def health_status(component: str = "all"):
     """
     Health check resource that provides detailed status information.
 
@@ -29,7 +91,8 @@ async def health_status():
         checks = {
             "mcp_server": True,
             "configuration": bool(
-                current_settings.opera_client_id
+                current_settings
+                and current_settings.opera_client_id
                 and current_settings.opera_client_secret
             ),
             "oauth_handler": oauth_handler is not None,
@@ -37,57 +100,13 @@ async def health_status():
         }
 
         # Test authentication if OAuth handler is available
-        if oauth_handler:
-            try:
-                token_info = oauth_handler.get_token_info()
-                checks["authentication"] = {
-                    "has_token": token_info["has_token"],
-                    "status": token_info["status"],
-                    "refresh_count": token_info["refresh_count"],
-                    "expires_in": token_info.get("expires_in"),
-                }
-
-                # Test token validity if we have one
-                if token_info["has_token"] and token_info["status"] in [
-                    "valid",
-                    "expiring_soon",
-                ]:
-                    checks["authentication"]["token_valid"] = True
-                else:
-                    checks["authentication"]["token_valid"] = False
-
-            except Exception as e:
-                logger.warning(f"Authentication health check failed: {e}")
-                checks["authentication"] = {
-                    "error": str(e),
-                    "status": "error",
-                }
-        else:
-            checks["authentication"] = {
-                "status": "not_initialized",
-            }
+        checks["authentication"] = _check_authentication(oauth_handler)
 
         # Add observability metrics if available
-        try:
-            from opera_cloud_mcp.utils.observability import get_observability
-
-            observability = get_observability()
-            checks["observability"] = observability.get_health_dashboard()
-        except Exception as e:
-            logger.debug(f"Observability not available: {e}")
-            checks["observability"] = {"status": "not_initialized"}
+        checks["observability"] = _check_observability()
 
         # Overall status
-        has_errors = False
-        if not checks["configuration"] or not checks["oauth_handler"]:
-            has_errors = True
-        if (
-            isinstance(checks.get("authentication"), dict)
-            and checks["authentication"].get("status") == "error"
-        ):
-            has_errors = True
-
-        status = "unhealthy" if has_errors else "healthy"
+        status = _determine_overall_status(checks)
 
         return {
             "status": status,
@@ -104,8 +123,8 @@ async def health_status():
         }
 
 
-@app.resource("health://ready")
-async def readiness_check():
+@app.resource("health://ready/{component}")
+async def readiness_check(component: str = "server"):
     """
     Readiness check resource that indicates if the service is ready to serve requests.
 
@@ -120,7 +139,9 @@ async def readiness_check():
         # Check if configuration is valid
         current_settings = get_settings()
         if not (
-            current_settings.opera_client_id and current_settings.opera_client_secret
+            current_settings
+            and current_settings.opera_client_id
+            and current_settings.opera_client_secret
         ):
             return {"status": "not_ready", "reason": "Missing required configuration"}
 
@@ -142,8 +163,8 @@ async def readiness_check():
         return {"status": "not_ready", "error": str(e)}
 
 
-@app.resource("health://live")
-async def liveness_check():
+@app.resource("health://live/{component}")
+async def liveness_check(component: str = "server"):
     """
     Liveness check resource that indicates if the service is alive.
 

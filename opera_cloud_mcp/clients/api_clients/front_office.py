@@ -9,7 +9,7 @@ import asyncio
 from datetime import date, datetime
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -28,7 +28,8 @@ class CheckInRequest(OperaBaseModel):
     credit_card_authorization: str | None = Field(None, alias="creditCardAuth")
     key_cards_issued: int = Field(1, alias="keyCardsIssued")
 
-    @validator("arrival_time", pre=True)
+    @field_validator("arrival_time", mode="before")
+    @classmethod
     def parse_arrival_time(cls, v):
         if isinstance(v, str):
             return datetime.fromisoformat(v)
@@ -47,7 +48,8 @@ class CheckOutRequest(OperaBaseModel):
     room_damages: str | None = Field(None, alias="roomDamages")
     guest_satisfaction: int | None = Field(None, alias="guestSatisfaction", ge=1, le=5)
 
-    @validator("departure_time", pre=True)
+    @field_validator("departure_time", mode="before")
+    @classmethod
     def parse_departure_time(cls, v):
         if isinstance(v, str):
             return datetime.fromisoformat(v)
@@ -128,7 +130,10 @@ class FrontOfficeClient(BaseAPIClient):
         if isinstance(check_in_data, dict):
             check_in_data = CheckInRequest.model_validate(check_in_data)
 
-        endpoint = f"{self.api_domain}/v1/reservations/{check_in_data.confirmation_number}/checkin"
+        endpoint = (
+            f"{self.api_domain}/v1/reservations/"
+            + f"{check_in_data.confirmation_number}/checkin"
+        )
 
         payload = {
             "roomNumber": check_in_data.room_number,
@@ -160,7 +165,10 @@ class FrontOfficeClient(BaseAPIClient):
         if isinstance(checkout_data, dict):
             checkout_data = CheckOutRequest.model_validate(checkout_data)
 
-        endpoint = f"{self.api_domain}/v1/reservations/{checkout_data.confirmation_number}/checkout"
+        endpoint = (
+            f"{self.api_domain}/v1/reservations/"
+            + f"{checkout_data.confirmation_number}/checkout"
+        )
 
         payload = {
             "roomNumber": checkout_data.room_number,
@@ -270,7 +278,8 @@ class FrontOfficeClient(BaseAPIClient):
 
         Args:
             report_date: Date for the report (defaults to today)
-            status_filter: Filter by status ('all', 'confirmed', 'checked_in', 'no_show')
+            status_filter: Filter by status ('all', 'confirmed',
+                          'checked_in', 'no_show')
             room_type: Filter by room type
 
         Returns:
@@ -417,9 +426,9 @@ class FrontOfficeClient(BaseAPIClient):
                         "error": str(result),
                     }
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "confirmation_number": check_in_list[i].confirmation_number,

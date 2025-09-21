@@ -16,7 +16,9 @@ from functools import wraps
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.tools import tool
+from fastmcp.tools.tool import Tool
+
+from opera_cloud_mcp.utils.exceptions import RateLimitError
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +124,7 @@ class ToolRegistry:
             },
         )
 
-    def register_tool(self, metadata: ToolMetadata, function: Callable) -> Callable:
+    def register_tool(self, metadata: ToolMetadata, function: Callable) -> Tool:
         """
         Register a tool with the registry and FastMCP.
 
@@ -140,10 +142,9 @@ class ToolRegistry:
         wrapped_function = self._create_tool_wrapper(function, metadata)
 
         # Register with FastMCP
-        fastmcp_tool_decorator = tool(
-            name=metadata.name, description=metadata.description
+        decorated_function = Tool.from_function(
+            wrapped_function, name=metadata.name, description=metadata.description
         )
-        decorated_function = fastmcp_tool_decorator(wrapped_function)
 
         # Store registration
         registration = ToolRegistration(
@@ -178,7 +179,8 @@ class ToolRegistry:
         # Check if async when required
         if metadata.async_execution and not asyncio.iscoroutinefunction(function):
             raise ValueError(
-                f"Tool {metadata.name} requires async execution but function is not async"
+                f"Tool {metadata.name} requires async execution "
+                + "but function is not async"
             )
 
         # Check for hotel_id parameter if hotel-specific
@@ -186,7 +188,8 @@ class ToolRegistry:
             params = list(sig.parameters.keys())
             if "hotel_id" not in params:
                 logger.warning(
-                    f"Hotel-specific tool {metadata.name} doesn't have hotel_id parameter"
+                    f"Hotel-specific tool {metadata.name} doesn't "
+                    + "have hotel_id parameter"
                 )
 
         # Validate return type hints
@@ -218,11 +221,10 @@ class ToolRegistry:
         registration = self.tools[metadata.name]
 
         # Check rate limits
-        if metadata.rate_limit_per_minute:
-            if not self._check_rate_limit(
-                metadata.name, metadata.rate_limit_per_minute
-            ):
-                raise RateLimitError(f"Rate limit exceeded for tool {metadata.name}")
+        if metadata.rate_limit_per_minute and not self._check_rate_limit(
+            metadata.name, metadata.rate_limit_per_minute
+        ):
+            raise RateLimitError(f"Rate limit exceeded for tool {metadata.name}")
 
         try:
             # Execute function with timeout
@@ -491,7 +493,7 @@ class ToolRegistry:
             if priority and metadata.priority != priority:
                 continue
 
-            tool_info = {
+            tool_info: dict[str, Any] = {
                 "name": metadata.name,
                 "description": metadata.description,
                 "category": metadata.category.value,
@@ -513,7 +515,9 @@ class ToolRegistry:
             filtered_tools.append(tool_info)
 
         # Sort by priority and name
-        filtered_tools.sort(key=lambda x: (x["priority"], x["name"]))
+        from operator import itemgetter
+
+        filtered_tools.sort(key=itemgetter("priority", "name"))
         return filtered_tools
 
     def cleanup_history(self, max_age_hours: float = 24.0) -> int:
@@ -609,7 +613,7 @@ def register_opera_tool(
         Decorated function
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable) -> Tool:
         # Get function name and create metadata
         func_name = func.__name__
 
@@ -632,7 +636,6 @@ def register_opera_tool(
         )
 
         # Register with global registry
-        registry = get_tool_registry()
-        return registry.register_tool(metadata, func)
+        return get_tool_registry().register_tool(metadata, func)
 
     return decorator

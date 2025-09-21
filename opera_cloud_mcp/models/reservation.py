@@ -6,7 +6,7 @@ including reservations, guests, room stays, and booking details with
 full validation, transformation, and OPERA Cloud API compatibility.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from enum import Enum
 from typing import Any
 
@@ -108,7 +108,7 @@ class GuestProfile(OperaBaseModel):
 
     @field_validator("contact")
     @classmethod
-    def validate_contact_info(cls, v):
+    def validate_contact_info(cls, v: Any) -> Any:
         """Validate contact information."""
         if v and v.email:
             validate_email(v.email)
@@ -118,7 +118,7 @@ class GuestProfile(OperaBaseModel):
 
     @field_validator("date_of_birth")
     @classmethod
-    def validate_birth_date(cls, v):
+    def validate_birth_date(cls, v: Any) -> Any:
         """Validate birth date is reasonable."""
         if v and v > date.today():
             raise ValueError("Birth date cannot be in the future")
@@ -178,7 +178,8 @@ class RoomStayDetails(OperaBaseModel):
                 self.nights = calculated_nights
             elif self.nights != calculated_nights:
                 raise ValueError(
-                    f"Nights ({self.nights}) doesn't match date range ({calculated_nights})"
+                    f"Nights ({self.nights}) doesn't match "
+                    + f"date range ({calculated_nights})"
                 )
 
         return self
@@ -281,14 +282,25 @@ class ComprehensiveReservation(OperaBaseModel):
     @classmethod
     def validate_confirmation_number_format(cls, v):
         """Validate confirmation number format."""
-        return validate_confirmation_number(v)
+        from opera_cloud_mcp.utils.exceptions import (
+            ValidationError as CustomValidationError,
+        )
+
+        try:
+            return validate_confirmation_number(v)
+        except CustomValidationError as e:
+            raise ValueError(str(e)) from None
 
     @field_validator("created_date", "modified_date")
     @classmethod
     def validate_timestamps(cls, v):
         """Ensure timestamps are not in the future."""
-        if v and v > datetime.utcnow():
-            raise ValueError("Timestamp cannot be in the future")
+        if v:
+            # Make both datetimes timezone-aware for comparison
+            now = datetime.now(tz=UTC)
+            check_time = v.replace(tzinfo=UTC) if v.tzinfo is None else v
+            if check_time > now:
+                raise ValueError("Timestamp cannot be in the future")
         return v
 
     @model_validator(mode="after")

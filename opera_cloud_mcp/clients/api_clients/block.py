@@ -39,7 +39,7 @@ class RoomBlock(OperaBaseModel):
     created_at: datetime = Field(alias="createdAt")
 
     @validator("status")
-    def validate_status(cls, v):
+    def validate_status(self, v):
         allowed = ["tentative", "definite", "cancelled", "picked_up", "active"]
         if v not in allowed:
             raise ValueError(f"Invalid block status. Must be one of: {allowed}")
@@ -560,9 +560,9 @@ class BlockClient(BaseAPIClient):
                 failed.append(
                     {"guest_name": reservations[i].guest_name, "error": str(result)}
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "guest_name": reservations[i].guest_name,

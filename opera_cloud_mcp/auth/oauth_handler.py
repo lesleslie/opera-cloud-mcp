@@ -12,6 +12,7 @@ import json
 import logging
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import httpx
 from cryptography.fernet import Fernet
@@ -22,11 +23,18 @@ from opera_cloud_mcp.utils.exceptions import AuthenticationError
 logger = logging.getLogger(__name__)
 
 
+# S105: This is a standard OAuth token type, not a password
+DEFAULT_TOKEN_TYPE = "Bearer"  # noqa: S105
+
+# Default token expiry warning threshold in seconds
+TOKEN_EXPIRY_WARNING_SECONDS = 300
+
+
 class Token(BaseModel):
     """OAuth2 token model."""
 
     access_token: str
-    token_type: str = "Bearer"
+    token_type: str = DEFAULT_TOKEN_TYPE
     expires_in: int
     issued_at: datetime
 
@@ -79,7 +87,7 @@ class TokenCache:
 
     def _get_cache_file(self, client_id: str) -> Path:
         """Get cache file path for client."""
-        safe_client_id = hashlib.md5(client_id.encode()).hexdigest()[:16]
+        safe_client_id = hashlib.sha256(client_id.encode()).hexdigest()[:16]
         return self.cache_dir / f"token_{safe_client_id}.cache"
 
     def save_token(self, client_id: str, token: Token) -> None:
@@ -134,8 +142,8 @@ class TokenCache:
                 cache_file = self._get_cache_file(client_id)
                 if cache_file.exists():
                     cache_file.unlink()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to clean up cache file: {e}")
             return None
 
     def clear_token(self, client_id: str) -> None:
@@ -246,6 +254,142 @@ class OAuthHandler:
             logger.info("Requesting new OAuth token")
             return await self._refresh_token()
 
+    def _prepare_token_request(self) -> tuple[dict[str, str], dict[str, str]]:
+        """Prepare headers and data for token request."""
+        credentials = base64.b64encode(
+            f"{self.client_id}:{self.client_secret}".encode()
+        ).decode()
+
+        headers = {
+            "Authorization": f"Basic {credentials}",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "User-Agent": "OPERA-Cloud-MCP/1.0",
+        }
+
+        data = {
+            "grant_type": "client_credentials",
+        }
+
+        return headers, data
+
+    def _process_successful_token_response(
+        self, token_data: dict[str, Any], attempt: int
+    ) -> str:
+        """Process successful token response and cache the token."""
+        # Validate required fields
+        required_fields = ["access_token", "expires_in"]
+        missing_fields = [field for field in required_fields if field not in token_data]
+        if missing_fields:
+            raise AuthenticationError(
+                f"Invalid token response: missing {missing_fields}"
+            )
+
+        # Create and cache new token
+        self._token_cache = Token(
+            access_token=token_data["access_token"],
+            token_type=token_data.get("token_type", "Bearer"),
+            expires_in=token_data["expires_in"],
+            issued_at=datetime.now(UTC),
+        )
+
+        # Save to persistent cache if enabled
+        if self.persistent_cache:
+            self.persistent_cache.save_token(self.client_id, self._token_cache)
+
+        self._token_refresh_count += 1
+
+        logger.info(
+            "Successfully obtained new OAuth token",
+            extra={
+                "attempt": attempt + 1,
+                "refresh_count": self._token_refresh_count,
+                "expires_in": token_data["expires_in"],
+                "token_type": token_data.get("token_type", "Bearer"),
+            },
+        )
+
+        return self._token_cache.access_token
+
+    def _handle_error_response(self, response: httpx.Response, attempt: int) -> str:
+        """Handle error response from token endpoint."""
+        error_msg = f"Token request failed: HTTP {response.status_code}"
+        error_details = {}
+
+        try:
+            error_data = response.json()
+            if isinstance(error_data, dict):
+                error_details = error_data
+                error_description = error_data.get("error_description")
+                error_code = error_data.get("error", "Unknown error")
+                error_msg += f" - {error_description or error_code}"
+        except Exception:
+            error_msg += f" - {response.text[:200]}"
+
+        logger.error(
+            error_msg,
+            extra={
+                "status_code": response.status_code,
+                "attempt": attempt + 1,
+                "error_details": error_details,
+            },
+        )
+
+        # Don't retry on authentication errors (400, 401, 403)
+        if response.status_code in (400, 401, 403):
+            raise AuthenticationError(error_msg)
+
+        return error_msg
+
+    async def _handle_request_exception(
+        self, error: Exception, attempt: int
+    ) -> tuple[bool, float]:
+        """Handle exceptions during token request.
+
+        Returns:
+            Tuple of (should_retry, backoff_time)
+        """
+        if isinstance(error, httpx.TimeoutException):
+            error_msg = f"Token request timeout after {self.timeout}s"
+            logger.warning(f"{error_msg} (attempt {attempt + 1})")
+
+            if attempt < self.max_retries:
+                backoff_time = self.retry_backoff * (2**attempt)
+                return True, backoff_time
+            raise AuthenticationError(error_msg) from error
+
+        elif isinstance(error, httpx.RequestError):
+            error_msg = f"Token request network error: {error}"
+            logger.warning(f"{error_msg} (attempt {attempt + 1})")
+
+            if attempt < self.max_retries:
+                backoff_time = self.retry_backoff * (2**attempt)
+                return True, backoff_time
+            raise AuthenticationError(error_msg) from error
+
+        elif isinstance(error, KeyError | ValueError):
+            # Don't retry on data format errors
+            error_msg = f"Invalid token response format: {error}"
+            logger.error(error_msg)
+            raise AuthenticationError(error_msg) from error
+
+        else:
+            error_msg = f"Unexpected error during token refresh: {error}"
+            logger.error(f"{error_msg} (attempt {attempt + 1})")
+
+            if attempt < self.max_retries:
+                backoff_time = self.retry_backoff * (2**attempt)
+                return True, backoff_time
+            raise AuthenticationError(error_msg) from error
+
+    async def _make_token_request(
+        self, headers: dict[str, str], data: dict[str, str]
+    ) -> httpx.Response:
+        """Make the actual token request."""
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            logger.debug(f"Requesting token from: {self.token_url}")
+            return await client.post(self.token_url, headers=headers, data=data)
+
     async def _refresh_token(self) -> str:
         """
         Request a new token from the OAuth endpoint with retry logic.
@@ -268,153 +412,34 @@ class OAuthHandler:
                     f"Token refresh attempt {attempt + 1}/{self.max_retries + 1}"
                 )
 
-                # Prepare basic authentication header
-                credentials = base64.b64encode(
-                    f"{self.client_id}:{self.client_secret}".encode()
-                ).decode()
+                headers, data = self._prepare_token_request()
+                response = await self._make_token_request(headers, data)
 
-                headers = {
-                    "Authorization": f"Basic {credentials}",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Accept": "application/json",
-                    "User-Agent": "OPERA-Cloud-MCP/1.0",
-                }
+                if response.status_code == 200:
+                    token_data = response.json()
+                    return self._process_successful_token_response(token_data, attempt)
+                else:
+                    error_msg = self._handle_error_response(response, attempt)
 
-                data = {
-                    "grant_type": "client_credentials",
-                }
-
-                async with httpx.AsyncClient(timeout=self.timeout) as client:
-                    logger.debug(f"Requesting token from: {self.token_url}")
-
-                    response = await client.post(
-                        self.token_url,
-                        headers=headers,
-                        data=data,
-                    )
-
-                    if response.status_code == 200:
-                        # Success - process token
-                        token_data = response.json()
-
-                        # Validate required fields
-                        required_fields = ["access_token", "expires_in"]
-                        missing_fields = [
-                            field
-                            for field in required_fields
-                            if field not in token_data
-                        ]
-                        if missing_fields:
-                            raise AuthenticationError(
-                                f"Invalid token response: missing {missing_fields}"
-                            )
-
-                        # Create and cache new token
-                        self._token_cache = Token(
-                            access_token=token_data["access_token"],
-                            token_type=token_data.get("token_type", "Bearer"),
-                            expires_in=token_data["expires_in"],
-                            issued_at=datetime.now(UTC),
-                        )
-
-                        # Save to persistent cache if enabled
-                        if self.persistent_cache:
-                            self.persistent_cache.save_token(
-                                self.client_id, self._token_cache
-                            )
-
-                        self._token_refresh_count += 1
-
-                        logger.info(
-                            "Successfully obtained new OAuth token",
-                            extra={
-                                "attempt": attempt + 1,
-                                "refresh_count": self._token_refresh_count,
-                                "expires_in": token_data["expires_in"],
-                                "token_type": token_data.get("token_type", "Bearer"),
-                            },
-                        )
-
-                        return self._token_cache.access_token
-
+                    # Retry on server errors or temporary issues
+                    if attempt < self.max_retries:
+                        backoff_time = self.retry_backoff * (2**attempt)
+                        logger.warning(f"Retrying token request in {backoff_time}s...")
+                        await asyncio.sleep(backoff_time)
+                        continue
                     else:
-                        # Error response - parse error details
-                        error_msg = f"Token request failed: HTTP {response.status_code}"
-                        error_details = {}
-
-                        try:
-                            error_data = response.json()
-                            if isinstance(error_data, dict):
-                                error_details = error_data
-                                error_msg += f" - {error_data.get('error_description', error_data.get('error', 'Unknown error'))}"
-                        except Exception:
-                            error_msg += f" - {response.text[:200]}"
-
-                        logger.error(
-                            error_msg,
-                            extra={
-                                "status_code": response.status_code,
-                                "attempt": attempt + 1,
-                                "error_details": error_details,
-                            },
-                        )
-
-                        # Don't retry on authentication errors (400, 401, 403)
-                        if response.status_code in (400, 401, 403):
-                            raise AuthenticationError(error_msg)
-
-                        # Retry on server errors or temporary issues
-                        if attempt < self.max_retries:
-                            backoff_time = self.retry_backoff * (2**attempt)
-                            logger.warning(
-                                f"Retrying token request in {backoff_time}s..."
-                            )
-                            await asyncio.sleep(backoff_time)
-                            continue
-                        else:
-                            raise AuthenticationError(error_msg)
-
-            except httpx.TimeoutException as e:
-                last_error = e
-                error_msg = f"Token request timeout after {self.timeout}s"
-                logger.warning(f"{error_msg} (attempt {attempt + 1})")
-
-                if attempt < self.max_retries:
-                    backoff_time = self.retry_backoff * (2**attempt)
-                    await asyncio.sleep(backoff_time)
-                    continue
-                else:
-                    raise AuthenticationError(error_msg) from e
-
-            except httpx.RequestError as e:
-                last_error = e
-                error_msg = f"Token request network error: {e}"
-                logger.warning(f"{error_msg} (attempt {attempt + 1})")
-
-                if attempt < self.max_retries:
-                    backoff_time = self.retry_backoff * (2**attempt)
-                    await asyncio.sleep(backoff_time)
-                    continue
-                else:
-                    raise AuthenticationError(error_msg) from e
-
-            except (KeyError, ValueError) as e:
-                # Don't retry on data format errors
-                error_msg = f"Invalid token response format: {e}"
-                logger.error(error_msg)
-                raise AuthenticationError(error_msg) from e
+                        raise AuthenticationError(error_msg)
 
             except Exception as e:
                 last_error = e
-                error_msg = f"Unexpected error during token refresh: {e}"
-                logger.error(f"{error_msg} (attempt {attempt + 1})")
+                should_retry, backoff_time = await self._handle_request_exception(
+                    e, attempt
+                )
 
-                if attempt < self.max_retries:
-                    backoff_time = self.retry_backoff * (2**attempt)
+                if should_retry:
                     await asyncio.sleep(backoff_time)
                     continue
-                else:
-                    raise AuthenticationError(error_msg) from e
+                # If we reach here, exception was already raised
 
         # Should not reach here, but just in case
         final_error_msg = f"Token refresh failed after {self.max_retries + 1} attempts"
@@ -499,7 +524,7 @@ class OAuthHandler:
         """
         return {"Authorization": f"Bearer {token}"}
 
-    def get_token_info(self) -> dict[str, any]:
+    def get_token_info(self) -> dict[str, Any]:
         """
         Get information about the current token.
 
@@ -524,7 +549,7 @@ class OAuthHandler:
         status = "valid"
         if self._token_cache.is_expired:
             status = "expired"
-        elif expires_in < 300:  # Less than 5 minutes
+        elif expires_in < TOKEN_EXPIRY_WARNING_SECONDS:
             status = "expiring_soon"
 
         return {
@@ -541,7 +566,9 @@ class OAuthHandler:
             "persistent_cache_enabled": self.enable_persistent_cache,
         }
 
-    async def ensure_valid_token(self, min_validity_seconds: int = 300) -> str:
+    async def ensure_valid_token(
+        self, min_validity_seconds: int = TOKEN_EXPIRY_WARNING_SECONDS
+    ) -> str:
         """
         Ensure we have a valid token with minimum remaining validity.
 

@@ -1,8 +1,8 @@
 """
-Unit tests for API specifications resource module.
+Unit tests for OPERA Cloud API specifications.
 
-Tests the API specification functions, domain information,
-and schema validation utilities.
+These tests verify that the API specification data is correctly
+structured and provides accurate endpoint information.
 """
 
 from opera_cloud_mcp.resources.api_specs import (
@@ -32,7 +32,7 @@ class TestAPISpecs:
             assert domain in OPERA_API_DOMAINS
 
         # Check domain structure
-        for domain_key, domain_info in OPERA_API_DOMAINS.items():
+        for _domain_key, domain_info in OPERA_API_DOMAINS.items():
             assert isinstance(domain_info, dict)
             assert "name" in domain_info
             assert "description" in domain_info
@@ -196,7 +196,7 @@ class TestAPISpecs:
         result = validate_request_schema("fof", "arrivals_report", {})
 
         assert isinstance(result, dict)
-        assert result["valid"] == True
+        assert result["valid"]
         assert "No schema validation required" in result["message"]
 
     def test_validate_request_schema_valid_data(self):
@@ -274,7 +274,7 @@ class TestAPISpecs:
         assert "applyToBalance" in result
 
         # Check amount is a number
-        assert isinstance(result["amount"], (int, float))
+        assert isinstance(result["amount"], int | float)
 
     def test_get_example_request_non_existent(self):
         """Test get_example_request for non-existent example."""
@@ -369,6 +369,6 @@ class TestAPISpecs:
         assert "limit" in search_params
 
         # Test parameter descriptions exist
-        for param_name, param_desc in search_params.items():
+        for _param_name, param_desc in search_params.items():
             assert isinstance(param_desc, str)
             assert len(param_desc) > 0

@@ -286,7 +286,7 @@ class ClientFactory:
         Returns:
             Health status information for all clients
         """
-        health_results = {
+        health_results: dict[str, Any] = {
             "factory_status": "healthy",
             "registered_clients": len(self._client_registry),
             "active_instances": len(self._client_instances),
@@ -311,10 +311,11 @@ class ClientFactory:
                 }
 
         # Determine overall health
+        client_health_dict: dict[str, Any] = health_results["client_health"]
         unhealthy_clients = [
             key
-            for key, health in health_results["client_health"].items()
-            if health.get("status") not in ["healthy", "no_health_check"]
+            for key, health in client_health_dict.items()
+            if health.get("status") not in ("healthy", "no_health_check")
         ]
 
         if unhealthy_clients:

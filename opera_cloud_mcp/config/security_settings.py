@@ -5,11 +5,13 @@ This module extends the base settings with comprehensive security configuration
 including credential management, audit logging, and security monitoring.
 """
 
+import base64
+import ipaddress
 import secrets
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, validator
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SecuritySettings(BaseSettings):
@@ -109,7 +111,8 @@ class SecuritySettings(BaseSettings):
         True, description="Enable security headers in HTTP responses"
     )
     content_security_policy: str | None = Field(
-        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+        + "style-src 'self' 'unsafe-inline'",
         description="Content Security Policy header value",
     )
 
@@ -157,51 +160,53 @@ class SecuritySettings(BaseSettings):
         False, description="Enable detailed security debug logging"
     )
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="OPERA_SECURITY_",
         case_sensitive=False,
         extra="ignore",
     )
 
-    @validator("allowed_ip_addresses")
+    @field_validator("allowed_ip_addresses")
+    @classmethod
     def validate_ip_addresses(cls, v):
         """Validate IP address list format."""
         if not v:
             return v
 
-        import ipaddress
-
         try:
-            addresses = [addr.strip() for addr in v.split(",")]
-            for addr in addresses:
-                ipaddress.ip_network(addr, strict=False)
+            for ip_str in v.split(","):
+                ip_str = ip_str.strip()
+                if ip_str:  # Skip empty strings
+                    # This will raise ValueError if invalid
+                    ipaddress.ip_network(ip_str, strict=False)
             return v
         except ValueError as e:
-            raise ValueError(f"Invalid IP address format: {e}")
+            raise ValueError(f"Invalid IP address format: {e}") from None
 
-    @validator("audit_db_encryption_key")
+    @field_validator("audit_db_encryption_key")
+    @classmethod
     def validate_encryption_key(cls, v):
         """Validate encryption key format."""
         if not v:
             return v
 
         try:
-            import base64
-
-            key = base64.b64decode(v)
-            if len(key) != 32:
-                raise ValueError("Encryption key must be 32 bytes (256 bits)")
+            # Validate base64 format
+            base64.b64decode(v, validate=True)
+            # Check minimum length (32 bytes = 256 bits when base64 decoded)
+            if len(base64.b64decode(v, validate=True)) < 32:
+                raise ValueError("Encryption key must be at least 256 bits")
             return v
         except Exception as e:
-            raise ValueError(f"Invalid encryption key format: {e}")
+            raise ValueError(f"Invalid encryption key format: {e}") from None
 
     def get_allowed_ips(self) -> set[str]:
         """Parse and return allowed IP addresses as a set."""
         if not self.allowed_ip_addresses:
             return set()
 
-        return set(addr.strip() for addr in self.allowed_ip_addresses.split(","))
+        return {addr.strip() for addr in self.allowed_ip_addresses.split(",")}
 
     def get_audit_db_path(self) -> Path:
         """Get audit database path."""
@@ -236,11 +241,10 @@ class SecuritySettings(BaseSettings):
 
         return headers
 
-    def validate_security_configuration(self) -> list[str]:
-        """Validate security configuration and return warnings."""
+    def _check_production_readiness(self) -> list[str]:
+        """Check for production readiness issues."""
         warnings = []
 
-        # Check for production readiness
         if not self.enable_security_monitoring:
             warnings.append(
                 "Security monitoring is disabled - not recommended for production"
@@ -262,15 +266,22 @@ class SecuritySettings(BaseSettings):
                 "HTTPS not required - credentials may be transmitted insecurely"
             )
 
-        # Check for weak configurations
+        return warnings
+
+    def _check_weak_configurations(self) -> list[str]:
+        """Check for weak configuration issues."""
+        warnings = []
+
         if self.max_failed_attempts > 10:
             warnings.append(
-                f"High failure threshold ({self.max_failed_attempts}) - consider lowering"
+                f"High failure threshold ({self.max_failed_attempts}) - "
+                + "consider lowering"
             )
 
         if self.token_max_lifetime_hours > 48:
             warnings.append(
-                f"Long token lifetime ({self.token_max_lifetime_hours}h) - security risk"
+                f"Long token lifetime ({self.token_max_lifetime_hours}h) - "
+                + "security risk"
             )
 
         if self.credential_rotation_interval_days > 180:
@@ -278,7 +289,12 @@ class SecuritySettings(BaseSettings):
                 "Long credential rotation interval - consider more frequent rotation"
             )
 
-        # Check for missing security features
+        return warnings
+
+    def _check_missing_security_features(self) -> list[str]:
+        """Check for missing security features."""
+        warnings = []
+
         if not self.allowed_ip_addresses and not self.security_testing_mode:
             warnings.append("No IP restrictions configured - consider limiting access")
 
@@ -291,6 +307,20 @@ class SecuritySettings(BaseSettings):
             )
 
         return warnings
+
+    def validate_security_configuration(self) -> list[str]:
+        """Validate security configuration and return warnings."""
+        # Check for production readiness
+        production_warnings = self._check_production_readiness()
+
+        # Check for weak configurations
+        weak_config_warnings = self._check_weak_configurations()
+
+        # Check for missing security features
+        missing_feature_warnings = self._check_missing_security_features()
+
+        # Combine all warnings
+        return production_warnings + weak_config_warnings + missing_feature_warnings
 
     def generate_secure_defaults(self) -> dict[str, str]:
         """Generate secure default configuration for .env file."""
@@ -341,11 +371,10 @@ class ProductionSecuritySettings(SecuritySettings):
     token_max_lifetime_hours: int = 12
     auth_rate_limit_requests: int = 5
 
-    def validate_production_readiness(self) -> list[str]:
-        """Validate configuration for production deployment."""
+    def _check_critical_security_requirements(self) -> list[str]:
+        """Check critical security requirements."""
         errors = []
 
-        # Critical security requirements
         if not self.enable_security_monitoring:
             errors.append("Security monitoring must be enabled in production")
 
@@ -361,7 +390,12 @@ class ProductionSecuritySettings(SecuritySettings):
         if self.enable_security_debug_logs:
             errors.append("Security debug logs should be disabled in production")
 
-        # Security configuration requirements
+        return errors
+
+    def _check_security_configuration_requirements(self) -> list[str]:
+        """Check security configuration requirements."""
+        errors = []
+
         if not self.allowed_ip_addresses:
             errors.append("IP address restrictions should be configured for production")
 
@@ -373,7 +407,12 @@ class ProductionSecuritySettings(SecuritySettings):
                 "Security notifications must be configured for incident response"
             )
 
-        # Check for weak configurations
+        return errors
+
+    def _check_weak_configurations(self) -> list[str]:
+        """Check for weak configurations."""
+        errors = []
+
         if self.max_failed_attempts > 5:
             errors.append("Maximum failed attempts should be <= 5 in production")
 
@@ -382,5 +421,16 @@ class ProductionSecuritySettings(SecuritySettings):
 
         return errors
 
+    def validate_production_readiness(self) -> list[str]:
+        """Validate configuration for production deployment."""
+        # Critical security requirements
+        critical_errors = self._check_critical_security_requirements()
 
-import base64
+        # Security configuration requirements
+        config_errors = self._check_security_configuration_requirements()
+
+        # Check for weak configurations
+        weak_config_errors = self._check_weak_configurations()
+
+        # Combine all errors
+        return critical_errors + config_errors + weak_config_errors

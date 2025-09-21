@@ -9,8 +9,9 @@ import asyncio
 import hashlib
 import json
 import logging
+import operator
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -204,7 +205,7 @@ class OperaCacheManager:
         if params:
             # Sort parameters for consistent key generation
             param_str = json.dumps(params, sort_keys=True, default=str)
-            param_hash = hashlib.md5(param_str.encode()).hexdigest()[:8]
+            param_hash = hashlib.sha256(param_str.encode()).hexdigest()[:8]
             key_parts.append(param_hash)
 
         return ":".join(key_parts)
@@ -214,7 +215,7 @@ class OperaCacheManager:
         try:
             if isinstance(value, str):
                 return len(value.encode("utf-8"))
-            elif isinstance(value, (dict, list)):
+            elif isinstance(value, dict | list):
                 return len(json.dumps(value, default=str).encode("utf-8"))
             else:
                 return len(str(value).encode("utf-8"))
@@ -247,10 +248,10 @@ class OperaCacheManager:
             entry = self._memory_cache[cache_key]
 
             # Check expiration
-            if entry.expires_at > datetime.utcnow():
+            if entry.expires_at > datetime.now(tz=UTC):
                 # Update access statistics
                 entry.access_count += 1
-                entry.last_accessed = datetime.utcnow()
+                entry.last_accessed = datetime.now(tz=UTC)
 
                 if self._stats:
                     self._stats["hits"] += 1
@@ -313,7 +314,7 @@ class OperaCacheManager:
 
         # Calculate expiration
         ttl = ttl_override or config.ttl_seconds
-        expires_at = datetime.utcnow() + timedelta(seconds=ttl)
+        expires_at = datetime.now(tz=UTC) + timedelta(seconds=ttl)
 
         # Calculate size
         size_bytes = self._calculate_size(value)
@@ -322,7 +323,7 @@ class OperaCacheManager:
         entry = CacheEntry(
             key=cache_key,
             value=value,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(tz=UTC),
             expires_at=expires_at,
             dependencies=config.dependencies,
             tags=config.tags,
@@ -359,6 +360,67 @@ class OperaCacheManager:
 
         return True
 
+    def _get_keys_to_invalidate_by_dependency(
+        self, dependency: str | None
+    ) -> list[str]:
+        """Get keys to invalidate by dependency."""
+        keys_to_remove = []
+        if dependency and dependency in self._dependency_map:
+            keys_to_remove.extend(self._dependency_map[dependency])
+        return keys_to_remove
+
+    def _should_invalidate_entry(
+        self,
+        cache_key: str,
+        entry: CacheEntry,
+        data_type: str | None,
+        tags: list[str] | None,
+    ) -> bool:
+        """Determine if a cache entry should be invalidated."""
+        should_invalidate = False
+
+        # Check data type
+        if data_type and cache_key.split(":")[1] == data_type:
+            should_invalidate = True
+
+        # Check tags
+        if tags and entry.tags and any(tag in entry.tags for tag in tags):
+            should_invalidate = True
+
+        return should_invalidate
+
+    def _get_keys_to_invalidate_by_criteria(
+        self, data_type: str | None, tags: list[str] | None
+    ) -> list[str]:
+        """Get keys to invalidate by data type or tags."""
+        keys_to_remove = []
+        if data_type or tags:
+            for cache_key, entry in self._memory_cache.items():
+                if self._should_invalidate_entry(cache_key, entry, data_type, tags):
+                    keys_to_remove.append(cache_key)
+        return keys_to_remove
+
+    def _get_specific_key_to_invalidate(
+        self, data_type: str | None, identifier: str | None
+    ) -> list[str]:
+        """Get specific key to invalidate."""
+        keys_to_remove = []
+        if identifier:
+            cache_key = self._generate_cache_key(data_type or "", identifier)
+            if cache_key in self._memory_cache:
+                keys_to_remove.append(cache_key)
+        return keys_to_remove
+
+    async def _invalidate_keys(self, keys_to_remove: list[str]) -> int:
+        """Invalidate the specified keys and return count."""
+        invalidated_count = 0
+        # Remove all identified keys
+        for cache_key in set(keys_to_remove):  # Remove duplicates
+            if cache_key in self._memory_cache:
+                await self._remove_entry(cache_key, "invalidated")
+                invalidated_count += 1
+        return invalidated_count
+
     async def invalidate(
         self,
         data_type: str | None = None,
@@ -378,43 +440,28 @@ class OperaCacheManager:
         Returns:
             Number of entries invalidated
         """
-        invalidated_count = 0
+        # Get keys to invalidate from different sources
         keys_to_remove = []
 
         # Invalidate by dependency
-        if dependency and dependency in self._dependency_map:
-            keys_to_remove.extend(self._dependency_map[dependency])
-            del self._dependency_map[dependency]
+        keys_to_remove.extend(self._get_keys_to_invalidate_by_dependency(dependency))
 
         # Invalidate by tags or data type
-        if data_type or tags:
-            for cache_key, entry in self._memory_cache.items():
-                should_invalidate = False
-
-                # Check data type
-                if data_type and cache_key.split(":")[1] == data_type:
-                    should_invalidate = True
-
-                # Check tags
-                if tags and entry.tags:
-                    if any(tag in entry.tags for tag in tags):
-                        should_invalidate = True
-
-                if should_invalidate:
-                    keys_to_remove.append(cache_key)
+        keys_to_remove.extend(self._get_keys_to_invalidate_by_criteria(data_type, tags))
 
         # Remove specific key
-        if identifier:
-            cache_key = self._generate_cache_key(data_type or "", identifier)
-            if cache_key in self._memory_cache:
-                keys_to_remove.append(cache_key)
+        keys_to_remove.extend(
+            self._get_specific_key_to_invalidate(data_type, identifier)
+        )
 
-        # Remove all identified keys
-        for cache_key in set(keys_to_remove):  # Remove duplicates
-            if cache_key in self._memory_cache:
-                await self._remove_entry(cache_key, "invalidated")
-                invalidated_count += 1
+        # Invalidate keys
+        invalidated_count = await self._invalidate_keys(keys_to_remove)
 
+        # Update dependency map if needed
+        if dependency and dependency in self._dependency_map:
+            del self._dependency_map[dependency]
+
+        # Update statistics
         if self._stats:
             self._stats["invalidations"] += invalidated_count
 
@@ -430,29 +477,58 @@ class OperaCacheManager:
 
         return invalidated_count
 
+    def _update_statistics_on_remove(self, entry: CacheEntry, reason: str) -> None:
+        """Update statistics when removing an entry."""
+        if self._stats:
+            self._stats["size_bytes"] -= entry.size_bytes
+            if reason == "evicted":
+                self._stats["evictions"] += 1
+
+    def _remove_from_dependency_map(self, entry: CacheEntry, cache_key: str) -> None:
+        """Remove entry from dependency map."""
+        if entry.dependencies:
+            for dep in entry.dependencies:
+                if (
+                    dep in self._dependency_map
+                    and cache_key in self._dependency_map[dep]
+                ):
+                    self._dependency_map[dep].remove(cache_key)
+                    if not self._dependency_map[dep]:
+                        del self._dependency_map[dep]
+
     async def _remove_entry(self, cache_key: str, reason: str) -> None:
         """Remove cache entry and update statistics."""
         if cache_key in self._memory_cache:
             entry = self._memory_cache[cache_key]
 
             # Update statistics
-            if self._stats:
-                self._stats["size_bytes"] -= entry.size_bytes
-                if reason == "evicted":
-                    self._stats["evictions"] += 1
+            self._update_statistics_on_remove(entry, reason)
 
             # Remove from dependency map
-            if entry.dependencies:
-                for dep in entry.dependencies:
-                    if (
-                        dep in self._dependency_map
-                        and cache_key in self._dependency_map[dep]
-                    ):
-                        self._dependency_map[dep].remove(cache_key)
-                        if not self._dependency_map[dep]:
-                            del self._dependency_map[dep]
+            self._remove_from_dependency_map(entry, cache_key)
 
             del self._memory_cache[cache_key]
+
+    def _calculate_eviction_score(self, entry: CacheEntry, now: datetime) -> float:
+        """Calculate eviction score for a cache entry."""
+        # Score based on age, access count, and last access
+        age_score = (now - entry.created_at).total_seconds()
+        access_score = 1.0 / max(entry.access_count, 1)
+        last_access_score: float = 0.0
+
+        if entry.last_accessed:
+            last_access_score = (now - entry.last_accessed).total_seconds()
+
+        # Combined score (higher = more likely to evict)
+        return age_score + access_score + last_access_score
+
+    def _get_entries_to_evict(
+        self, entries_with_score: list[tuple[str, float]], max_entries: int
+    ) -> list[str]:
+        """Get list of cache keys to evict."""
+        # Sort by score and evict oldest/least used entries
+        entries_with_score.sort(key=operator.itemgetter(1), reverse=True)
+        return [cache_key for cache_key, _ in entries_with_score[:max_entries]]
 
     async def _ensure_capacity(self) -> None:
         """Ensure cache doesn't exceed maximum capacity."""
@@ -460,37 +536,27 @@ class OperaCacheManager:
             return
 
         # Find entries to evict (LRU-style)
-        now = datetime.utcnow()
-        entries_with_score = []
+        now = datetime.now(tz=UTC)
+        entries_with_score = [
+            (cache_key, self._calculate_eviction_score(entry, now))
+            for cache_key, entry in self._memory_cache.items()
+        ]
 
-        for cache_key, entry in self._memory_cache.items():
-            # Score based on age, access count, and last access
-            age_score = (now - entry.created_at).total_seconds()
-            access_score = 1.0 / max(entry.access_count, 1)
-            last_access_score = 0
+        entries_to_evict = self._get_entries_to_evict(
+            entries_with_score, len(self._memory_cache) - (self.max_memory_size // 2)
+        )
 
-            if entry.last_accessed:
-                last_access_score = (now - entry.last_accessed).total_seconds()
-
-            # Combined score (higher = more likely to evict)
-            score = age_score + access_score + last_access_score
-            entries_with_score.append((cache_key, score))
-
-        # Sort by score and evict oldest/least used entries
-        entries_with_score.sort(key=lambda x: x[1], reverse=True)
-        entries_to_evict = len(self._memory_cache) - (self.max_memory_size // 2)
-
-        for cache_key, _ in entries_with_score[:entries_to_evict]:
+        for cache_key in entries_to_evict:
             await self._remove_entry(cache_key, "evicted")
 
     async def cleanup_expired(self) -> int:
         """Remove expired entries."""
-        now = datetime.utcnow()
-        expired_keys = []
-
-        for cache_key, entry in self._memory_cache.items():
-            if entry.expires_at <= now:
-                expired_keys.append(cache_key)
+        now = datetime.now(tz=UTC)
+        expired_keys = [
+            cache_key
+            for cache_key, entry in self._memory_cache.items()
+            if entry.expires_at <= now
+        ]
 
         for cache_key in expired_keys:
             await self._remove_entry(cache_key, "expired")
@@ -516,7 +582,7 @@ class OperaCacheManager:
     async def health_check(self) -> dict[str, Any]:
         """Perform cache health check."""
         stats = self.get_stats() or {}
-        now = datetime.utcnow()
+        now = datetime.now(tz=UTC)
         expired_count = 0
 
         # Count expired entries

@@ -27,7 +27,7 @@ class AvailabilityRequest(OperaBaseModel):
     promo_code: str | None = Field(None, alias="promoCode")
 
     @validator("departure_date")
-    def validate_departure_after_arrival(cls, v, values):
+    def validate_departure_after_arrival(self, v, values):
         if "arrival_date" in values and v <= values["arrival_date"]:
             raise ValueError("Departure date must be after arrival date")
         return v
@@ -200,7 +200,7 @@ class InventoryClient(BaseAPIClient):
         """
         endpoint = f"{self.api_domain}/v1/availability/calendar"
 
-        params = {
+        params: dict[str, str | int] = {
             "year": year,
             "month": month,
         }
@@ -538,7 +538,7 @@ class InventoryClient(BaseAPIClient):
         """
         endpoint = f"{self.api_domain}/v1/inventory/adjustments/history"
 
-        params = {"limit": limit}
+        params: dict[str, str | int] = {"limit": limit}
         if room_type:
             params["roomType"] = room_type
         if start_date:
@@ -690,10 +690,14 @@ class InventoryClient(BaseAPIClient):
         """
         # First check availability
         availability_request = AvailabilityRequest(
-            arrival_date=arrival_date,
-            departure_date=departure_date,
-            room_types=[room_type],
+            arrivalDate=arrival_date,
+            departureDate=departure_date,
+            roomTypes=[room_type],
             adults=adults,
+            children=0,
+            rateCodes=[],
+            corporateId=None,
+            promoCode=None,
         )
 
         availability = await self.check_room_availability(availability_request)
@@ -756,7 +760,7 @@ class InventoryClient(BaseAPIClient):
         if not restrictions_response.success:
             return restrictions_response
 
-        compliance_data = {
+        compliance_data: dict[str, Any] = {
             "compliant": True,
             "nights_requested": nights,
             "minimum_stay_violations": [],

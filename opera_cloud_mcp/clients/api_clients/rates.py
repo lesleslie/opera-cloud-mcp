@@ -43,7 +43,7 @@ class RateCode(OperaBaseModel):
     source_code: str | None = Field(None, alias="sourceCode")
 
     @validator("rate_category")
-    def validate_rate_category(cls, v):
+    def validate_rate_category(self, v):
         allowed = [
             "corporate",
             "leisure",
@@ -78,7 +78,7 @@ class RatePlan(OperaBaseModel):
     is_active: bool = Field(True, alias="isActive")
 
     @validator("plan_type")
-    def validate_plan_type(cls, v):
+    def validate_plan_type(self, v):
         allowed = ["standard", "package", "promotion", "corporate", "group"]
         if v not in allowed:
             raise ValueError(f"Invalid plan type. Must be one of: {allowed}")
@@ -93,14 +93,14 @@ class RateRestriction(OperaBaseModel):
     restriction_date: date = Field(alias="restrictionDate")
     closed_to_arrival: bool = Field(False, alias="closedToArrival")
     closed_to_departure: bool = Field(False, alias="closedToDeparture")
-    closed: bool = Field(False)  # Completely closed
+    closed: bool = Field(False, alias="closed")
     minimum_los: int | None = Field(None, alias="minimumLOS")
     maximum_los: int | None = Field(None, alias="maximumLOS")
     stop_sell: bool = Field(False, alias="stopSell")
     master_restriction: bool = Field(False, alias="masterRestriction")
 
     @validator("minimum_los", "maximum_los")
-    def validate_los(cls, v):
+    def validate_los(self, v):
         if v is not None and v < 1:
             raise ValueError("Length of stay must be at least 1")
         return v
@@ -129,8 +129,8 @@ class YieldConfiguration(OperaBaseModel):
     auto_yield_enabled: bool = Field(True, alias="autoYieldEnabled")
 
     @validator("occupancy_thresholds")
-    def validate_occupancy_thresholds(cls, v):
-        for threshold in v.keys():
+    def validate_occupancy_thresholds(self, v):
+        for threshold in v:
             if not (0 <= int(threshold) <= 100):
                 raise ValueError("Occupancy thresholds must be between 0 and 100")
         return v
@@ -158,7 +158,7 @@ class PromotionalRate(OperaBaseModel):
     qualification_criteria: str | None = Field(None, alias="qualificationCriteria")
 
     @validator("discount_type")
-    def validate_discount_type(cls, v):
+    def validate_discount_type(self, v):
         allowed = ["percentage", "amount", "fixed_rate"]
         if v not in allowed:
             raise ValueError(f"Invalid discount type. Must be one of: {allowed}")
@@ -678,9 +678,9 @@ class RatesClient(BaseAPIClient):
                 failed.append(
                     {"rate_code": rate_codes[i].rate_code, "error": str(result)}
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "rate_code": rate_codes[i].rate_code,

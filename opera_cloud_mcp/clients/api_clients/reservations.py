@@ -42,9 +42,9 @@ class ReservationSearchCriteria(BaseModel):
     limit: int = Field(10, ge=1, le=100, description="Maximum results to return")
     offset: int = Field(0, ge=0, description="Results offset for pagination")
 
-    @field_validator("arrival_date", "departure_date", "created_from", "created_to")
+    @field_validator("arrival_date", "departure_date")
     @classmethod
-    def validate_dates(cls, v):
+    def validate_dates(cls, v: Any) -> Any:
         """Validate date format."""
         if v is not None:
             validate_date_format(v)
@@ -52,7 +52,7 @@ class ReservationSearchCriteria(BaseModel):
 
     @field_validator("confirmation_number")
     @classmethod
-    def validate_confirmation(cls, v):
+    def validate_confirmation(cls, v: Any) -> Any:
         """Validate confirmation number format."""
         if v is not None:
             validate_confirmation_number(v)
@@ -108,7 +108,7 @@ class ReservationsClient(BaseAPIClient):
     - Request/response logging and monitoring
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize reservations client with monitoring."""
         super().__init__(*args, **kwargs)
         self._operation_metrics = {
@@ -132,7 +132,7 @@ class ReservationsClient(BaseAPIClient):
     async def search_reservations(
         self,
         criteria: ReservationSearchCriteria | dict[str, Any] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> APIResponse:
         """
         Search for reservations by various criteria with advanced filtering.
@@ -187,7 +187,7 @@ class ReservationsClient(BaseAPIClient):
                 params=params,
                 timeout=30.0,  # Extended timeout for searches
                 data_transformations={
-                    "reservations": lambda x: self._transform_reservation_list(x),
+                    "reservations": self._transform_reservation_list,
                     "totalCount": lambda x: int(x) if x is not None else 0,
                 },
             )
@@ -199,8 +199,12 @@ class ReservationsClient(BaseAPIClient):
                     "Reservation search completed",
                     extra={
                         "hotel_id": self.hotel_id,
-                        "results_count": len(response.data.get("reservations", [])),
-                        "total_count": response.data.get("totalCount", 0),
+                        "results_count": len(response.data.get("reservations", []))
+                        if response.data
+                        else 0,
+                        "total_count": response.data.get("totalCount", 0)
+                        if response.data
+                        else 0,
                     },
                 )
 
@@ -262,10 +266,10 @@ class ReservationsClient(BaseAPIClient):
             )
             response = await self.get(
                 endpoint,
-                params=params if params else None,
+                params=params or None,
                 timeout=20.0,
                 data_transformations={
-                    "reservation": lambda x: self._transform_reservation_data(x),
+                    "reservation": self._transform_reservation_data,
                 },
             )
 
@@ -277,7 +281,9 @@ class ReservationsClient(BaseAPIClient):
                     extra={
                         "hotel_id": self.hotel_id,
                         "confirmation_number": confirmation_number,
-                        "status": response.data.get("reservation", {}).get("status"),
+                        "status": response.data.get("reservation", {}).get("status")
+                        if response.data
+                        else None,
                     },
                 )
 
@@ -322,9 +328,16 @@ class ReservationsClient(BaseAPIClient):
                 "Reservation creation data prepared",
                 extra={
                     "hotel_id": self.hotel_id,
-                    "guest_name": f"{reservation_request.guest.first_name} {reservation_request.guest.last_name}",
-                    "arrival_date": reservation_request.room_stay.arrival_date.isoformat(),
-                    "departure_date": reservation_request.room_stay.departure_date.isoformat(),
+                    "guest_name": (
+                        f"{reservation_request.guest.first_name} "
+                        f"{reservation_request.guest.last_name}"
+                    ),
+                    "arrival_date": (
+                        reservation_request.room_stay.arrival_date.isoformat()
+                    ),
+                    "departure_date": (
+                        reservation_request.room_stay.departure_date.isoformat()
+                    ),
                     "room_type": reservation_request.room_stay.room_type,
                 },
             )
@@ -335,14 +348,16 @@ class ReservationsClient(BaseAPIClient):
                 json_data=api_data,
                 timeout=30.0,
                 data_transformations={
-                    "reservation": lambda x: self._transform_reservation_data(x),
+                    "reservation": self._transform_reservation_data,
                 },
             )
 
             self._operation_metrics["creates"] += 1
 
             if response.success:
-                created_reservation = response.data.get("reservation", {})
+                created_reservation: dict[str, Any] = (
+                    response.data.get("reservation", {}) if response.data else {}
+                )
                 logger.info(
                     "Reservation created successfully",
                     extra={
@@ -422,14 +437,16 @@ class ReservationsClient(BaseAPIClient):
                 json_data=api_data,
                 timeout=30.0,
                 data_transformations={
-                    "reservation": lambda x: self._transform_reservation_data(x),
+                    "reservation": self._transform_reservation_data,
                 },
             )
 
             self._operation_metrics["modifications"] += 1
 
             if response.success:
-                modified_reservation = response.data.get("reservation", {})
+                modified_reservation: dict[str, Any] = (
+                    response.data.get("reservation", {}) if response.data else {}
+                )
                 logger.info(
                     "Reservation modified successfully",
                     extra={
@@ -452,6 +469,48 @@ class ReservationsClient(BaseAPIClient):
                 exc_info=True,
             )
             raise
+
+    def _handle_cancellation_input(
+        self, cancellation: ReservationCancelRequest | dict[str, Any] | str | None
+    ) -> ReservationCancelRequest:
+        """Handle different cancellation input formats."""
+        if cancellation is None:
+            return ReservationCancelRequest(
+                reason="Guest requested cancellation",
+                charge_penalty=False,
+                notify_guest=True,
+            )
+        elif isinstance(cancellation, str):
+            return ReservationCancelRequest(
+                reason=cancellation, charge_penalty=False, notify_guest=True
+            )
+        elif isinstance(cancellation, dict):
+            # Ensure required fields are present
+            if "reason" not in cancellation:
+                cancellation["reason"] = "Guest requested cancellation"
+            if "charge_penalty" not in cancellation:
+                cancellation["charge_penalty"] = False
+            if "notify_guest" not in cancellation:
+                cancellation["notify_guest"] = True
+            return ReservationCancelRequest(**cancellation)
+        elif isinstance(cancellation, ReservationCancelRequest):
+            return cancellation
+        else:
+            raise ValidationError("Invalid cancellation request type")
+
+    def _prepare_cancel_response_data(
+        self, response: APIResponse
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        """Prepare response data for cancellation."""
+        if response.success:
+            canceled_reservation: dict[str, Any] = (
+                response.data.get("reservation", {}) if response.data else {}
+            )
+            charges: list[dict[str, Any]] = (
+                response.data.get("charges", []) if response.data else []
+            )
+            return canceled_reservation, charges
+        return {}, []
 
     async def cancel_reservation(
         self,
@@ -485,48 +544,41 @@ class ReservationsClient(BaseAPIClient):
 
         try:
             # Handle different cancellation input formats
-            if cancellation is None:
-                cancellation = ReservationCancelRequest(
-                    reason="Guest requested cancellation"
-                )
-            elif isinstance(cancellation, str):
-                cancellation = ReservationCancelRequest(reason=cancellation)
-            elif isinstance(cancellation, dict):
-                cancellation = ReservationCancelRequest(**cancellation)
-            elif not isinstance(cancellation, ReservationCancelRequest):
-                raise ValidationError("Invalid cancellation request type")
+            cancellation_request = self._handle_cancellation_input(cancellation)
 
             # Transform to OPERA Cloud API format
-            api_data = self._transform_cancel_request(cancellation)
+            api_data = self._transform_cancel_request(cancellation_request)
 
             logger.debug(
                 "Reservation cancellation data prepared",
                 extra={
                     "hotel_id": self.hotel_id,
                     "confirmation_number": confirmation_number,
-                    "reason": cancellation.reason,
-                    "charge_penalty": cancellation.charge_penalty,
-                    "notify_guest": cancellation.notify_guest,
+                    "reason": cancellation_request.reason,
+                    "charge_penalty": cancellation_request.charge_penalty,
+                    "notify_guest": cancellation_request.notify_guest,
                 },
             )
 
-            endpoint = f"rsv/v1/hotels/{self.hotel_id}/reservations/{confirmation_number}/cancel"
+            endpoint = (
+                f"rsv/v1/hotels/{self.hotel_id}/reservations/"
+                + f"{confirmation_number}/cancel"
+            )
             response = await self.post(
                 endpoint,
                 json_data=api_data,
                 timeout=30.0,
                 data_transformations={
-                    "reservation": lambda x: self._transform_reservation_data(x),
+                    "reservation": self._transform_reservation_data,
                     "charges": lambda x: self._transform_charges_data(x) if x else [],
                 },
             )
 
             self._operation_metrics["cancellations"] += 1
 
-            if response.success:
-                canceled_reservation = response.data.get("reservation", {})
-                charges = response.data.get("charges", [])
+            canceled_reservation, charges = self._prepare_cancel_response_data(response)
 
+            if response.success:
                 logger.info(
                     "Reservation canceled successfully",
                     extra={
@@ -661,9 +713,9 @@ class ReservationsClient(BaseAPIClient):
 
     def _build_search_params(
         self, criteria: ReservationSearchCriteria
-    ) -> dict[str, Any]:
+    ) -> dict[str, str | int]:
         """Build OPERA Cloud API parameters from search criteria."""
-        params = {}
+        params: dict[str, str | int] = {}
 
         if criteria.arrival_date:
             params["arrivalDate"] = criteria.arrival_date
@@ -687,8 +739,8 @@ class ReservationsClient(BaseAPIClient):
             params["createdFrom"] = criteria.created_from
         if criteria.created_to:
             params["createdTo"] = criteria.created_to
-
-        params["limit"] = criteria.limit
+        if criteria.limit:
+            params["limit"] = criteria.limit
         if criteria.offset > 0:
             params["offset"] = criteria.offset
 
@@ -768,7 +820,7 @@ class ReservationsClient(BaseAPIClient):
         self, request: ReservationModifyRequest
     ) -> dict[str, Any]:
         """Transform reservation modify request to OPERA Cloud format."""
-        data = {}
+        data: dict[str, Any] = {}
 
         if request.room_stay:
             data["stayDetails"] = {
@@ -799,6 +851,74 @@ class ReservationsClient(BaseAPIClient):
             "chargePenalty": request.charge_penalty,
             "notifyGuest": request.notify_guest,
         }
+
+    async def check_availability(
+        self,
+        availability_criteria: dict[str, Any],
+    ) -> APIResponse:
+        """
+        Check room availability for given criteria.
+
+        Args:
+            availability_criteria: Search criteria for availability
+
+        Returns:
+            APIResponse containing availability results
+        """
+        logger.info(
+            "Checking availability",
+            extra={
+                "hotel_id": self.hotel_id,
+                "criteria": availability_criteria,
+            },
+        )
+
+        endpoint = f"rsv/v1/hotels/{self.hotel_id}/availability"
+        return await self.post(
+            endpoint,
+            json_data=availability_criteria,
+            data_transformations={
+                "rooms": self._transform_room_availability,
+                "totalAvailable": int,
+            },
+        )
+
+    async def get_guest_reservation_history(
+        self,
+        history_criteria: dict[str, Any],
+    ) -> APIResponse:
+        """
+        Get guest reservation history based on criteria.
+
+        Args:
+            history_criteria: Search criteria for guest history
+
+        Returns:
+            APIResponse containing reservation history
+        """
+        logger.info(
+            "Retrieving guest reservation history",
+            extra={
+                "hotel_id": self.hotel_id,
+                "criteria": history_criteria,
+            },
+        )
+
+        endpoint = f"rsv/v1/hotels/{self.hotel_id}/guests/history"
+        return await self.post(
+            endpoint,
+            json_data=history_criteria,
+            data_transformations={
+                "reservations": self._transform_reservation_list,
+                "total_count": int,
+            },
+        )
+
+    def _transform_room_availability(
+        self, rooms_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Transform room availability data from OPERA Cloud format."""
+        return rooms_data
 
     def _transform_charges_data(
         self, charges_data: list[dict[str, Any]]

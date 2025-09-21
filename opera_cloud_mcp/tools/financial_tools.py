@@ -17,8 +17,289 @@ from opera_cloud_mcp.utils.client_factory import (
 from opera_cloud_mcp.utils.exceptions import ValidationError
 
 
-def register_financial_tools(app: FastMCP):
-    """Register all financial and billing MCP tools."""
+def _validate_get_guest_folio_params(hotel_id: str | None, folio_type: str) -> None:
+    """Validate get guest folio parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    valid_folio_types = ["master", "individual", "group"]
+    if folio_type not in valid_folio_types:
+        raise ValidationError(
+            f"Invalid folio_type. Must be one of: {', '.join(valid_folio_types)}"
+        )
+
+
+def _validate_post_charge_to_room_params(hotel_id: str | None, amount: float) -> None:
+    """Validate post charge to room parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if amount <= 0:
+        raise ValidationError("amount must be positive")
+
+
+def _build_charge_data(
+    amount: float,
+    description: str,
+    department_code: str,
+    tax_amount: float | None,
+    reference_number: str | None,
+    posting_date: str | None,
+) -> dict[str, Any]:
+    """Build charge data dictionary."""
+    # Convert to Decimal for precision
+    amount_decimal = Decimal(str(amount))
+    tax_amount_decimal = Decimal(str(tax_amount)) if tax_amount is not None else None
+
+    return {
+        "amount": float(amount_decimal),
+        "description": description,
+        "departmentCode": department_code,
+        "taxAmount": float(tax_amount_decimal) if tax_amount_decimal else None,
+        "referenceNumber": reference_number,
+        "postingDate": posting_date,
+        "postedBy": "mcp_agent",
+    }
+
+
+def _validate_process_payment_params(
+    hotel_id: str | None, amount: float, payment_method: str
+) -> None:
+    """Validate process payment parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if amount <= 0:
+        raise ValidationError("amount must be positive")
+
+    valid_payment_methods = [
+        "cash",
+        "credit_card",
+        "debit_card",
+        "check",
+        "comp",
+        "transfer",
+    ]
+    if payment_method not in valid_payment_methods:
+        raise ValidationError(
+            "Invalid payment_method. Must be one of: "
+            + ", ".join(valid_payment_methods)
+        )
+
+
+def _build_payment_data(
+    amount: float,
+    payment_method: str,
+    reference_number: str | None,
+    notes: str | None,
+    apply_to_balance: bool,
+) -> dict[str, Any]:
+    """Build payment data dictionary."""
+    # Convert to Decimal for precision
+    amount_decimal = Decimal(str(amount))
+
+    return {
+        "amount": float(amount_decimal),
+        "paymentMethod": payment_method,
+        "referenceNumber": reference_number,
+        "notes": notes,
+        "applyToBalance": apply_to_balance,
+        "processedBy": "mcp_agent",
+    }
+
+
+def _validate_generate_folio_report_params(
+    hotel_id: str | None, format_type: str
+) -> None:
+    """Validate generate folio report parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    valid_formats = ["detailed", "summary", "itemized"]
+    if format_type not in valid_formats:
+        raise ValidationError(
+            f"Invalid format_type. Must be one of: {', '.join(valid_formats)}"
+        )
+
+
+def _build_report_params(
+    format_type: str, include_zero_amounts: bool
+) -> dict[str, Any]:
+    """Build report parameters dictionary."""
+    return {
+        "format": format_type,
+        "includeZeroAmounts": include_zero_amounts,
+    }
+
+
+def _validate_transfer_charges_params(
+    hotel_id: str | None, from_confirmation: str, to_confirmation: str, charges: list
+) -> None:
+    """Validate transfer charges parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if not charges:
+        raise ValidationError("At least one charge must be provided for transfer")
+
+    if from_confirmation == to_confirmation:
+        raise ValidationError(
+            "Source and destination confirmation numbers cannot be the same"
+        )
+
+    # Validate charge format
+    for charge in charges:
+        if not all(key in charge for key in ("charge_id", "amount", "description")):
+            raise ValidationError(
+                "Each charge must have 'charge_id', 'amount', "
+                + "and 'description' fields"
+            )
+        if charge["amount"] <= 0:
+            raise ValidationError("Charge amounts must be positive")
+
+
+def _build_transfer_data(
+    from_confirmation: str,
+    to_confirmation: str,
+    charges: list,
+    transfer_reason: str | None,
+) -> dict[str, Any]:
+    """Build transfer data dictionary."""
+    return {
+        "fromConfirmation": from_confirmation,
+        "toConfirmation": to_confirmation,
+        "charges": charges,
+        "transferReason": transfer_reason,
+        "transferredBy": "mcp_agent",
+    }
+
+
+def _validate_void_transaction_params(hotel_id: str | None) -> None:
+    """Validate void transaction parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_void_data(
+    transaction_id: str, void_reason: str, manager_override: str | None
+) -> dict[str, Any]:
+    """Build void data dictionary."""
+    return {
+        "transactionId": transaction_id,
+        "voidReason": void_reason,
+        "managerOverride": manager_override,
+        "voidedBy": "mcp_agent",
+    }
+
+
+def _validate_process_refund_params(
+    hotel_id: str | None, amount: float, refund_method: str
+) -> None:
+    """Validate process refund parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if amount <= 0:
+        raise ValidationError("refund amount must be positive")
+
+    valid_refund_methods = [
+        "original_payment",
+        "cash",
+        "check",
+        "credit",
+        "transfer",
+    ]
+    if refund_method not in valid_refund_methods:
+        raise ValidationError(
+            "Invalid refund_method. Must be one of: " + ", ".join(valid_refund_methods)
+        )
+
+
+def _build_refund_data(
+    amount: float,
+    refund_reason: str,
+    refund_method: str,
+    original_transaction_id: str | None,
+    notes: str | None,
+) -> dict[str, Any]:
+    """Build refund data dictionary."""
+    # Convert to Decimal for precision
+    amount_decimal = Decimal(str(amount))
+
+    return {
+        "amount": float(amount_decimal),
+        "refundReason": refund_reason,
+        "refundMethod": refund_method,
+        "originalTransactionId": original_transaction_id,
+        "notes": notes,
+        "processedBy": "mcp_agent",
+    }
+
+
+def _validate_get_daily_revenue_report_params(hotel_id: str | None) -> None:
+    """Validate get daily revenue report parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_revenue_report_params(
+    report_date: str,
+    include_departments: bool,
+    include_payment_methods: bool,
+) -> dict[str, Any]:
+    """Build revenue report parameters dictionary."""
+    return {
+        "date": report_date,
+        "includeDepartments": include_departments,
+        "includePaymentMethods": include_payment_methods,
+    }
+
+
+def _validate_get_outstanding_balances_params(
+    hotel_id: str | None, balance_threshold: float
+) -> None:
+    """Validate get outstanding balances parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if balance_threshold < 0:
+        raise ValidationError("balance_threshold cannot be negative")
+
+
+def _build_balance_params(
+    balance_threshold: float, include_departed: bool, days_back: int
+) -> dict[str, Any]:
+    """Build balance parameters dictionary."""
+    return {
+        "balanceThreshold": balance_threshold,
+        "includeDeparted": include_departed,
+        "daysBack": days_back,
+    }
+
+
+def register_folio_tools(app: FastMCP):
+    """Register folio-related MCP tools."""
+    register_guest_folio_tool(app)
+    register_charge_tools(app)
+    register_payment_tools(app)
+
+
+def register_report_tools(app: FastMCP):
+    """Register financial report MCP tools."""
+    register_folio_report_tool(app)
+    register_revenue_report_tool(app)
+    register_outstanding_balances_tool(app)
+
+
+def register_transaction_tools(app: FastMCP):
+    """Register transaction-related MCP tools."""
+    register_transfer_charges_tool(app)
+    register_void_transaction_tool(app)
+    register_refund_tool(app)
+
+
+def register_guest_folio_tool(app: FastMCP):
+    """Register guest folio MCP tool."""
 
     @app.tool()
     async def get_guest_folio(
@@ -39,15 +320,7 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing detailed folio information
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        valid_folio_types = ["master", "individual", "group"]
-        if folio_type not in valid_folio_types:
-            raise ValidationError(
-                f"Invalid folio_type. Must be one of: {', '.join(valid_folio_types)}"
-            )
+        _validate_get_guest_folio_params(hotel_id, folio_type)
 
         client = create_front_office_client(hotel_id=hotel_id)
 
@@ -64,13 +337,16 @@ def register_financial_tools(app: FastMCP):
                 "current_balance": response.data.get("currentBalance"),
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_charge_tools(app: FastMCP):
+    """Register charge-related MCP tools."""
 
     @app.tool()
     async def post_charge_to_room(
@@ -99,31 +375,18 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing charge posting confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if amount <= 0:
-            raise ValidationError("amount must be positive")
-
-        # Convert to Decimal for precision
-        amount_decimal = Decimal(str(amount))
-        if tax_amount is not None:
-            tax_amount_decimal = Decimal(str(tax_amount))
-        else:
-            tax_amount_decimal = None
+        _validate_post_charge_to_room_params(hotel_id, amount)
 
         client = create_front_office_client(hotel_id=hotel_id)
 
-        charge_data = {
-            "amount": float(amount_decimal),
-            "description": description,
-            "departmentCode": department_code,
-            "taxAmount": float(tax_amount_decimal) if tax_amount_decimal else None,
-            "referenceNumber": reference_number,
-            "postingDate": posting_date,
-            "postedBy": "mcp_agent",
-        }
+        charge_data = _build_charge_data(
+            amount,
+            description,
+            department_code,
+            tax_amount,
+            reference_number,
+            posting_date,
+        )
 
         response = await client.post_charge_to_room(confirmation_number, charge_data)
 
@@ -132,17 +395,20 @@ def register_financial_tools(app: FastMCP):
                 "success": True,
                 "charge_details": response.data,
                 "confirmation_number": confirmation_number,
-                "amount": float(amount_decimal),
+                "amount": amount,
                 "description": description,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_payment_tools(app: FastMCP):
+    """Register payment-related MCP tools."""
 
     @app.tool()
     async def process_payment(
@@ -169,39 +435,13 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing payment processing confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if amount <= 0:
-            raise ValidationError("amount must be positive")
-
-        valid_payment_methods = [
-            "cash",
-            "credit_card",
-            "debit_card",
-            "check",
-            "comp",
-            "transfer",
-        ]
-        if payment_method not in valid_payment_methods:
-            raise ValidationError(
-                f"Invalid payment_method. Must be one of: {', '.join(valid_payment_methods)}"
-            )
-
-        # Convert to Decimal for precision
-        amount_decimal = Decimal(str(amount))
+        _validate_process_payment_params(hotel_id, amount, payment_method)
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        payment_data = {
-            "amount": float(amount_decimal),
-            "paymentMethod": payment_method,
-            "referenceNumber": reference_number,
-            "notes": notes,
-            "applyToBalance": apply_to_balance,
-            "processedBy": "mcp_agent",
-        }
+        payment_data = _build_payment_data(
+            amount, payment_method, reference_number, notes, apply_to_balance
+        )
 
         response = await client.process_payment(confirmation_number, payment_data)
 
@@ -210,18 +450,21 @@ def register_financial_tools(app: FastMCP):
                 "success": True,
                 "payment_details": response.data,
                 "confirmation_number": confirmation_number,
-                "amount": float(amount_decimal),
+                "amount": amount,
                 "payment_method": payment_method,
                 "remaining_balance": response.data.get("remainingBalance"),
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_folio_report_tool(app: FastMCP):
+    """Register folio report MCP tool."""
 
     @app.tool()
     async def generate_folio_report(
@@ -242,22 +485,11 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing formatted folio report
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        valid_formats = ["detailed", "summary", "itemized"]
-        if format_type not in valid_formats:
-            raise ValidationError(
-                f"Invalid format_type. Must be one of: {', '.join(valid_formats)}"
-            )
+        _validate_generate_folio_report_params(hotel_id, format_type)
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        report_params = {
-            "format": format_type,
-            "includeZeroAmounts": include_zero_amounts,
-        }
+        report_params = _build_report_params(format_type, include_zero_amounts)
 
         response = await client.generate_folio_report(
             confirmation_number, report_params
@@ -271,13 +503,16 @@ def register_financial_tools(app: FastMCP):
                 "format_type": format_type,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_transfer_charges_tool(app: FastMCP):
+    """Register transfer charges MCP tool."""
 
     @app.tool()
     async def transfer_charges(
@@ -306,31 +541,15 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing transfer confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if not charges:
-            raise ValidationError("At least one charge must be provided for transfer")
-
-        # Validate charge format
-        for charge in charges:
-            if not all(key in charge for key in ["charge_id", "amount", "description"]):
-                raise ValidationError(
-                    "Each charge must have 'charge_id', 'amount', and 'description' fields"
-                )
-            if charge["amount"] <= 0:
-                raise ValidationError("Charge amounts must be positive")
+        _validate_transfer_charges_params(
+            hotel_id, from_confirmation, to_confirmation, charges
+        )
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        transfer_data = {
-            "fromConfirmation": from_confirmation,
-            "toConfirmation": to_confirmation,
-            "charges": charges,
-            "transferReason": transfer_reason,
-            "transferredBy": "mcp_agent",
-        }
+        transfer_data = _build_transfer_data(
+            from_confirmation, to_confirmation, charges, transfer_reason
+        )
 
         response = await client.transfer_charges(transfer_data)
 
@@ -344,14 +563,17 @@ def register_financial_tools(app: FastMCP):
                 "charges_count": len(charges),
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "from_confirmation": from_confirmation,
-                "to_confirmation": to_confirmation,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "from_confirmation": from_confirmation,
+            "to_confirmation": to_confirmation,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_void_transaction_tool(app: FastMCP):
+    """Register void transaction MCP tool."""
 
     @app.tool()
     async def void_transaction(
@@ -374,18 +596,11 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing void transaction confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_void_transaction_params(hotel_id)
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        void_data = {
-            "transactionId": transaction_id,
-            "voidReason": void_reason,
-            "managerOverride": manager_override,
-            "voidedBy": "mcp_agent",
-        }
+        void_data = _build_void_data(transaction_id, void_reason, manager_override)
 
         response = await client.void_transaction(confirmation_number, void_data)
 
@@ -398,14 +613,17 @@ def register_financial_tools(app: FastMCP):
                 "void_reason": void_reason,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "transaction_id": transaction_id,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "transaction_id": transaction_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_refund_tool(app: FastMCP):
+    """Register refund MCP tool."""
 
     @app.tool()
     async def process_refund(
@@ -432,38 +650,17 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing refund processing confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if amount <= 0:
-            raise ValidationError("refund amount must be positive")
-
-        valid_refund_methods = [
-            "original_payment",
-            "cash",
-            "check",
-            "credit",
-            "transfer",
-        ]
-        if refund_method not in valid_refund_methods:
-            raise ValidationError(
-                f"Invalid refund_method. Must be one of: {', '.join(valid_refund_methods)}"
-            )
-
-        # Convert to Decimal for precision
-        amount_decimal = Decimal(str(amount))
+        _validate_process_refund_params(hotel_id, amount, refund_method)
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        refund_data = {
-            "amount": float(amount_decimal),
-            "refundReason": refund_reason,
-            "refundMethod": refund_method,
-            "originalTransactionId": original_transaction_id,
-            "notes": notes,
-            "processedBy": "mcp_agent",
-        }
+        refund_data = _build_refund_data(
+            amount,
+            refund_reason,
+            refund_method,
+            original_transaction_id,
+            notes,
+        )
 
         response = await client.process_refund(confirmation_number, refund_data)
 
@@ -472,17 +669,20 @@ def register_financial_tools(app: FastMCP):
                 "success": True,
                 "refund_details": response.data,
                 "confirmation_number": confirmation_number,
-                "amount": float(amount_decimal),
+                "amount": amount,
                 "refund_reason": refund_reason,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_revenue_report_tool(app: FastMCP):
+    """Register revenue report MCP tool."""
 
     @app.tool()
     async def get_daily_revenue_report(
@@ -503,9 +703,7 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing daily revenue statistics
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_daily_revenue_report_params(hotel_id)
 
         from datetime import date as date_module
 
@@ -514,11 +712,9 @@ def register_financial_tools(app: FastMCP):
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        report_params = {
-            "date": report_date,
-            "includeDepartments": include_departments,
-            "includePaymentMethods": include_payment_methods,
-        }
+        report_params = _build_revenue_report_params(
+            report_date, include_departments, include_payment_methods
+        )
 
         response = await client.get_daily_revenue_report(report_params)
 
@@ -530,13 +726,16 @@ def register_financial_tools(app: FastMCP):
                 "total_revenue": response.data.get("totalRevenue"),
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "report_date": report_date,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "report_date": report_date,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_outstanding_balances_tool(app: FastMCP):
+    """Register outstanding balances MCP tool."""
 
     @app.tool()
     async def get_outstanding_balances(
@@ -557,20 +756,13 @@ def register_financial_tools(app: FastMCP):
         Returns:
             Dictionary containing outstanding balance information
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if balance_threshold < 0:
-            raise ValidationError("balance_threshold cannot be negative")
+        _validate_get_outstanding_balances_params(hotel_id, balance_threshold)
 
         client = create_cashier_client(hotel_id=hotel_id)
 
-        balance_params = {
-            "balanceThreshold": balance_threshold,
-            "includeDeparted": include_departed,
-            "daysBack": days_back,
-        }
+        balance_params = _build_balance_params(
+            balance_threshold, include_departed, days_back
+        )
 
         response = await client.get_outstanding_balances(balance_params)
 
@@ -583,5 +775,11 @@ def register_financial_tools(app: FastMCP):
                 "balance_threshold": balance_threshold,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {"success": False, "error": response.error, "hotel_id": hotel_id}
+        return {"success": False, "error": response.error, "hotel_id": hotel_id}
+
+
+def register_financial_tools(app: FastMCP):
+    """Register all financial and billing MCP tools."""
+    register_folio_tools(app)
+    register_report_tools(app)
+    register_transaction_tools(app)

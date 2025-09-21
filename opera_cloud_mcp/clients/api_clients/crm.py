@@ -7,13 +7,13 @@ the OPERA Cloud CRM API.
 """
 
 import logging
-from datetime import date, datetime
+from contextlib import suppress
+from datetime import UTC, date, datetime
 from typing import Any
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.guest import (
     GuestSearchCriteria,
-    ProfileMergeRequest,
     ProfileStatus,
     VIPStatus,
 )
@@ -85,7 +85,8 @@ class CRMClient(BaseAPIClient):
             "sortOrder": sort_order.upper(),
         }
 
-        # Use structured criteria if provided, otherwise build from individual parameters
+        # Use structured criteria if provided, otherwise build from
+        # individual parameters
         if criteria:
             search_data = criteria.dict(exclude_none=True, by_alias=True)
         else:
@@ -242,14 +243,14 @@ class CRMClient(BaseAPIClient):
             raise ValidationError("Last name is required")
 
         # Build guest profile data
-        guest_data = {
+        guest_data: dict[str, Any] = {
             "firstName": first_name.strip().title(),
             "lastName": last_name.strip().title(),
             "status": ProfileStatus.ACTIVE.value,
-            "createdDate": datetime.utcnow().isoformat(),
+            "createdDate": datetime.now(tz=UTC).isoformat(),
             "createdBy": "system",  # This would come from auth context
             "dataProtectionConsent": True,
-            "consentDate": datetime.utcnow().isoformat(),
+            "consentDate": datetime.now(tz=UTC).isoformat(),
         }
 
         # Add optional fields
@@ -338,7 +339,7 @@ class CRMClient(BaseAPIClient):
         update_data = updates.copy()
         update_data.update(
             {
-                "modifiedDate": datetime.utcnow().isoformat(),
+                "modifiedDate": datetime.now(tz=UTC).isoformat(),
                 "modifiedBy": "system",  # This would come from auth context
             }
         )
@@ -395,7 +396,7 @@ class CRMClient(BaseAPIClient):
             },
         )
 
-        params = {
+        params: dict[str, str | int | bool] = {
             "page": page,
             "pageSize": page_size,
             "includeStatistics": include_statistics,
@@ -425,16 +426,20 @@ class CRMClient(BaseAPIClient):
 
     async def merge_guest_profiles(
         self,
-        merge_request: ProfileMergeRequest,
+        primary_guest_id: str,
+        duplicate_guest_id: str,
+        merge_options: dict[str, Any] | None = None,
     ) -> APIResponse:
         """
-        Merge guest profiles with comprehensive conflict resolution.
+        Merge guest profiles with the specified options.
 
         Args:
-            merge_request: Complete merge request with conflict resolution rules
+            primary_guest_id: ID of the profile to keep as primary
+            duplicate_guest_id: ID of the profile to merge and remove
+            merge_options: Options for how to handle the merge
 
         Returns:
-            APIResponse containing ProfileMergeResult
+            APIResponse containing merge result
 
         Raises:
             ValidationError: If merge request is invalid
@@ -444,27 +449,33 @@ class CRMClient(BaseAPIClient):
             "Merging guest profiles",
             extra={
                 "hotel_id": self.hotel_id,
-                "source_profile_id": merge_request.source_profile_id,
-                "target_profile_id": merge_request.target_profile_id,
-                "merge_reason": merge_request.merge_reason,
+                "primary_guest_id": primary_guest_id,
+                "duplicate_guest_id": duplicate_guest_id,
+                "merge_options": merge_options,
             },
         )
 
         # Validate profiles exist
         await self.get_guest_profile(
-            merge_request.source_profile_id,
+            primary_guest_id,
             include_statistics=False,
             include_history=False,
         )
         await self.get_guest_profile(
-            merge_request.target_profile_id,
+            duplicate_guest_id,
             include_statistics=False,
             include_history=False,
         )
 
+        merge_data = {
+            "primaryGuestId": primary_guest_id,
+            "duplicateGuestId": duplicate_guest_id,
+            "mergeOptions": merge_options or {},
+        }
+
         return await self.post(
             "crm/v1/guests/merge",
-            json_data=merge_request.dict(exclude_none=True, by_alias=True),
+            json_data=merge_data,
             data_transformations={
                 "mergeResult": self._transform_merge_result,
                 "conflicts": self._transform_merge_conflicts,
@@ -540,7 +551,7 @@ class CRMClient(BaseAPIClient):
             "programId": program_id,
             "pointsAdjustment": points_adjustment,
             "transactionType": transaction_type,
-            "transactionDate": datetime.utcnow().isoformat(),
+            "transactionDate": datetime.now(tz=UTC).isoformat(),
             "processedBy": "system",  # This would come from auth context
         }
 
@@ -622,7 +633,7 @@ class CRMClient(BaseAPIClient):
         request_data = {
             "preferences": preferences,
             "mergeMode": merge_mode,
-            "modifiedDate": datetime.utcnow().isoformat(),
+            "modifiedDate": datetime.now(tz=UTC).isoformat(),
             "modifiedBy": "system",  # This would come from auth context
         }
 
@@ -662,8 +673,8 @@ class CRMClient(BaseAPIClient):
         preference_data = marketing_preferences.copy()
         preference_data.update(
             {
-                "consentDate": datetime.utcnow().isoformat(),
-                "modifiedDate": datetime.utcnow().isoformat(),
+                "consentDate": datetime.now(tz=UTC).isoformat(),
+                "modifiedDate": datetime.now(tz=UTC).isoformat(),
             }
         )
 
@@ -675,13 +686,78 @@ class CRMClient(BaseAPIClient):
             },
         )
 
+    async def get_guest_stay_history(
+        self,
+        guest_id: str,
+        history_params: dict[str, Any] | None = None,
+    ) -> APIResponse:
+        """
+        Get guest stay history with filtering parameters.
+
+        Args:
+            guest_id: Guest identifier
+            history_params: Optional filtering parameters
+
+        Returns:
+            APIResponse containing stay history
+        """
+        logger.info(
+            "Retrieving guest stay history",
+            extra={
+                "hotel_id": self.hotel_id,
+                "guest_id": guest_id,
+                "history_params": history_params,
+            },
+        )
+
+        params = history_params or {}
+
+        return await self.get(
+            f"crm/v1/guests/{guest_id}/stays",
+            params=params,
+            data_transformations={
+                "stays": self._transform_stay_history,
+                "total_count": int,
+            },
+        )
+
+    async def get_guest_loyalty_info(
+        self,
+        guest_id: str,
+    ) -> APIResponse:
+        """
+        Get guest loyalty program information.
+
+        Args:
+            guest_id: Guest identifier
+
+        Returns:
+            APIResponse containing loyalty information
+        """
+        logger.info(
+            "Retrieving guest loyalty info",
+            extra={
+                "hotel_id": self.hotel_id,
+                "guest_id": guest_id,
+            },
+        )
+
+        return await self.get(
+            f"crm/v1/guests/{guest_id}/loyalty-info",
+            data_transformations={
+                "loyaltyPrograms": self._transform_loyalty_programs,
+            },
+        )
+
     # Data transformation methods
 
-    def _transform_guest_profiles(self, profiles_data: list[dict]) -> list[dict]:
+    def _transform_guest_profiles(
+        self, profiles_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Transform guest profile data from API response."""
         return [self._transform_guest_profile(profile) for profile in profiles_data]
 
-    def _transform_guest_profile(self, profile_data: dict) -> dict:
+    def _transform_guest_profile(self, profile_data: dict[str, Any]) -> dict[str, Any]:
         """Transform individual guest profile data."""
         # Convert date strings to proper format
         if "birthDate" in profile_data and profile_data["birthDate"]:
@@ -715,11 +791,15 @@ class CRMClient(BaseAPIClient):
 
         return profile_data
 
-    def _transform_loyalty_programs(self, programs_data: list[dict]) -> list[dict]:
+    def _transform_loyalty_programs(
+        self, programs_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Transform loyalty programs data."""
         return [self._transform_loyalty_program(program) for program in programs_data]
 
-    def _transform_loyalty_program(self, program_data: dict) -> dict:
+    def _transform_loyalty_program(
+        self, program_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform individual loyalty program data."""
         # Convert date strings
         date_fields = ["memberSince", "tierQualificationDate", "tierExpiryDate"]
@@ -739,7 +819,9 @@ class CRMClient(BaseAPIClient):
 
         return program_data
 
-    def _transform_guest_preferences(self, preferences_data: list[dict]) -> list[dict]:
+    def _transform_guest_preferences(
+        self, preferences_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Transform guest preferences data."""
         for preference in preferences_data:
             if "createdDate" in preference and preference["createdDate"]:
@@ -753,7 +835,7 @@ class CRMClient(BaseAPIClient):
 
         return preferences_data
 
-    def _transform_guest_statistics(self, stats_data: dict) -> dict:
+    def _transform_guest_statistics(self, stats_data: dict[str, Any]) -> dict[str, Any]:
         """Transform guest statistics data."""
         # Convert date strings
         date_fields = ["firstStayDate", "lastStayDate"]
@@ -765,16 +847,16 @@ class CRMClient(BaseAPIClient):
         numeric_fields = ["totalRevenue", "averageDailyRate"]
         for field in numeric_fields:
             if field in stats_data and stats_data[field] is not None:
-                try:
+                with suppress(ValueError, TypeError):
                     from decimal import Decimal
 
                     stats_data[field] = Decimal(str(stats_data[field]))
-                except (ValueError, TypeError):
-                    pass
 
         return stats_data
 
-    def _transform_stay_history(self, history_data: list[dict]) -> list[dict]:
+    def _transform_stay_history(
+        self, history_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Transform stay history data."""
         for stay in history_data:
             # Convert dates
@@ -791,7 +873,9 @@ class CRMClient(BaseAPIClient):
 
         return history_data
 
-    def _transform_marketing_preferences(self, prefs_data: dict) -> dict:
+    def _transform_marketing_preferences(
+        self, prefs_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform marketing preferences data."""
         # Convert timestamps
         timestamp_fields = ["consentDate", "optOutDate"]
@@ -801,18 +885,22 @@ class CRMClient(BaseAPIClient):
 
         return prefs_data
 
-    def _transform_merge_result(self, result_data: dict) -> dict:
+    def _transform_merge_result(self, result_data: dict[str, Any]) -> dict[str, Any]:
         """Transform profile merge result data."""
         if "mergeDate" in result_data and result_data["mergeDate"]:
             result_data["mergeDate"] = self._parse_datetime(result_data["mergeDate"])
 
         return result_data
 
-    def _transform_merge_conflicts(self, conflicts_data: list[dict]) -> list[dict]:
+    def _transform_merge_conflicts(
+        self, conflicts_data: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Transform merge conflicts data."""
         return conflicts_data  # No special transformation needed
 
-    def _transform_points_transaction(self, transaction_data: dict) -> dict:
+    def _transform_points_transaction(
+        self, transaction_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform loyalty points transaction data."""
         if (
             "transactionDate" in transaction_data
@@ -830,13 +918,12 @@ class CRMClient(BaseAPIClient):
         """Parse date string and return in ISO format."""
         try:
             if isinstance(date_string, str):
-                # Handle various date formats
                 from dateutil import parser
 
                 parsed_date = parser.parse(date_string).date()
                 return parsed_date.isoformat()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to parse date string: {e}")
         return date_string
 
     def _parse_datetime(self, datetime_string: str) -> str:
@@ -847,6 +934,6 @@ class CRMClient(BaseAPIClient):
 
                 parsed_datetime = parser.parse(datetime_string)
                 return parsed_datetime.isoformat()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to parse datetime string: {e}")
         return datetime_string

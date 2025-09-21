@@ -7,13 +7,14 @@ and comprehensive monitoring for production hotel operations.
 
 import json
 import logging
+import operator
 import sys
 import time
 from collections import defaultdict, deque
 from collections.abc import AsyncGenerator, Generator
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -138,19 +139,25 @@ class StructuredLogger:
         self.logger = logging.getLogger(name)
         self._setup_handlers(enable_console_output, log_file_path)
 
-    def _setup_handlers(self, console: bool, log_file: str | None) -> None:
-        """Setup log handlers with structured formatting."""
+    def _create_structured_formatter(self, enable_masking: bool) -> logging.Formatter:
+        """Create structured formatter for logging."""
 
         class StructuredFormatter(logging.Formatter):
-            def __init__(self, hotel_id: str | None, enable_masking: bool):
+            def __init__(
+                self,
+                hotel_id: str | None,
+                enable_masking: bool,
+                pii_patterns: dict[str, str],
+            ):
                 super().__init__()
                 self.hotel_id = hotel_id
                 self.enable_masking = enable_masking
+                self._pii_patterns = pii_patterns
 
-            def format(self, record) -> str:
+            def format(self, record: logging.LogRecord) -> str:
                 # Base log entry
                 log_entry = {
-                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                    "timestamp": datetime.now(tz=UTC).isoformat() + "Z",
                     "level": record.levelname,
                     "logger": record.name,
                     "message": record.getMessage(),
@@ -178,7 +185,9 @@ class StructuredLogger:
                 # Add exception info
                 if record.exc_info:
                     log_entry["exception"] = {
-                        "type": record.exc_info[0].__name__,
+                        "type": record.exc_info[0].__name__
+                        if record.exc_info[0] is not None
+                        else "Unknown",
                         "message": str(record.exc_info[1]),
                         "traceback": self.formatException(record.exc_info),
                     }
@@ -199,15 +208,21 @@ class StructuredLogger:
 
                     masked = text
                     # Mask email addresses
-                    masked = re.sub(self._pii_patterns["email"], "***@***.***", masked)
+                    masked = re.sub(
+                        self._pii_patterns["email"], "***@***.***", masked
+                    )  # REGEX OK: Standard email pattern for PII masking
                     # Mask phone numbers
-                    masked = re.sub(self._pii_patterns["phone"], "***-***-****", masked)
+                    masked = re.sub(
+                        self._pii_patterns["phone"], "***-***-****", masked
+                    )  # REGEX OK: Standard phone pattern for PII masking
                     # Mask credit card numbers
                     masked = re.sub(
                         self._pii_patterns["cc_number"], "****-****-****-****", masked
-                    )
+                    )  # REGEX OK: Standard credit card pattern for PII masking
                     # Mask SSN
-                    masked = re.sub(self._pii_patterns["ssn"], "***-**-****", masked)
+                    masked = re.sub(
+                        self._pii_patterns["ssn"], "***-**-****", masked
+                    )  # REGEX OK: Standard SSN pattern for PII masking
 
                     return masked
 
@@ -218,34 +233,47 @@ class StructuredLogger:
                         return [mask_recursive(item) for item in obj]
                     elif isinstance(obj, str):
                         return mask_string(obj)
-                    else:
-                        return obj
+                    return obj
 
-                return mask_recursive(data)
+                return mask_recursive(data)  # type: ignore
 
+        return StructuredFormatter(self.hotel_id, enable_masking, self._pii_patterns)
+
+    def _setup_console_handler(self, enable_masking: bool) -> logging.Handler:
+        """Setup console handler."""
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(self._create_structured_formatter(enable_masking))
+        return console_handler
+
+    def _setup_file_handler(
+        self, log_file: str, enable_masking: bool
+    ) -> logging.Handler:
+        """Setup file handler."""
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(self._create_structured_formatter(enable_masking))
+        return file_handler
+
+    def _setup_handlers(self, console: bool, log_file: str | None) -> None:
+        """Setup log handlers with structured formatting."""
         # Remove existing handlers
         self.logger.handlers.clear()
 
+        enable_masking = self.enable_pii_masking
+
         # Console handler
         if console:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(
-                StructuredFormatter(self.hotel_id, self.enable_pii_masking)
-            )
+            console_handler = self._setup_console_handler(enable_masking)
             self.logger.addHandler(console_handler)
 
         # File handler
         if log_file:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(
-                StructuredFormatter(self.hotel_id, self.enable_pii_masking)
-            )
+            file_handler = self._setup_file_handler(log_file, enable_masking)
             self.logger.addHandler(file_handler)
 
         self.logger.setLevel(logging.DEBUG)
 
     @contextmanager
-    def context(self, **context_data) -> Generator[None]:
+    def context(self, **context_data: Any) -> Generator[None]:
         """Add context data to all log entries in this block."""
         self._context_stack.append(context_data)
         try:
@@ -266,7 +294,7 @@ class StructuredLogger:
         level: LogLevel,
         message: str,
         trace_context: TraceContext | None = None,
-        **extra_data,
+        **extra_data: Any,
     ) -> None:
         """
         Log a structured message.
@@ -278,7 +306,7 @@ class StructuredLogger:
             **extra_data: Additional structured data
         """
         # Merge context
-        log_data = {**self._get_current_context(), **extra_data}
+        log_data = self._get_current_context() | extra_data
 
         # Add trace information
         if trace_context:
@@ -350,10 +378,10 @@ class MetricsCollector:
         self.counters: dict[str, int] = defaultdict(int)
         self.gauges: dict[str, float] = {}
         self.histograms: dict[str, list[float]] = defaultdict(list)
-        self.timers: dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
+        self.timers: dict[str, deque[Any]] = defaultdict(lambda: deque(maxlen=1000))
 
         # Time series data (last 24 hours)
-        self.time_series: dict[str, deque] = defaultdict(
+        self.time_series: dict[str, deque[Any]] = defaultdict(
             lambda: deque(maxlen=1440)
         )  # 1 minute intervals
 
@@ -446,9 +474,9 @@ class MetricsCollector:
 
     def get_metrics_summary(self) -> dict[str, Any]:
         """Get summary of all metrics."""
-        summary = {
-            "counters": dict(self.counters),
-            "gauges": dict(self.gauges),
+        summary: dict[str, Any] = {
+            "counters": self.counters.copy(),
+            "gauges": self.gauges.copy(),
             "histograms": {},
             "timers": {},
             "hotel_id": self.hotel_id,
@@ -456,9 +484,10 @@ class MetricsCollector:
         }
 
         # Summarize histograms
+        histograms_summary: dict[str, Any] = summary["histograms"]
         for key, values in self.histograms.items():
             if values:
-                summary["histograms"][key] = {
+                histograms_summary[key] = {
                     "count": len(values),
                     "min": min(values),
                     "max": max(values),
@@ -467,12 +496,14 @@ class MetricsCollector:
                     "p95": self._percentile(values, 95),
                     "p99": self._percentile(values, 99),
                 }
+        summary["histograms"] = histograms_summary
 
         # Summarize timers
+        timers_summary: dict[str, Any] = summary["timers"]
         for key, entries in self.timers.items():
             if entries:
                 durations = [entry["duration"] for entry in entries]
-                summary["timers"][key] = {
+                timers_summary[key] = {
                     "count": len(durations),
                     "min": min(durations),
                     "max": max(durations),
@@ -481,6 +512,7 @@ class MetricsCollector:
                     "p95": self._percentile(durations, 95),
                     "p99": self._percentile(durations, 99),
                 }
+        summary["timers"] = timers_summary
 
         return summary
 
@@ -518,7 +550,7 @@ class DistributedTracer:
         self.active_spans: dict[str, TraceContext] = {}
 
         # Completed spans for analysis
-        self.completed_spans: deque = deque(maxlen=10000)
+        self.completed_spans: deque[TraceContext] = deque(maxlen=10000)
 
         logger.info(
             "Distributed tracer initialized",
@@ -618,8 +650,12 @@ class DistributedTracer:
 
         # Build trace tree and calculate metrics
         root_spans = [span for span in trace_spans if span.parent_span_id is None]
-        total_duration = max(span.end_time for span in trace_spans) - min(
-            span.start_time for span in trace_spans
+        end_times = [span.end_time for span in trace_spans if span.end_time is not None]
+        start_times = [
+            span.start_time for span in trace_spans if span.start_time is not None
+        ]
+        total_duration = (max(end_times) if end_times else 0.0) - (
+            min(start_times) if start_times else 0.0
         )
 
         errors = [span for span in trace_spans if span.status == "error"]
@@ -644,8 +680,8 @@ class DistributedTracer:
 
     def _analyze_service_breakdown(self, spans: list[TraceContext]) -> dict[str, Any]:
         """Analyze service time breakdown."""
-        service_times = defaultdict(float)
-        service_counts = defaultdict(int)
+        service_times: dict[str, float] = defaultdict(float)
+        service_counts: dict[str, int] = defaultdict(int)
 
         for span in spans:
             service = span.tags.get("service.name", "unknown")
@@ -667,16 +703,15 @@ class DistributedTracer:
         # Simplified critical path - longest sequential path
         spans_by_time = sorted(spans, key=lambda s: s.start_time)
 
-        critical_path = []
-        for span in spans_by_time[:10]:  # Limit to top 10 spans
-            critical_path.append(
-                {
-                    "span_id": span.span_id,
-                    "operation": span.operation_name,
-                    "duration": span.duration,
-                    "service": span.tags.get("service.name"),
-                }
-            )
+        critical_path = [
+            {
+                "span_id": span.span_id,
+                "operation": span.operation_name,
+                "duration": span.duration,
+                "service": span.tags.get("service.name"),
+            }
+            for span in spans_by_time[:10]  # Limit to top 10 spans
+        ]
 
         return critical_path
 
@@ -737,14 +772,16 @@ class ObservabilityManager:
         recent_errors = [
             span
             for span in self.tracer.completed_spans
-            if span.status == "error" and (time.time() - span.end_time) < 300
+            if span.status == "error"
+            and span.end_time is not None
+            and (time.time() - span.end_time) < 300
         ]
 
         # Performance summary
         recent_spans = [
             span
             for span in self.tracer.completed_spans
-            if (time.time() - span.end_time) < 3600
+            if span.end_time is not None and (time.time() - span.end_time) < 3600
         ]
 
         avg_response_time = 0.0
@@ -786,13 +823,12 @@ class ObservabilityManager:
             return "healthy"
         elif error_rate < 0.05:  # Less than 5% errors
             return "warning"
-        else:
-            return "unhealthy"
+        return "unhealthy"
 
     def _get_top_operations(self) -> list[dict[str, Any]]:
         """Get top operations by frequency."""
-        operation_counts = defaultdict(int)
-        operation_durations = defaultdict(list)
+        operation_counts: dict[str, int] = defaultdict(int)
+        operation_durations: dict[str, list[float]] = defaultdict(list)
 
         for span in self.tracer.completed_spans:
             operation_counts[span.operation_name] += 1
@@ -801,7 +837,7 @@ class ObservabilityManager:
 
         top_ops = []
         for operation, count in sorted(
-            operation_counts.items(), key=lambda x: x[1], reverse=True
+            operation_counts.items(), key=operator.itemgetter(1), reverse=True
         )[:10]:
             durations = operation_durations[operation]
             avg_duration = sum(durations) / len(durations) if durations else 0
@@ -814,8 +850,8 @@ class ObservabilityManager:
 
     def _get_error_summary(self, recent_errors: list[TraceContext]) -> dict[str, Any]:
         """Get summary of recent errors."""
-        error_types = defaultdict(int)
-        error_operations = defaultdict(int)
+        error_types: dict[str, int] = defaultdict(int)
+        error_operations: dict[str, int] = defaultdict(int)
 
         for error_span in recent_errors:
             error_type = error_span.tags.get("error.type", "unknown")
@@ -824,8 +860,8 @@ class ObservabilityManager:
 
         return {
             "total_errors": len(recent_errors),
-            "by_type": dict(error_types),
-            "by_operation": dict(error_operations),
+            "by_type": error_types.copy(),
+            "by_operation": error_operations.copy(),
         }
 
 

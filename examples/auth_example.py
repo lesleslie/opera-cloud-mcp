@@ -41,10 +41,15 @@ async def main():
                 "Set OPERA_CLIENT_ID and OPERA_CLIENT_SECRET environment "
                 "variables for real usage"
             )
-            os.environ["OPERA_CLIENT_ID"] = "demo_client_id"
-            os.environ["OPERA_CLIENT_SECRET"] = "demo_secret_value"
-            os.environ["OPERA_TOKEN_URL"] = (
-                "https://demo.oracle-hospitality.com/oauth/v1/tokens"
+            os.environ["OPERA_CLIENT_ID"] = os.getenv(
+                "OPERA_CLIENT_ID", "your_client_id"
+            )
+            os.environ["OPERA_CLIENT_SECRET"] = os.getenv(
+                "OPERA_CLIENT_SECRET", "your_client_secret"
+            )
+            os.environ["OPERA_TOKEN_URL"] = os.getenv(
+                "OPERA_TOKEN_URL",
+                "https://your-domain.oracle-hospitality.com/oauth/v1/tokens",
             )
 
         settings = Settings()

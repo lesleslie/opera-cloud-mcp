@@ -189,7 +189,6 @@ class TestEnhancedOAuthIntegration:
         assert isinstance(security_middleware.settings, SecuritySettings)
 
         # Verify cache directory is properly configured
-        expected_audit_db = temp_cache_dir / "audit" / "audit.db"
         # The path should be configured (whether file exists depends on usage)
         assert temp_cache_dir.exists()
 

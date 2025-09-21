@@ -14,8 +14,282 @@ from opera_cloud_mcp.utils.client_factory import create_reservations_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
 
 
-def register_reservation_tools(app: FastMCP):
-    """Register all reservation-related MCP tools."""
+def _validate_search_reservations_params(hotel_id: str | None, limit: int) -> None:
+    """Validate search reservations parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if limit < 1 or limit > 100:
+        raise ValidationError("limit must be between 1 and 100")
+
+
+def _build_search_criteria(
+    arrival_date: str | None,
+    departure_date: str | None,
+    guest_name: str | None,
+    confirmation_number: str | None,
+    status: str | None,
+    room_type: str | None,
+    limit: int,
+) -> dict[str, Any]:
+    """Build search criteria dictionary."""
+    search_criteria: dict[str, Any] = {}
+    if arrival_date:
+        search_criteria["arrival_date"] = arrival_date
+    if departure_date:
+        search_criteria["departure_date"] = departure_date
+    if guest_name:
+        search_criteria["guest_name"] = guest_name
+    if confirmation_number:
+        search_criteria["confirmation_number"] = confirmation_number
+    if status:
+        search_criteria["status"] = status
+    if room_type:
+        search_criteria["room_type"] = room_type
+
+    search_criteria["limit"] = limit
+    return search_criteria
+
+
+def _validate_get_reservation_params(hotel_id: str | None) -> None:
+    """Validate get reservation parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _validate_create_reservation_dates(arrival_date: str, departure_date: str) -> None:
+    """Validate reservation dates."""
+    try:
+        arr_date = date.fromisoformat(arrival_date)
+        dep_date = date.fromisoformat(departure_date)
+        if arr_date >= dep_date:
+            raise ValidationError("departure_date must be after arrival_date")
+    except ValueError as e:
+        raise ValidationError(f"Invalid date format: {e}") from e
+
+
+def _validate_create_reservation_params(
+    hotel_id: str | None, arrival_date: str, departure_date: str
+) -> None:
+    """Validate create reservation parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    _validate_create_reservation_dates(arrival_date, departure_date)
+
+
+def _build_guest_profile(
+    guest_first_name: str,
+    guest_last_name: str,
+    guest_email: str | None,
+    guest_phone: str | None,
+) -> dict[str, Any]:
+    """Build guest profile dictionary."""
+    return {
+        "firstName": guest_first_name,
+        "lastName": guest_last_name,
+        "email": guest_email,
+        "phoneNumber": guest_phone,
+    }
+
+
+def _build_reservation_data(
+    guest_profile: dict[str, Any],
+    arrival_date: str,
+    departure_date: str,
+    room_type: str,
+    rate_code: str,
+    special_requests: str | None,
+    guarantee_type: str,
+    credit_card_number: str | None,
+    market_segment: str | None,
+    source_code: str | None,
+) -> dict[str, Any]:
+    """Build reservation data dictionary."""
+    return {
+        "guestProfile": guest_profile,
+        "arrivalDate": arrival_date,
+        "departureDate": departure_date,
+        "roomType": room_type,
+        "rateCode": rate_code,
+        "specialRequests": special_requests,
+        "guaranteeType": guarantee_type,
+        "creditCardNumber": credit_card_number,
+        "marketSegment": market_segment,
+        "sourceCode": source_code,
+    }
+
+
+def _validate_modify_reservation_dates(
+    arrival_date: str | None, departure_date: str | None
+) -> None:
+    """Validate modification dates."""
+    if arrival_date and departure_date:
+        try:
+            arr_date = date.fromisoformat(arrival_date)
+            dep_date = date.fromisoformat(departure_date)
+            if arr_date >= dep_date:
+                raise ValidationError("departure_date must be after arrival_date")
+        except ValueError as e:
+            raise ValidationError(f"Invalid date format: {e}") from e
+
+
+def _validate_modify_reservation_params(
+    hotel_id: str | None, arrival_date: str | None, departure_date: str | None
+) -> None:
+    """Validate modify reservation parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    _validate_modify_reservation_dates(arrival_date, departure_date)
+
+
+def _build_modifications(
+    arrival_date: str | None,
+    departure_date: str | None,
+    room_type: str | None,
+    rate_code: str | None,
+    special_requests: str | None,
+    guest_email: str | None,
+    guest_phone: str | None,
+) -> dict[str, Any]:
+    """Build modifications dictionary."""
+    modifications: dict[str, Any] = {}
+    if arrival_date:
+        modifications["arrivalDate"] = arrival_date
+    if departure_date:
+        modifications["departureDate"] = departure_date
+    if room_type:
+        modifications["roomType"] = room_type
+    if rate_code:
+        modifications["rateCode"] = rate_code
+    if special_requests:
+        modifications["specialRequests"] = special_requests
+    if guest_email:
+        modifications["guestProfile"] = {"email": guest_email}
+    if guest_phone:
+        if "guestProfile" not in modifications:
+            modifications["guestProfile"] = {}
+        modifications["guestProfile"]["phoneNumber"] = guest_phone
+
+    return modifications
+
+
+def _validate_cancel_reservation_params(hotel_id: str | None) -> None:
+    """Validate cancel reservation parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+
+def _build_cancellation_data(
+    cancellation_reason: str,
+    charge_cancellation_fee: bool,
+    cancellation_fee_amount: float | None,
+) -> dict[str, Any]:
+    """Build cancellation data dictionary."""
+    return {
+        "cancellationReason": cancellation_reason,
+        "chargeCancellationFee": charge_cancellation_fee,
+        "cancellationFeeAmount": cancellation_fee_amount,
+        "cancelledAt": datetime.now().isoformat(),
+        "cancelledBy": "mcp_agent",
+    }
+
+
+def _validate_check_room_availability_dates(
+    arrival_date: str, departure_date: str
+) -> None:
+    """Validate room availability dates."""
+    try:
+        arr_date = date.fromisoformat(arrival_date)
+        dep_date = date.fromisoformat(departure_date)
+        if arr_date >= dep_date:
+            raise ValidationError("departure_date must be after arrival_date")
+    except ValueError as e:
+        raise ValidationError(f"Invalid date format: {e}") from e
+
+
+def _validate_check_room_availability_params(
+    hotel_id: str | None, arrival_date: str, departure_date: str, number_of_rooms: int
+) -> None:
+    """Validate check room availability parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    _validate_check_room_availability_dates(arrival_date, departure_date)
+
+    if number_of_rooms < 1:
+        raise ValidationError("number_of_rooms must be at least 1")
+
+
+def _build_availability_criteria(
+    arrival_date: str,
+    departure_date: str,
+    number_of_rooms: int,
+    adults: int,
+    children: int,
+    room_type: str | None,
+    rate_code: str | None,
+) -> dict[str, Any]:
+    """Build availability criteria dictionary."""
+    availability_criteria: dict[str, Any] = {
+        "arrivalDate": arrival_date,
+        "departureDate": departure_date,
+        "numberOfRooms": number_of_rooms,
+        "adults": adults,
+        "children": children,
+    }
+
+    if room_type:
+        availability_criteria["roomType"] = room_type
+    if rate_code:
+        availability_criteria["rateCode"] = rate_code
+
+    return availability_criteria
+
+
+def _validate_get_reservation_history_params(
+    hotel_id: str | None,
+    guest_email: str | None,
+    guest_phone: str | None,
+    guest_name: str | None,
+) -> None:
+    """Validate get reservation history parameters."""
+    if hotel_id == "":
+        raise ValidationError("hotel_id cannot be empty string")
+
+    if not any([guest_email, guest_phone, guest_name]):
+        raise ValidationError(
+            "At least one guest identifier (email, phone, or name) must be provided"
+        )
+
+
+def _build_history_criteria(
+    guest_email: str | None,
+    guest_phone: str | None,
+    guest_name: str | None,
+    date_from: str | None,
+    date_to: str | None,
+    limit: int,
+) -> dict[str, Any]:
+    """Build history criteria dictionary."""
+    history_criteria: dict[str, Any] = {"limit": limit}
+    if guest_email:
+        history_criteria["guestEmail"] = guest_email
+    if guest_phone:
+        history_criteria["guestPhone"] = guest_phone
+    if guest_name:
+        history_criteria["guestName"] = guest_name
+    if date_from:
+        history_criteria["dateFrom"] = date_from
+    if date_to:
+        history_criteria["dateTo"] = date_to
+
+    return history_criteria
+
+
+def _register_search_reservations_tool(app: FastMCP) -> None:
+    """Register search reservations tool."""
 
     @app.tool()
     async def search_reservations(
@@ -44,48 +318,41 @@ def register_reservation_tools(app: FastMCP):
         Returns:
             Dictionary containing search results and metadata
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if limit < 1 or limit > 100:
-            raise ValidationError("limit must be between 1 and 100")
+        _validate_search_reservations_params(hotel_id, limit)
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        search_criteria = {}
-        if arrival_date:
-            search_criteria["arrival_date"] = arrival_date
-        if departure_date:
-            search_criteria["departure_date"] = departure_date
-        if guest_name:
-            search_criteria["guest_name"] = guest_name
-        if confirmation_number:
-            search_criteria["confirmation_number"] = confirmation_number
-        if status:
-            search_criteria["status"] = status
-        if room_type:
-            search_criteria["room_type"] = room_type
-
-        search_criteria["limit"] = limit
+        search_criteria = _build_search_criteria(
+            arrival_date,
+            departure_date,
+            guest_name,
+            confirmation_number,
+            status,
+            room_type,
+            limit,
+        )
 
         response = await client.search_reservations(search_criteria)
 
         if response.success:
+            data = response.data or {}
             return {
                 "success": True,
-                "reservations": response.data.get("reservations", []),
-                "total_count": response.data.get("total_count", 0),
+                "reservations": data.get("reservations", []),
+                "total_count": data.get("total_count", 0),
                 "hotel_id": hotel_id,
                 "search_criteria": search_criteria,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "hotel_id": hotel_id,
-                "search_criteria": search_criteria,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "hotel_id": hotel_id,
+            "search_criteria": search_criteria,
+        }
+
+
+def _register_get_reservation_tool(app: FastMCP) -> None:
+    """Register get reservation tool."""
 
     @app.tool()
     async def get_reservation(
@@ -106,16 +373,14 @@ def register_reservation_tools(app: FastMCP):
         Returns:
             Dictionary containing reservation details
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_get_reservation_params(hotel_id)
 
         client = create_reservations_client(hotel_id=hotel_id)
 
         response = await client.get_reservation(
             confirmation_number=confirmation_number,
-            include_folios=include_folios,
             include_history=include_history,
+            include_charges=include_folios,  # Map include_folios to include_charges
         )
 
         if response.success:
@@ -125,87 +390,62 @@ def register_reservation_tools(app: FastMCP):
                 "confirmation_number": confirmation_number,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_create_reservation_tool(app: FastMCP) -> None:
+    """Register create reservation tool."""
 
     @app.tool()
     async def create_reservation(
-        guest_first_name: str,
-        guest_last_name: str,
+        guest_profile: dict[str, Any],
         arrival_date: str,
         departure_date: str,
         room_type: str,
         rate_code: str,
         hotel_id: str | None = None,
-        guest_email: str | None = None,
-        guest_phone: str | None = None,
+        adults: int = 1,
+        children: int = 0,
         special_requests: str | None = None,
-        guarantee_type: str = "credit_card",
-        credit_card_number: str | None = None,
-        market_segment: str | None = None,
-        source_code: str | None = None,
     ) -> dict[str, Any]:
         """
         Create a new hotel reservation.
 
         Args:
-            guest_first_name: Guest's first name
-            guest_last_name: Guest's last name
+            guest_profile: Guest information including name, contact details
             arrival_date: Arrival date in YYYY-MM-DD format
             departure_date: Departure date in YYYY-MM-DD format
             room_type: Room type code
-            rate_code: Rate code to use for pricing
+            rate_code: Rate code for pricing
             hotel_id: Hotel identifier (uses default if not provided)
-            guest_email: Guest's email address
-            guest_phone: Guest's phone number
-            special_requests: Special requests or notes
-            guarantee_type: Guarantee type (credit_card, corporate, cash)
-            credit_card_number: Credit card for guarantee (if applicable)
-            market_segment: Market segment code
-            source_code: Booking source code
+            adults: Number of adults
+            children: Number of children
+            special_requests: Any special requests or notes
 
         Returns:
-            Dictionary containing new reservation details
+            Dictionary containing reservation confirmation details
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        # Validate dates
-        try:
-            arr_date = date.fromisoformat(arrival_date)
-            dep_date = date.fromisoformat(departure_date)
-            if arr_date >= dep_date:
-                raise ValidationError("departure_date must be after arrival_date")
-        except ValueError as e:
-            raise ValidationError(f"Invalid date format: {e}")
+        _validate_create_reservation_params(hotel_id, arrival_date, departure_date)
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        guest_profile = {
-            "firstName": guest_first_name,
-            "lastName": guest_last_name,
-            "email": guest_email,
-            "phoneNumber": guest_phone,
-        }
-
-        reservation_data = {
-            "guestProfile": guest_profile,
-            "arrivalDate": arrival_date,
-            "departureDate": departure_date,
-            "roomType": room_type,
-            "rateCode": rate_code,
-            "specialRequests": special_requests,
-            "guaranteeType": guarantee_type,
-            "creditCardNumber": credit_card_number,
-            "marketSegment": market_segment,
-            "sourceCode": source_code,
-        }
+        reservation_data = _build_reservation_data(
+            guest_profile,
+            arrival_date,
+            departure_date,
+            room_type,
+            rate_code,
+            special_requests,
+            "CC",  # guarantee_type - using CC as default
+            None,  # credit_card_number - optional
+            None,  # market_segment - optional
+            None,  # source_code - optional
+        )
 
         response = await client.create_reservation(reservation_data)
 
@@ -213,137 +453,114 @@ def register_reservation_tools(app: FastMCP):
             return {
                 "success": True,
                 "reservation": response.data,
-                "confirmation_number": response.data.get("confirmationNumber"),
+                "confirmation_number": response.data.get("confirmationNumber")
+                if response.data
+                else None,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "hotel_id": hotel_id,
-                "guest_name": f"{guest_first_name} {guest_last_name}",
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_modify_reservation_tool(app: FastMCP) -> None:
+    """Register modify reservation tool."""
 
     @app.tool()
     async def modify_reservation(
         confirmation_number: str,
         hotel_id: str | None = None,
-        arrival_date: str | None = None,
-        departure_date: str | None = None,
         room_type: str | None = None,
         rate_code: str | None = None,
+        departure_date: str | None = None,
+        adults: int | None = None,
+        children: int | None = None,
         special_requests: str | None = None,
-        guest_email: str | None = None,
-        guest_phone: str | None = None,
     ) -> dict[str, Any]:
         """
-        Modify an existing hotel reservation.
+        Modify an existing reservation.
 
         Args:
             confirmation_number: Reservation confirmation number
             hotel_id: Hotel identifier (uses default if not provided)
-            arrival_date: New arrival date in YYYY-MM-DD format
-            departure_date: New departure date in YYYY-MM-DD format
-            room_type: New room type code
-            rate_code: New rate code
+            room_type: New room type code (if changing)
+            rate_code: New rate code (if changing)
+            departure_date: New departure date (if extending)
+            adults: New number of adults (if changing)
+            children: New number of children (if changing)
             special_requests: Updated special requests
-            guest_email: Updated guest email
-            guest_phone: Updated guest phone
 
         Returns:
-            Dictionary containing updated reservation details
+            Dictionary containing modification confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        # Validate dates if provided
-        if arrival_date and departure_date:
-            try:
-                arr_date = date.fromisoformat(arrival_date)
-                dep_date = date.fromisoformat(departure_date)
-                if arr_date >= dep_date:
-                    raise ValidationError("departure_date must be after arrival_date")
-            except ValueError as e:
-                raise ValidationError(f"Invalid date format: {e}")
+        _validate_modify_reservation_params(hotel_id, None, None)
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        modifications = {}
-        if arrival_date:
-            modifications["arrivalDate"] = arrival_date
-        if departure_date:
-            modifications["departureDate"] = departure_date
-        if room_type:
-            modifications["roomType"] = room_type
-        if rate_code:
-            modifications["rateCode"] = rate_code
-        if special_requests:
-            modifications["specialRequests"] = special_requests
-        if guest_email:
-            modifications["guestProfile"] = {"email": guest_email}
-        if guest_phone:
-            if "guestProfile" not in modifications:
-                modifications["guestProfile"] = {}
-            modifications["guestProfile"]["phoneNumber"] = guest_phone
+        modification_data = _build_modifications(
+            None,  # arrival_date
+            departure_date,
+            room_type,
+            rate_code,
+            str(adults) if adults is not None else None,
+            str(children) if children is not None else None,
+            special_requests,
+        )
 
-        if not modifications:
-            raise ValidationError(
-                "At least one field must be provided for modification"
-            )
-
-        response = await client.modify_reservation(confirmation_number, modifications)
+        response = await client.modify_reservation(
+            confirmation_number, modification_data
+        )
 
         if response.success:
             return {
                 "success": True,
                 "reservation": response.data,
                 "confirmation_number": confirmation_number,
-                "modifications_applied": modifications,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "confirmation_number": confirmation_number,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_cancel_reservation_tool(app: FastMCP) -> None:
+    """Register cancel reservation tool."""
 
     @app.tool()
     async def cancel_reservation(
         confirmation_number: str,
-        cancellation_reason: str,
         hotel_id: str | None = None,
-        charge_cancellation_fee: bool = False,
-        cancellation_fee_amount: float | None = None,
+        cancellation_reason: str | None = None,
+        charge_penalty: bool = False,
+        notify_guest: bool = True,
     ) -> dict[str, Any]:
         """
-        Cancel a hotel reservation.
+        Cancel an existing reservation.
 
         Args:
             confirmation_number: Reservation confirmation number
-            cancellation_reason: Reason for cancellation
             hotel_id: Hotel identifier (uses default if not provided)
-            charge_cancellation_fee: Whether to charge a cancellation fee
-            cancellation_fee_amount: Cancellation fee amount if applicable
+            cancellation_reason: Reason for cancellation
+            charge_penalty: Whether to charge cancellation penalty
+            notify_guest: Whether to send cancellation notification to guest
 
         Returns:
             Dictionary containing cancellation confirmation
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
+        _validate_cancel_reservation_params(hotel_id)
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        cancellation_data = {
-            "cancellationReason": cancellation_reason,
-            "chargeCancellationFee": charge_cancellation_fee,
-            "cancellationFeeAmount": cancellation_fee_amount,
-            "cancelledAt": datetime.now().isoformat(),
-            "cancelledBy": "mcp_agent",
-        }
+        cancellation_data = _build_cancellation_data(
+            cancellation_reason or "No reason provided",
+            charge_penalty,
+            50.0 if notify_guest else None,
+        )
 
         response = await client.cancel_reservation(
             confirmation_number, cancellation_data
@@ -352,18 +569,25 @@ def register_reservation_tools(app: FastMCP):
         if response.success:
             return {
                 "success": True,
-                "cancellation": response.data,
-                "confirmation_number": confirmation_number,
-                "cancellation_reason": cancellation_reason,
-                "hotel_id": hotel_id,
-            }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
+                "cancellation_details": response.data,
                 "confirmation_number": confirmation_number,
                 "hotel_id": hotel_id,
             }
+        return {
+            "success": False,
+            "error": response.error,
+            "confirmation_number": confirmation_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_reservation_tools(app: FastMCP):
+    """Register all reservation-related MCP tools."""
+    _register_search_reservations_tool(app)
+    _register_get_reservation_tool(app)
+    _register_create_reservation_tool(app)
+    _register_modify_reservation_tool(app)
+    _register_cancel_reservation_tool(app)
 
     @app.tool()
     async def check_room_availability(
@@ -392,36 +616,21 @@ def register_reservation_tools(app: FastMCP):
         Returns:
             Dictionary containing availability and rate information
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        # Validate dates
-        try:
-            arr_date = date.fromisoformat(arrival_date)
-            dep_date = date.fromisoformat(departure_date)
-            if arr_date >= dep_date:
-                raise ValidationError("departure_date must be after arrival_date")
-        except ValueError as e:
-            raise ValidationError(f"Invalid date format: {e}")
-
-        if number_of_rooms < 1:
-            raise ValidationError("number_of_rooms must be at least 1")
+        _validate_check_room_availability_params(
+            hotel_id, arrival_date, departure_date, number_of_rooms
+        )
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        availability_criteria = {
-            "arrivalDate": arrival_date,
-            "departureDate": departure_date,
-            "numberOfRooms": number_of_rooms,
-            "adults": adults,
-            "children": children,
-        }
-
-        if room_type:
-            availability_criteria["roomType"] = room_type
-        if rate_code:
-            availability_criteria["rateCode"] = rate_code
+        availability_criteria = _build_availability_criteria(
+            arrival_date,
+            departure_date,
+            number_of_rooms,
+            adults,
+            children,
+            room_type,
+            rate_code,
+        )
 
         response = await client.check_availability(availability_criteria)
 
@@ -432,13 +641,12 @@ def register_reservation_tools(app: FastMCP):
                 "search_criteria": availability_criteria,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "search_criteria": availability_criteria,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "search_criteria": availability_criteria,
+            "hotel_id": hotel_id,
+        }
 
     @app.tool()
     async def get_reservation_history(
@@ -465,43 +673,30 @@ def register_reservation_tools(app: FastMCP):
         Returns:
             Dictionary containing guest's reservation history
         """
-        # Validate hotel_id - client factory will use default if None
-        if hotel_id == "":
-            raise ValidationError("hotel_id cannot be empty string")
-
-        if not any([guest_email, guest_phone, guest_name]):
-            raise ValidationError(
-                "At least one guest identifier (email, phone, or name) must be provided"
-            )
+        _validate_get_reservation_history_params(
+            hotel_id, guest_email, guest_phone, guest_name
+        )
 
         client = create_reservations_client(hotel_id=hotel_id)
 
-        history_criteria = {"limit": limit}
-        if guest_email:
-            history_criteria["guestEmail"] = guest_email
-        if guest_phone:
-            history_criteria["guestPhone"] = guest_phone
-        if guest_name:
-            history_criteria["guestName"] = guest_name
-        if date_from:
-            history_criteria["dateFrom"] = date_from
-        if date_to:
-            history_criteria["dateTo"] = date_to
+        history_criteria = _build_history_criteria(
+            guest_email, guest_phone, guest_name, date_from, date_to, limit
+        )
 
         response = await client.get_guest_reservation_history(history_criteria)
 
         if response.success:
+            data = response.data or {}
             return {
                 "success": True,
-                "history": response.data.get("reservations", []),
-                "total_count": response.data.get("total_count", 0),
+                "history": data.get("reservations", []),
+                "total_count": data.get("total_count", 0),
                 "search_criteria": history_criteria,
                 "hotel_id": hotel_id,
             }
-        else:
-            return {
-                "success": False,
-                "error": response.error,
-                "search_criteria": history_criteria,
-                "hotel_id": hotel_id,
-            }
+        return {
+            "success": False,
+            "error": response.error,
+            "search_criteria": history_criteria,
+            "hotel_id": hotel_id,
+        }

@@ -5,7 +5,7 @@ Provides common formatting functions for dates, currency,
 and data transformation used throughout the application.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from opera_cloud_mcp.models.common import Money
@@ -48,7 +48,7 @@ def format_money(amount: float, currency_code: str = "USD") -> Money:
     Returns:
         Money model instance
     """
-    return Money(amount=amount, currency_code=currency_code)
+    return Money(amount=amount, currencyCode=currency_code)
 
 
 def format_guest_name(
@@ -113,7 +113,7 @@ def format_api_response(
     """
     response = {
         "success": success,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
     }
 
     if success:
@@ -162,11 +162,13 @@ def camel_to_snake_case(camel_str: str) -> str:
     Returns:
         String in snake_case
     """
-    import re
-
-    # Insert underscore before uppercase letters (except at start)
-    snake_str = re.sub(r"(?<!^)(?=[A-Z])", "_", camel_str)
-    return snake_str.lower()
+    # Convert camelCase to snake_case without regex
+    result = []
+    for i, char in enumerate(camel_str):
+        if char.isupper() and i > 0:
+            result.append("_")
+        result.append(char.lower())
+    return "".join(result)
 
 
 def snake_to_camel_case(snake_str: str) -> str:
@@ -198,7 +200,7 @@ def clean_api_data(data: dict[str, Any]) -> dict[str, Any]:
     for key, value in data.items():
         if value is not None and value != "":
             if isinstance(value, dict):
-                cleaned_value = clean_api_data(value)
+                cleaned_value: dict[str, Any] | list[Any] = clean_api_data(value)
                 if cleaned_value:  # Only include non-empty dicts
                     cleaned[key] = cleaned_value
             elif isinstance(value, list):

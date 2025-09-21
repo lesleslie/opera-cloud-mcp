@@ -55,7 +55,7 @@ class RoomStatusUpdate(OperaBaseModel):
     updated_at: datetime = Field(default_factory=datetime.now, alias="updatedAt")
 
     @validator("housekeeping_status")
-    def validate_housekeeping_status(cls, v):
+    def validate_housekeeping_status(self, v):
         allowed = ["clean", "dirty", "out_of_order", "maintenance", "inspected"]
         if v not in allowed:
             raise ValueError(f"Invalid housekeeping status. Must be one of: {allowed}")
@@ -76,7 +76,7 @@ class MaintenanceRequest(OperaBaseModel):
     parts_needed: list[str] | None = Field(None, alias="partsNeeded")
 
     @validator("category")
-    def validate_category(cls, v):
+    def validate_category(self, v):
         allowed = [
             "electrical",
             "plumbing",
@@ -105,7 +105,7 @@ class CleaningSchedule(OperaBaseModel):
     estimated_completion: time = Field(alias="estimatedCompletion")
 
     @validator("shift")
-    def validate_shift(cls, v):
+    def validate_shift(self, v):
         allowed = ["morning", "afternoon", "night"]
         if v not in allowed:
             raise ValueError(f"Invalid shift. Must be one of: {allowed}")
@@ -445,7 +445,7 @@ class HousekeepingClient(BaseAPIClient):
         if status:
             params["status"] = status
         if priority:
-            params["priority"] = priority
+            params["priority"] = str(priority)
         if room_number:
             params["roomNumber"] = room_number
 
@@ -570,9 +570,9 @@ class HousekeepingClient(BaseAPIClient):
                 failed.append(
                     {"room_number": task_list[i].room_number, "error": str(result)}
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "room_number": task_list[i].room_number,

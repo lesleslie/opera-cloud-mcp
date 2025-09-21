@@ -52,7 +52,7 @@ class TestCommonModels:
         assert money.amount == 100.50
         assert money.currency_code == "USD"
 
-        money_eur = Money(amount=85.75, currency_code="EUR")
+        money_eur = Money(amount=85.75, currencyCode="EUR")
         assert money_eur.currency_code == "EUR"
 
 
@@ -93,7 +93,13 @@ class TestReservationModels:
 
     def test_reservation_model(self):
         """Test complete Reservation model creation."""
-        guest = Guest(firstName="John", lastName="Doe")
+        from datetime import datetime
+
+        guest = Guest(
+            firstName="John",
+            lastName="Doe",
+            contact=Contact(email="john.doe@example.com"),
+        )
         room_stay = RoomStay(
             roomType="STANDARD",
             arrivalDate=date(2024, 12, 1),
@@ -104,7 +110,7 @@ class TestReservationModels:
         reservation = Reservation(
             confirmationNumber="ABC123456",
             hotelId="TEST_HOTEL",
-            guest=guest,
+            primaryGuest=guest,
             roomStay=room_stay,
             createdDate=datetime.utcnow(),
             status="CONFIRMED",
@@ -112,7 +118,7 @@ class TestReservationModels:
 
         assert reservation.confirmation_number == "ABC123456"
         assert reservation.hotel_id == "TEST_HOTEL"
-        assert reservation.guest.first_name == "John"
+        assert reservation.primary_guest.first_name == "John"
         assert reservation.room_stay.room_type == "STANDARD"
         assert reservation.status == "CONFIRMED"
 
@@ -144,27 +150,31 @@ class TestGuestModels:
     def test_guest_preference_model(self):
         """Test GuestPreference model."""
         preference = GuestPreference(
-            preferenceType="ROOM",
+            preferenceType="ROOM_TYPE",
             preferenceValue="HIGH_FLOOR",
             description="Prefers high floor rooms",
         )
 
-        assert preference.preference_type == "ROOM"
+        assert preference.preference_type == "ROOM_TYPE"
         assert preference.preference_value == "HIGH_FLOOR"
         assert preference.description == "Prefers high floor rooms"
 
     def test_guest_profile_model(self):
         """Test GuestProfile model with all fields."""
+        from datetime import datetime
+
         contact = Contact(email="jane@example.com", phone="+1234567890")
         address = Address(city="New York", country="USA")
-        preference = GuestPreference(preferenceType="ROOM", preferenceValue="QUIET")
+        preference = GuestPreference(
+            preferenceType="ROOM_TYPE", preferenceValue="QUIET"
+        )
 
         profile = GuestProfile(
             guestId="GUEST123",
             firstName="Jane",
             lastName="Smith",
             birthDate=date(1990, 5, 15),
-            gender="F",
+            gender="FEMALE",
             nationality="USA",
             contact=contact,
             address=address,
@@ -173,6 +183,8 @@ class TestGuestModels:
             vipStatus="VIP",
             preferences=[preference],
             specialInstructions="Allergic to peanuts",
+            createdDate=datetime.utcnow(),
+            createdBy="test_user",
         )
 
         assert profile.guest_id == "GUEST123"
@@ -180,7 +192,7 @@ class TestGuestModels:
         assert profile.birth_date == date(1990, 5, 15)
         assert profile.contact.email == "jane@example.com"
         assert len(profile.preferences) == 1
-        assert profile.preferences[0].preference_type == "ROOM"
+        assert profile.preferences[0].preference_type == "ROOM_TYPE"
 
 
 class TestRoomModels:

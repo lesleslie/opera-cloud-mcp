@@ -8,7 +8,7 @@ and schema documentation for all supported OPERA Cloud domains.
 from typing import Any
 
 # OPERA Cloud API Domains
-OPERA_API_DOMAINS = {
+OPERA_API_DOMAINS: dict[str, dict[str, Any]] = {
     "oauth": {
         "name": "Authentication",
         "description": "OAuth2 token management and authentication",
@@ -406,7 +406,7 @@ AUTH_REQUIREMENTS = {
 }
 
 
-def get_api_spec(domain: str, endpoint: str = None) -> dict[str, Any]:
+def get_api_spec(domain: str, endpoint: str | None = None) -> dict[str, Any]:
     """
     Get API specification for a specific domain or endpoint.
 
@@ -479,17 +479,17 @@ def validate_request_schema(
     if "error" in spec:
         return spec
 
-    endpoint_spec = spec["spec"]
-    request_schema = endpoint_spec.get("request_schema", {})
+    request_schema = spec["spec"].get("request_schema", {})
 
     if not request_schema:
         return {"valid": True, "message": "No schema validation required"}
 
     # Basic validation (in a real implementation, use jsonschema or similar)
-    missing_required = []
-    for field, field_type in request_schema.items():
-        if "string" in str(field_type) and field not in request_data:
-            missing_required.append(field)
+    missing_required = [
+        field
+        for field, field_type in request_schema.items()
+        if "string" in str(field_type) and field not in request_data
+    ]
 
     if missing_required:
         return {
@@ -512,7 +512,7 @@ def get_example_request(domain: str, endpoint: str) -> dict[str, Any]:
     Returns:
         Dictionary containing example request data
     """
-    examples = {
+    examples: dict[tuple[str, str], dict[str, Any]] = {
         ("rsv", "create"): {
             "guestProfile": {
                 "firstName": "John",
@@ -563,6 +563,7 @@ def get_example_request(domain: str, endpoint: str) -> dict[str, Any]:
         },
     }
 
-    return examples.get(
-        (domain, endpoint), {"message": "No example available for this endpoint"}
-    )
+    # Get example for the specific domain and endpoint, or return default message
+    return examples.get((domain, endpoint)) or {
+        "message": "No example available for this endpoint"
+    }

@@ -6,14 +6,14 @@ under realistic conditions.
 """
 
 import asyncio
-import random
+import secrets
 import statistics
 import time
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
+from opera_cloud_mcp.auth.oauth_handler import OAuthHandler, Token
 from opera_cloud_mcp.clients.base_client import BaseAPIClient
 from opera_cloud_mcp.config.settings import Settings
 
@@ -77,16 +77,16 @@ class LoadTester:
 
             for i in range(batch_size):
                 # Simulate different types of requests
-                request_type = random.choice(
-                    [
-                        "get_reservation",
-                        "search_reservations",
-                        "get_guest",
-                        "search_guests",
-                        "get_room_status",
-                        "check_availability",
-                    ]
-                )
+                request_types = [
+                    "get_reservation",
+                    "search_reservations",
+                    "get_guest",
+                    "search_guests",
+                    "get_room_status",
+                    "check_availability",
+                ]
+                # Use secrets to select a random request type
+                request_type = request_types[secrets.randbelow(len(request_types))]
 
                 task = self._make_request(request_type, i)
                 batch_tasks.append(task)
@@ -249,7 +249,28 @@ async def main():
         access_token="test_token", expires_in=3600, issued_at=datetime.now()
     )
 
-    mock_settings = Settings()
+    mock_settings = Settings(
+        opera_client_id="test_client_id",
+        opera_client_secret="test_client_secret",
+        opera_token_url="https://api.test.com/oauth/v1/tokens",
+        opera_base_url="https://api.test.com",
+        opera_api_version="v1",
+        opera_environment="test",
+        default_hotel_id="TEST_HOTEL",
+        request_timeout=30,
+        max_retries=3,
+        retry_backoff=1.0,
+        enable_cache=True,
+        cache_ttl=300,
+        cache_max_memory=10000,
+        oauth_max_retries=3,
+        oauth_retry_backoff=1.0,
+        enable_persistent_token_cache=True,
+        token_cache_dir="/tmp",
+        log_level="INFO",
+        log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        enable_structured_logging=True,
+    )
 
     # Create API client
     api_client = BaseAPIClient(

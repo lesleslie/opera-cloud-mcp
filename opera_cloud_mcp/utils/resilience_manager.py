@@ -7,11 +7,12 @@ and failure recovery patterns optimized for hotel operations.
 
 import asyncio
 import logging
-import random
+import secrets
 import time
 from collections import defaultdict, deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -109,10 +110,12 @@ class CircuitBreaker:
         # Metrics
         self.total_requests = 0
         self.total_failures = 0
-        self.state_change_times = []
+        self.state_change_times: list[datetime] = []
 
         # Sliding window for failure rate calculation
-        self.request_window = deque(maxlen=100)  # Last 100 requests
+        self.request_window: deque[tuple[datetime, bool]] = deque(
+            maxlen=100
+        )  # Last 100 requests
 
         logger.info(
             "Circuit breaker initialized",
@@ -192,14 +195,14 @@ class CircuitBreaker:
 
     def _record_success(self) -> None:
         """Record a successful request."""
-        self.request_window.append(True)
+        self.request_window.append((datetime.now(), True))
 
         if self.state == CircuitState.HALF_OPEN:
             self.success_count += 1
             if self.success_count >= self.config.success_threshold:
                 self.state = CircuitState.CLOSED
                 self.failure_count = 0
-                self.state_change_times.append(time.time())
+                self.state_change_times.append(datetime.now())
                 logger.info(f"Circuit breaker {self.name} closed (recovered)")
         elif self.state == CircuitState.CLOSED:
             # Reset failure count on success
@@ -207,7 +210,7 @@ class CircuitBreaker:
 
     def _record_failure(self) -> None:
         """Record a failed request."""
-        self.request_window.append(False)
+        self.request_window.append((datetime.now(), False))
         self.total_failures += 1
         self.failure_count += 1
         self.last_failure_time = time.time()
@@ -215,12 +218,12 @@ class CircuitBreaker:
         # Check if we should open the circuit
         failure_rate = self._calculate_failure_rate()
 
-        if self.state in [CircuitState.CLOSED, CircuitState.HALF_OPEN] and (
+        if self.state in (CircuitState.CLOSED, CircuitState.HALF_OPEN) and (
             self.failure_count >= self.config.failure_threshold
             or failure_rate >= self.config.failure_rate_threshold
         ):
             self.state = CircuitState.OPEN
-            self.state_change_times.append(time.time())
+            self.state_change_times.append(datetime.now())
             logger.warning(
                 f"Circuit breaker {self.name} opened",
                 extra={
@@ -327,9 +330,11 @@ class BulkheadIsolator:
 
         except TimeoutError:
             self.rejected_requests += 1
-            from opera_cloud_mcp.utils.exceptions import ResourceExhaustedError
+            from opera_cloud_mcp.utils.exceptions import CircuitBreakerError
 
-            raise ResourceExhaustedError(f"Bulkhead {self.name} resource exhausted")
+            raise CircuitBreakerError(
+                f"Bulkhead {self.name} resource exhausted"
+            ) from None
 
     def get_metrics(self) -> dict[str, Any]:
         """Get bulkhead metrics."""
@@ -424,8 +429,7 @@ class RetryManager:
             return FailureType.VALIDATION_ERROR
         elif "404" in str(exception) or "not found" in str(exception).lower():
             return FailureType.RESOURCE_NOT_FOUND
-        else:
-            return FailureType.SERVER_ERROR  # Default to retryable
+        return FailureType.SERVER_ERROR  # Default to retryable
 
     def _calculate_delay(self, attempt: int, policy: RetryPolicy) -> float:
         """
@@ -444,10 +448,76 @@ class RetryManager:
 
         # Add jitter to prevent thundering herd
         if policy.jitter:
-            jitter = random.uniform(0.1, 0.3) * delay
+            # Generate cryptographically secure jitter between 0.1 and 0.3
+            jitter = (secrets.randbelow(200000) / 1000000.0 + 0.1) * delay
             delay += jitter
 
         return delay
+
+    def _should_retry(
+        self, failure_type: FailureType, effective_policy: RetryPolicy
+    ) -> bool:
+        """Check if a failure should be retried."""
+        return failure_type in effective_policy.retryable_failures
+
+    def _is_last_attempt(self, attempt: int, effective_policy: RetryPolicy) -> bool:
+        """Check if this is the last attempt."""
+        return attempt >= effective_policy.max_attempts - 1
+
+    async def _handle_retry_success(
+        self, attempt: int, last_exception: Exception | None
+    ) -> None:
+        """Handle successful retry after previous failures."""
+        if attempt > 0 and last_exception is not None:
+            failure_type = self._classify_failure(last_exception)
+            self.successful_retries[failure_type] += 1
+            logger.info(
+                "Retry succeeded",
+                extra={
+                    "attempt": attempt + 1,
+                    "failure_type": failure_type.value,
+                    "total_attempts": self.default_policy.max_attempts,
+                },
+            )
+
+    def _handle_non_retryable_failure(
+        self, failure_type: FailureType, e: Exception
+    ) -> None:
+        """Handle non-retryable failure."""
+        logger.info(
+            "Non-retryable failure",
+            extra={"failure_type": failure_type.value, "exception": str(e)},
+        )
+        raise e
+
+    def _handle_exhausted_attempts(
+        self, attempt: int, failure_type: FailureType, e: Exception
+    ) -> None:
+        """Handle case when all retry attempts are exhausted."""
+        logger.warning(
+            "All retry attempts exhausted",
+            extra={
+                "attempts": attempt + 1,
+                "failure_type": failure_type.value,
+                "final_exception": str(e),
+            },
+        )
+        raise e
+
+    def _log_retry_attempt(
+        self, attempt: int, failure_type: FailureType, delay: float, e: Exception
+    ) -> None:
+        """Log retry attempt."""
+        logger.info(
+            "Retrying after failure",
+            extra={
+                "attempt": attempt + 1,
+                "max_attempts": self.default_policy.max_attempts,
+                "failure_type": failure_type.value,
+                "delay_seconds": delay,
+                "exception": str(e),
+            },
+        )
 
     async def execute_with_retry(
         self, func: Callable, *args, policy: RetryPolicy | None = None, **kwargs
@@ -478,18 +548,8 @@ class RetryManager:
                     else func(*args, **kwargs)
                 )
 
-                # Record successful retry if not first attempt
-                if attempt > 0:
-                    failure_type = self._classify_failure(last_exception)
-                    self.successful_retries[failure_type] += 1
-                    logger.info(
-                        "Retry succeeded",
-                        extra={
-                            "attempt": attempt + 1,
-                            "failure_type": failure_type.value,
-                            "total_attempts": effective_policy.max_attempts,
-                        },
-                    )
+                # Handle successful retry
+                await self._handle_retry_success(attempt, last_exception)
 
                 return result
 
@@ -498,24 +558,12 @@ class RetryManager:
                 failure_type = self._classify_failure(e)
 
                 # Check if this failure type is retryable
-                if failure_type not in effective_policy.retryable_failures:
-                    logger.info(
-                        "Non-retryable failure",
-                        extra={"failure_type": failure_type.value, "exception": str(e)},
-                    )
-                    raise
+                if not self._should_retry(failure_type, effective_policy):
+                    self._handle_non_retryable_failure(failure_type, e)
 
                 # Check if we have more attempts
-                if attempt >= effective_policy.max_attempts - 1:
-                    logger.warning(
-                        "All retry attempts exhausted",
-                        extra={
-                            "attempts": attempt + 1,
-                            "failure_type": failure_type.value,
-                            "final_exception": str(e),
-                        },
-                    )
-                    raise
+                if self._is_last_attempt(attempt, effective_policy):
+                    self._handle_exhausted_attempts(attempt, failure_type, e)
 
                 # Record retry attempt
                 self.retry_attempts[failure_type] += 1
@@ -523,28 +571,23 @@ class RetryManager:
                 # Calculate delay and wait
                 delay = self._calculate_delay(attempt, effective_policy)
 
-                logger.info(
-                    "Retrying after failure",
-                    extra={
-                        "attempt": attempt + 1,
-                        "max_attempts": effective_policy.max_attempts,
-                        "failure_type": failure_type.value,
-                        "delay_seconds": delay,
-                        "exception": str(e),
-                    },
-                )
+                # Log retry attempt
+                self._log_retry_attempt(attempt, failure_type, delay, e)
 
                 await asyncio.sleep(delay)
 
         # This should never be reached
-        raise last_exception
+        if last_exception is not None:
+            raise last_exception
+        else:
+            raise RuntimeError("Retry failed without a specific exception")
 
     def get_retry_statistics(self) -> dict[str, Any]:
         """Get retry statistics."""
         total_attempts = sum(self.retry_attempts.values())
         total_successes = sum(self.successful_retries.values())
 
-        stats = {
+        stats: dict[str, Any] = {
             "total_retry_attempts": total_attempts,
             "successful_retries": total_successes,
             "success_rate": total_successes / max(total_attempts, 1),
@@ -644,12 +687,11 @@ class ResilienceManager:
             if bulkhead_name:
                 bulkhead = self.get_or_create_bulkhead(bulkhead_name)
                 return await bulkhead.execute(func, *args, **kwargs)
-            else:
-                return (
-                    await func(*args, **kwargs)
-                    if asyncio.iscoroutinefunction(func)
-                    else func(*args, **kwargs)
-                )
+            return (
+                await func(*args, **kwargs)
+                if asyncio.iscoroutinefunction(func)
+                else func(*args, **kwargs)
+            )
 
         # Apply circuit breaker if specified
         if circuit_breaker_name:
@@ -659,11 +701,10 @@ class ResilienceManager:
             return await self.retry_manager.execute_with_retry(
                 circuit_breaker.call, resilient_execution, policy=retry_policy
             )
-        else:
-            # Just apply retry
-            return await self.retry_manager.execute_with_retry(
-                resilient_execution, policy=retry_policy
-            )
+        # Just apply retry
+        return await self.retry_manager.execute_with_retry(
+            resilient_execution, policy=retry_policy
+        )
 
     def get_overall_health(self) -> dict[str, Any]:
         """Get overall resilience health status."""

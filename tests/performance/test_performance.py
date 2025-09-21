@@ -1,8 +1,8 @@
 """
-Performance tests for OPERA Cloud MCP server.
+Performance and load testing for OPERA Cloud MCP server.
 
-This module contains performance tests to validate the production readiness
-of the OPERA Cloud MCP server implementation.
+These tests verify that the server maintains optimal performance
+under various load conditions and caching scenarios.
 """
 
 import asyncio
@@ -12,7 +12,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
-from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
+from opera_cloud_mcp.clients.api_clients.reservations import APIResponse
+from opera_cloud_mcp.clients.base_client import BaseAPIClient
 from opera_cloud_mcp.config.settings import Settings
 
 
@@ -115,30 +116,24 @@ class TestPerformance:
             mock_client_instance.request.return_value = mock_response
             mock_http_client.return_value.__aenter__.return_value = mock_client_instance
 
-            # First request - should hit the API
-            start_time = time.time()
+            # Measure cache hit performance
             response1 = await api_client.get(
                 "/test/cached-endpoint", enable_caching=True
             )
-            first_request_time = time.time() - start_time
 
             # Second request - should be served from cache
-            start_time = time.time()
             response2 = await api_client.get(
                 "/test/cached-endpoint", enable_caching=True
             )
-            second_request_time = time.time() - start_time
 
-            # Validate responses
-            assert response1.success is True
-            assert response2.success is True
-            assert response1.data == response2.data
+        # Validate responses
+        assert response1.success is True
+        assert response2.success is True
+        assert response1.data == response2.data
 
-            # Cache hit should be significantly faster
-            # We can't assert exact times in tests, but we can check call counts
-            assert (
-                mock_client_instance.request.call_count == 1
-            )  # Only one actual API call
+        # Cache hit should be significantly faster
+        # We can't assert exact times in tests, but we can check call counts
+        assert mock_client_instance.request.call_count == 1  # Only one actual API call
 
     @pytest.mark.asyncio
     async def test_rate_limiting_behavior(self, api_client: BaseAPIClient):

@@ -10,6 +10,7 @@ import base64
 import hashlib
 import hmac
 import logging
+import math
 import secrets
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -18,7 +19,7 @@ from typing import Any
 import httpx
 from pydantic import BaseModel
 
-from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
+from opera_cloud_mcp.auth.oauth_handler import DEFAULT_TOKEN_TYPE, OAuthHandler
 from opera_cloud_mcp.auth.security_enhancements import (
     AuditEvent,
     SecureTokenCache,
@@ -36,7 +37,7 @@ class SecureToken(BaseModel):
     """Enhanced token model with security metadata."""
 
     access_token: str
-    token_type: str = "Bearer"
+    token_type: str = DEFAULT_TOKEN_TYPE
     expires_in: int
     issued_at: datetime
     binding: TokenBinding | None = None
@@ -80,6 +81,9 @@ class SecureOAuthHandler(OAuthHandler):
     - Enhanced token storage with integrity protection
     - Credential rotation and security hardening
     """
+
+    # Instance attributes
+    secure_cache: SecureTokenCache | None
 
     def __init__(
         self,
@@ -206,10 +210,73 @@ class SecureOAuthHandler(OAuthHandler):
 
             if not needs_refresh:
                 logger.debug("Using cached secure token")
-                return self._secure_token_cache.access_token
+                if self._secure_token_cache is not None:
+                    return self._secure_token_cache.access_token
+                # If we get here, we need to refresh anyway
+                logger.info("Cached token is None, requesting new secure OAuth token")
+                return await self._refresh_token_secure(ip_address, user_agent)
 
             logger.info("Requesting new secure OAuth token")
             return await self._refresh_token_secure(ip_address, user_agent)
+
+    async def _handle_auth_success(
+        self,
+        token_data: dict[str, Any],
+        ip_address: str | None,
+        user_agent: str | None,
+        attempt: int,
+        start_time: datetime,
+    ) -> str:
+        """Handle successful authentication and return access token."""
+        # Create secure token with binding
+        secure_token = await self._create_secure_token(
+            token_data, ip_address, user_agent
+        )
+
+        # Cache secure token
+        await self._cache_secure_token(secure_token)
+
+        # Record successful authentication
+        duration = (datetime.now(UTC) - start_time).total_seconds()
+        self._record_security_event(
+            "auth_success",
+            ip_address,
+            user_agent,
+            {
+                "attempt": attempt + 1,
+                "duration_seconds": duration,
+                "token_expires_in": token_data["expires_in"],
+            },
+        )
+
+        logger.info(
+            "Secure OAuth token obtained successfully",
+            extra={
+                "attempt": attempt + 1,
+                "duration_seconds": duration,
+                "expires_in": token_data["expires_in"],
+                "token_binding": self.enable_token_binding,
+            },
+        )
+
+        return secure_token.access_token
+
+    async def _should_retry_authentication(
+        self, response: httpx.Response, attempt: int
+    ) -> bool:
+        """Check if we should retry authentication."""
+        if response.status_code in (400, 401, 403):
+            # Don't retry authentication errors
+            return False
+
+        # Retry on server errors
+        if attempt < self.max_retries:
+            backoff_time = self.retry_backoff * (2**attempt)
+            logger.warning(f"Retrying secure token request in {backoff_time}s...")
+            await asyncio.sleep(backoff_time)
+            return True
+
+        return False
 
     async def _refresh_token_secure(
         self, ip_address: str | None = None, user_agent: str | None = None
@@ -254,38 +321,10 @@ class SecureOAuthHandler(OAuthHandler):
                         # Validate token response
                         await self._validate_token_response(token_data)
 
-                        # Create secure token with binding
-                        secure_token = await self._create_secure_token(
-                            token_data, ip_address, user_agent
+                        # Handle successful authentication
+                        return await self._handle_auth_success(
+                            token_data, ip_address, user_agent, attempt, start_time
                         )
-
-                        # Cache secure token
-                        await self._cache_secure_token(secure_token)
-
-                        # Record successful authentication
-                        duration = (datetime.now(UTC) - start_time).total_seconds()
-                        self._record_security_event(
-                            "auth_success",
-                            ip_address,
-                            user_agent,
-                            {
-                                "attempt": attempt + 1,
-                                "duration_seconds": duration,
-                                "token_expires_in": token_data["expires_in"],
-                            },
-                        )
-
-                        logger.info(
-                            "Secure OAuth token obtained successfully",
-                            extra={
-                                "attempt": attempt + 1,
-                                "duration_seconds": duration,
-                                "expires_in": token_data["expires_in"],
-                                "token_binding": self.enable_token_binding,
-                            },
-                        )
-
-                        return secure_token.access_token
 
                     else:
                         # Handle authentication failure
@@ -293,18 +332,11 @@ class SecureOAuthHandler(OAuthHandler):
                             response, attempt, ip_address, user_agent
                         )
 
-                        if response.status_code in (400, 401, 403):
-                            # Don't retry authentication errors
+                        # Check if we should retry
+                        if not await self._should_retry_authentication(
+                            response, attempt
+                        ):
                             break
-
-                        # Retry on server errors
-                        if attempt < self.max_retries:
-                            backoff_time = self.retry_backoff * (2**attempt)
-                            logger.warning(
-                                f"Retrying secure token request in {backoff_time}s..."
-                            )
-                            await asyncio.sleep(backoff_time)
-                            continue
 
             except httpx.TimeoutException as e:
                 last_error = e
@@ -402,7 +434,7 @@ class SecureOAuthHandler(OAuthHandler):
 
         # Security validation
         access_token = token_data["access_token"]
-        expires_in = token_data["expires_in"]
+        expires_in = int(token_data["expires_in"])
 
         # Token format validation
         if not isinstance(access_token, str) or len(access_token) < 20:
@@ -455,7 +487,7 @@ class SecureOAuthHandler(OAuthHandler):
         return SecureToken(
             access_token=token_data["access_token"],
             token_type=token_data.get("token_type", "Bearer"),
-            expires_in=token_data["expires_in"],
+            expires_in=int(token_data["expires_in"]),
             issued_at=now,
             binding=binding,
             security_metadata=security_metadata,
@@ -493,15 +525,14 @@ class SecureOAuthHandler(OAuthHandler):
             )
 
         # IP address validation
-        if self.allowed_ips and ip_address:
-            if ip_address not in self.allowed_ips:
-                self._record_security_event(
-                    "unauthorized_ip",
-                    ip_address,
-                    user_agent,
-                    {"allowed_ips": list(self.allowed_ips)},
-                )
-                raise SecurityError(f"IP address {ip_address} not allowed")
+        if self.allowed_ips and ip_address and ip_address not in self.allowed_ips:
+            self._record_security_event(
+                "unauthorized_ip",
+                ip_address,
+                user_agent,
+                {"allowed_ips": list(self.allowed_ips)},
+            )
+            raise SecurityError(f"IP address {ip_address} not allowed")
 
         # Detect suspicious activity
         if await self._detect_suspicious_activity(ip_address, user_agent):
@@ -545,7 +576,7 @@ class SecureOAuthHandler(OAuthHandler):
         if not self.security_monitor:
             return
 
-        success = event_type in ["auth_success", "token_refresh_success"]
+        success = event_type in ("auth_success", "token_refresh_success")
 
         self.security_monitor.record_authentication_attempt(
             self.client_id, success, ip_address, user_agent, details or {}
@@ -590,13 +621,23 @@ class SecureOAuthHandler(OAuthHandler):
     ) -> None:
         """Handle authentication failure with security logging."""
         error_msg = f"Token request failed: HTTP {response.status_code}"
-        error_details = {"status_code": response.status_code, "attempt": attempt + 1}
+        error_details: dict[str, Any] = {
+            "status_code": response.status_code,
+            "attempt": attempt + 1,
+        }
 
         try:
             error_data = response.json()
             if isinstance(error_data, dict):
+                # Make sure we don't overwrite response_text with int values
+                response_text = error_data.pop("response_text", None)
                 error_details.update(error_data)
-                error_msg += f" - {error_data.get('error_description', error_data.get('error', 'Unknown error'))}"
+                error_description = error_data.get("error_description")
+                error_code = error_data.get("error", "Unknown error")
+                error_msg += f" - {error_description or error_code}"
+                # Restore response_text if it was an int, or set it to None
+                if response_text is not None and not isinstance(response_text, int):
+                    error_details["response_text"] = response_text
         except Exception:
             error_msg += f" - {response.text[:200]}"
             error_details["response_text"] = response.text[:200]
@@ -619,7 +660,7 @@ class SecureOAuthHandler(OAuthHandler):
         user_agent: str | None = None,
     ) -> None:
         """Handle network errors with security logging."""
-        error_details = {
+        error_details: dict[str, Any] = {
             "error_type": error_type,
             "attempt": attempt + 1,
             "error_message": str(error),
@@ -645,7 +686,7 @@ class SecureOAuthHandler(OAuthHandler):
         user_agent: str | None = None,
     ) -> None:
         """Handle unexpected errors with security logging."""
-        error_details = {
+        error_details: dict[str, Any] = {
             "error_type": "unexpected_error",
             "attempt": attempt + 1,
             "error_class": error.__class__.__name__,
@@ -680,7 +721,7 @@ class SecureOAuthHandler(OAuthHandler):
             return 0.0
 
         # Count character frequencies
-        char_counts = {}
+        char_counts: dict[str, int] = {}
         for char in text:
             char_counts[char] = char_counts.get(char, 0) + 1
 
@@ -691,7 +732,7 @@ class SecureOAuthHandler(OAuthHandler):
         for count in char_counts.values():
             probability = count / length
             if probability > 0:
-                entropy -= probability * (probability.bit_length() - 1)
+                entropy -= probability * math.log2(probability)
 
         return entropy
 
@@ -737,7 +778,9 @@ class SecureOAuthHandler(OAuthHandler):
                     "has_secure_token": True,
                     "token_expires_at": self._secure_token_cache.expires_at.isoformat(),
                     "token_binding_valid": self._secure_token_cache.is_binding_valid,
-                    "token_security_metadata": self._secure_token_cache.security_metadata,
+                    "token_security_metadata": (
+                        self._secure_token_cache.security_metadata
+                    ),
                 }
             )
         else:
@@ -756,7 +799,7 @@ class SecureOAuthHandler(OAuthHandler):
                     e
                     for e in recent_events
                     if e.event_type
-                    in ["auth_failure", "network_error", "suspicious_activity"]
+                    in ("auth_failure", "network_error", "suspicious_activity")
                 ]
             )
 

@@ -5,6 +5,8 @@ Provides a hierarchy of exceptions for different error conditions
 that can occur during OPERA Cloud API operations.
 """
 
+from typing import Any
+
 
 class OperaCloudError(Exception):
     """
@@ -14,7 +16,7 @@ class OperaCloudError(Exception):
     inherit from. It provides basic error handling and context.
     """
 
-    def __init__(self, message: str, details: dict | None = None) -> None:
+    def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
         """
         Initialize the exception.
 
@@ -57,7 +59,7 @@ class SecurityError(OperaCloudError):
         message: str,
         security_level: str | None = None,
         threat_type: str | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the security error.
@@ -111,7 +113,7 @@ class RateLimitError(OperaCloudError):
         current_usage: int | None = None,
         limit_value: int | None = None,
         reset_time: int | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the rate limit error.
@@ -162,10 +164,10 @@ class APIError(OperaCloudError):
         self,
         message: str,
         status_code: int | None = None,
-        response_data: dict | None = None,
+        response_data: dict[str, Any] | None = None,
         endpoint: str | None = None,
         method: str | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the API error.
@@ -214,7 +216,7 @@ class TimeoutError(OperaCloudError):
         message: str,
         timeout_duration: float | None = None,
         operation_type: str | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the timeout error.
@@ -266,7 +268,7 @@ class CircuitBreakerError(OperaCloudError):
         message: str,
         failure_count: int = 0,
         circuit_state: str = "unknown",
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the circuit breaker error.
@@ -399,9 +401,9 @@ class RoomAvailabilityError(ReservationError):
         departure_date: str | None = None,
         room_type: str | None = None,
         rate_code: str | None = None,
-        available_alternatives: list | None = None,
+        available_alternatives: list[dict[str, Any]] | None = None,
         hotel_id: str | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the room availability error.
@@ -517,9 +519,9 @@ class BulkOperationError(OperaCloudError):
         total_count: int = 0,
         processed_count: int = 0,
         error_count: int = 0,
-        individual_errors: list | None = None,
+        individual_errors: list[dict[str, Any]] | None = None,
         hotel_id: str | None = None,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the bulk operation error.

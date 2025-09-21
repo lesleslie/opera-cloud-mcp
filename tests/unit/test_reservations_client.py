@@ -57,8 +57,8 @@ def reservations_client(mock_auth_handler, mock_settings):
 def sample_guest():
     """Sample guest profile for testing."""
     return GuestProfile(
-        first_name="John",
-        last_name="Doe",
+        firstName="John",
+        lastName="Doe",
         contact=Contact(email="john.doe@example.com", phone="+1-555-123-4567"),
     )
 
@@ -67,10 +67,10 @@ def sample_guest():
 def sample_room_stay():
     """Sample room stay for testing."""
     return RoomStayDetails(
-        arrival_date=date(2024, 12, 15),
-        departure_date=date(2024, 12, 18),
-        room_type="STANDARD",
-        rate_code="RACK",
+        arrivalDate=date(2024, 12, 15),
+        departureDate=date(2024, 12, 18),
+        roomType="STANDARD",
+        rateCode="RACK",
         adults=2,
         children=0,
     )

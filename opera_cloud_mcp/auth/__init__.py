@@ -7,7 +7,7 @@ security monitoring, audit logging, and threat detection.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, cast
 
 from opera_cloud_mcp.auth.audit_logger import AuditLogger, audit_logger
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler, Token, TokenCache
@@ -24,6 +24,7 @@ from opera_cloud_mcp.auth.security_middleware import (
     create_security_middleware,
 )
 from opera_cloud_mcp.config.security_settings import SecuritySettings
+from opera_cloud_mcp.config.settings import Settings
 
 
 def create_enhanced_oauth_security(
@@ -64,7 +65,43 @@ def create_enhanced_oauth_security(
     """
     # Use default security settings if not provided
     if security_settings is None:
-        security_settings = SecuritySettings()
+        # Create a minimal security settings instance with required fields
+        security_settings = SecuritySettings(
+            enable_security_monitoring=True,
+            enable_audit_logging=True,
+            enable_rate_limiting=True,
+            enable_token_binding=True,
+            auth_rate_limit_requests=10,
+            auth_rate_limit_window_minutes=5,
+            max_failed_attempts=5,
+            client_lockout_duration_minutes=30,
+            security_event_retention_days=90,
+            token_max_lifetime_hours=24,
+            token_refresh_threshold_minutes=30,
+            token_binding_lifetime_hours=24,
+            credential_rotation_interval_days=90,
+            enable_credential_validation=True,
+            allowed_ip_addresses=None,
+            require_https=True,
+            min_tls_version="TLSv1.2",
+            audit_db_path=None,
+            audit_db_encryption_key=None,
+            enable_audit_db_compression=True,
+            audit_db_max_size_mb=100,
+            enable_security_headers=True,
+            content_security_policy="default-src 'self'",
+            enable_anomaly_detection=True,
+            anomaly_detection_sensitivity=0.7,
+            enable_ip_reputation_check=True,
+            enable_gdpr_mode=False,
+            data_retention_policy_days=365,
+            enable_pii_anonymization=True,
+            enable_automatic_incident_response=True,
+            security_notification_webhook=None,
+            security_notification_email=None,
+            security_testing_mode=False,
+            enable_security_debug_logs=False,
+        )
 
     # Create SecureOAuthHandler with enhanced security features
     secure_oauth_handler = SecureOAuthHandler(
@@ -98,7 +135,7 @@ def create_enhanced_oauth_security(
 
 
 def create_oauth_handler(
-    settings,
+    settings: Settings,
     enable_security_features: bool = True,
     master_key: bytes | None = None,
     allowed_ips: set[str] | None = None,
@@ -144,9 +181,8 @@ def create_oauth_handler(
             master_key=master_key,
             allowed_ips=allowed_ips,
         )
-    else:
-        # Use basic OAuth handler
-        return OAuthHandler(**oauth_config)
+    # Use basic OAuth handler
+    return OAuthHandler(**oauth_config)
 
 
 def create_security_components(
@@ -167,7 +203,43 @@ def create_security_components(
     """
     # Use default security settings if none provided
     if security_settings is None:
-        security_settings = SecuritySettings()
+        # Create a minimal security settings instance with required fields
+        security_settings = SecuritySettings(
+            enable_security_monitoring=True,
+            enable_audit_logging=True,
+            enable_rate_limiting=True,
+            enable_token_binding=True,
+            auth_rate_limit_requests=10,
+            auth_rate_limit_window_minutes=5,
+            max_failed_attempts=5,
+            client_lockout_duration_minutes=30,
+            security_event_retention_days=90,
+            token_max_lifetime_hours=24,
+            token_refresh_threshold_minutes=30,
+            token_binding_lifetime_hours=24,
+            credential_rotation_interval_days=90,
+            enable_credential_validation=True,
+            allowed_ip_addresses=None,
+            require_https=True,
+            min_tls_version="TLSv1.2",
+            audit_db_path=None,
+            audit_db_encryption_key=None,
+            enable_audit_db_compression=True,
+            audit_db_max_size_mb=100,
+            enable_security_headers=True,
+            content_security_policy="default-src 'self'",
+            enable_anomaly_detection=True,
+            anomaly_detection_sensitivity=0.7,
+            enable_ip_reputation_check=True,
+            enable_gdpr_mode=False,
+            data_retention_policy_days=365,
+            enable_pii_anonymization=True,
+            enable_automatic_incident_response=True,
+            security_notification_webhook=None,
+            security_notification_email=None,
+            security_testing_mode=False,
+            enable_security_debug_logs=False,
+        )
 
     # Create security middleware
     middleware = create_security_middleware(security_settings)
@@ -182,67 +254,101 @@ def create_security_components(
     return middleware, audit_logger_instance, security_monitor
 
 
-def validate_security_configuration(
-    settings, security_settings: SecuritySettings | None = None
-) -> dict:
-    """
-    Validate complete security configuration.
-
-    Args:
-        settings: Main application settings
-        security_settings: Security-specific settings
-
-    Returns:
-        Dictionary with validation results
-    """
-    validation_result = {
-        "valid": True,
-        "warnings": [],
-        "errors": [],
-        "recommendations": [],
-    }
-
-    # Validate main settings
+def _validate_main_settings(
+    settings: Settings, validation_result: dict[str, Any]
+) -> None:
+    """Validate main settings."""
     missing_settings = settings.validate_required_settings()
     if missing_settings:
-        validation_result["errors"].extend(
+        cast("list[str]", validation_result["errors"]).extend(
             [f"Missing required setting: {setting}" for setting in missing_settings]
         )
         validation_result["valid"] = False
 
-    # Validate security settings if provided
+
+def _validate_security_settings(
+    security_settings: SecuritySettings | None, validation_result: dict[str, Any]
+) -> None:
+    """Validate security settings if provided."""
     if security_settings:
         security_warnings = security_settings.validate_security_configuration()
-        validation_result["warnings"].extend(security_warnings)
+        cast("list[str]", validation_result["warnings"]).extend(security_warnings)
 
         # Check for production readiness
         if hasattr(security_settings, "validate_production_readiness"):
             production_errors = security_settings.validate_production_readiness()
             if production_errors:
-                validation_result["errors"].extend(production_errors)
+                cast("list[str]", validation_result["errors"]).extend(production_errors)
                 validation_result["valid"] = False
 
-    # Add recommendations based on configuration
+
+def _add_security_recommendations(
+    security_settings: SecuritySettings | None, validation_result: dict[str, Any]
+) -> None:
+    """Add security recommendations."""
     if not security_settings or not security_settings.enable_security_monitoring:
-        validation_result["recommendations"].append(
+        cast("list[str]", validation_result["recommendations"]).append(
             "Enable security monitoring for production deployments"
         )
 
     if not security_settings or not security_settings.enable_audit_logging:
-        validation_result["recommendations"].append(
+        cast("list[str]", validation_result["recommendations"]).append(
             "Enable audit logging for compliance and security analysis"
         )
 
+
+def _validate_production_settings(
+    settings: Settings,
+    security_settings: SecuritySettings | None,
+    validation_result: dict[str, Any],
+) -> None:
+    """Validate production-specific settings."""
     if settings.opera_environment == "production":
         if not security_settings or security_settings.security_testing_mode:
-            validation_result["errors"].append(
+            cast("list[str]", validation_result["errors"]).append(
                 "Security testing mode must be disabled in production"
             )
             validation_result["valid"] = False
 
         if not security_settings or not security_settings.require_https:
-            validation_result["errors"].append("HTTPS must be required in production")
+            cast("list[str]", validation_result["errors"]).append(
+                "HTTPS must be required in production"
+            )
             validation_result["valid"] = False
+
+
+def validate_security_configuration(
+    settings: Settings, security_settings: SecuritySettings | None = None
+) -> dict[str, Any]:
+    """
+    Validate complete security configuration.
+
+    Args:
+        settings: Main application settings
+        security_settings: Security configuration
+
+    Returns:
+        Validation results dictionary
+    """
+    # Initialize validation result with proper type annotations
+    validation_result: dict[str, bool | list[str]] = {
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "recommendations": [],
+    }
+
+    # Validate main settings
+    _validate_main_settings(settings, validation_result)
+
+    # Validate security settings if provided
+    _validate_security_settings(security_settings, validation_result)
+
+    # Add recommendations based on configuration
+    _add_security_recommendations(security_settings, validation_result)
+
+    # Check for production-specific settings
+    _validate_production_settings(settings, security_settings, validation_result)
 
     return validation_result
 

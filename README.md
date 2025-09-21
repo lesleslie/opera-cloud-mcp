@@ -1,6 +1,10 @@
 # OPERA Cloud MCP Server
 
-A Model Context Protocol (MCP) server for Oracle OPERA Cloud API integration, enabling AI agents to interact with hospitality management systems.
+[![Code style: crackerjack](https://img.shields.io/badge/code%20style-crackerjack-000042)](https://github.com/lesleslie/crackerjack)
+[![Python: 3.13+](https://img.shields.io/badge/python-3.13%2B-green)](https://www.python.org/downloads/)
+![Coverage](https://img.shields.io/badge/coverage-36.4%25-red)
+
+Unofficial Model Context Protocol (MCP) server for Oracle OPERA Cloud API integration, enabling AI agents to interact with hospitality management systems.
 
 ## Features
 
@@ -235,7 +239,7 @@ See `docs/security-implementation.md` for detailed security configuration.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+BSD 3-Clause License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
@@ -245,4 +249,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ______________________________________________________________________
 
-Built with d for the hospitality industry using [FastMCP](https://github.com/jlowin/fastmcp) and [Oracle OPERA Cloud](https://www.oracle.com/industries/hospitality/products/opera-cloud/).
+Built for the hospitality industry using [FastMCP](https://github.com/jlowin/fastmcp) and [Oracle OPERA Cloud](https://www.oracle.com/industries/hospitality/products/opera-cloud/).

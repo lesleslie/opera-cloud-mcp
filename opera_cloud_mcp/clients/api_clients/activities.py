@@ -10,7 +10,7 @@ from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -38,7 +38,8 @@ class Activity(OperaBaseModel):
     weather_dependent: bool = Field(False, alias="weatherDependent")
     is_active: bool = Field(True, alias="isActive")
 
-    @validator("category")
+    @field_validator("category")
+    @classmethod
     def validate_category(cls, v):
         allowed = [
             "dining",
@@ -78,7 +79,8 @@ class ActivityBooking(OperaBaseModel):
     created_by: str = Field(alias="createdBy")
     created_at: datetime = Field(default_factory=datetime.now, alias="createdAt")
 
-    @validator("status")
+    @field_validator("status")
+    @classmethod
     def validate_status(cls, v):
         allowed = ["confirmed", "pending", "cancelled", "completed", "no_show"]
         if v not in allowed:
@@ -127,7 +129,8 @@ class SpaService(OperaBaseModel):
     benefits: list[str] | None = None
     recommended_frequency: str | None = Field(None, alias="recommendedFrequency")
 
-    @validator("service_type")
+    @field_validator("service_type")
+    @classmethod
     def validate_service_type(cls, v):
         allowed = [
             "massage",
@@ -163,7 +166,8 @@ class DiningReservation(OperaBaseModel):
     confirmation_number: str = Field(alias="confirmationNumber")
     status: str = Field(default="confirmed")
 
-    @validator("seating_area")
+    @field_validator("seating_area")
+    @classmethod
     def validate_seating_area(cls, v):
         if v is None:
             return v
@@ -182,14 +186,15 @@ class Equipment(OperaBaseModel):
     category: str  # "sports", "water", "fitness", "business", "entertainment"
     description: str
     rental_price: Decimal = Field(alias="rentalPrice", ge=0)
-    deposit_required: Decimal = Field(0, alias="depositRequired", ge=0)
+    deposit_required: Decimal = Field(Decimal(0), alias="depositRequired", ge=0)
     max_rental_hours: int = Field(24, alias="maxRentalHours", ge=1)
     available_quantity: int = Field(alias="availableQuantity", ge=0)
     maintenance_required: bool = Field(False, alias="maintenanceRequired")
     age_restriction: str | None = Field(None, alias="ageRestriction")
     size_options: list[str] | None = Field(None, alias="sizeOptions")
 
-    @validator("category")
+    @field_validator("category")
+    @classmethod
     def validate_category(cls, v):
         allowed = [
             "sports",
@@ -451,8 +456,8 @@ class ActivitiesClient(BaseAPIClient):
         if service_type:
             params["serviceType"] = service_type
         if duration_range:
-            params["minDuration"] = duration_range.get("min", 0)
-            params["maxDuration"] = duration_range.get("max", 999)
+            params["minDuration"] = str(duration_range.get("min", 0))
+            params["maxDuration"] = str(duration_range.get("max", 999))
         if price_range:
             params["minPrice"] = str(price_range.get("min", 0))
             params["maxPrice"] = str(price_range.get("max", 9999))
@@ -786,9 +791,9 @@ class ActivitiesClient(BaseAPIClient):
                         "error": str(result),
                     }
                 )
-            elif result.success:
+            elif isinstance(result, APIResponse) and result.success:
                 successful.append(result.data)
-            else:
+            elif isinstance(result, APIResponse):
                 failed.append(
                     {
                         "booking_id": booking_updates[i]["booking_id"],

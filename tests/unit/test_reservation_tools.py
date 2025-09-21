@@ -26,61 +26,78 @@ def mock_reservations_client():
     client = AsyncMock()
 
     # Mock successful search response
-    client.search_reservations.return_value = APIResponse(
-        success=True,
-        data={
-            "reservations": [
-                {
-                    "confirmationNumber": "TEST123",
-                    "hotelId": "TEST_HOTEL",
-                    "status": "CONFIRMED",
-                }
-            ],
-            "total_count": 1,
-        },
-        status_code=200,
+    client.search_reservations = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={
+                "reservations": [
+                    {
+                        "confirmationNumber": "TEST123",
+                        "hotelId": "TEST_HOTEL",
+                        "status": "CONFIRMED",
+                    }
+                ],
+                "total_count": 1,
+            },
+            status_code=200,
+        )
     )
 
     # Mock successful get response
-    client.get_reservation.return_value = APIResponse(
-        success=True,
-        data={"confirmationNumber": "TEST123", "status": "CONFIRMED"},
-        status_code=200,
+    client.get_reservation = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={"confirmationNumber": "TEST123", "status": "CONFIRMED"},
+            status_code=200,
+        )
     )
 
     # Mock successful create response
-    client.create_reservation.return_value = APIResponse(
-        success=True,
-        data={"confirmationNumber": "NEW123", "status": "CONFIRMED"},
-        status_code=201,
+    client.create_reservation = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={"confirmationNumber": "NEW123", "status": "CONFIRMED"},
+            status_code=201,
+        )
     )
 
     # Mock successful modify response
-    client.modify_reservation.return_value = APIResponse(
-        success=True,
-        data={"confirmationNumber": "MOD123", "status": "CONFIRMED"},
-        status_code=200,
+    client.modify_reservation = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={"confirmationNumber": "MOD123", "status": "CONFIRMED"},
+            status_code=200,
+        )
     )
 
     # Mock successful cancel response
-    client.cancel_reservation.return_value = APIResponse(
-        success=True,
-        data={"confirmationNumber": "CAN123", "status": "CANCELED"},
-        status_code=200,
+    client.cancel_reservation = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={"confirmationNumber": "CAN123", "status": "CANCELED"},
+            status_code=200,
+        )
     )
 
     # Mock successful availability response
-    client.check_availability.return_value = APIResponse(
-        success=True,
-        data={"rooms": [{"roomType": "STANDARD", "available": 5}]},
-        status_code=200,
+    client.check_availability = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={"rooms": [{"roomType": "STANDARD", "available": 5}]},
+            status_code=200,
+        )
     )
 
     # Mock guest history response
-    client.get_guest_reservation_history.return_value = APIResponse(
-        success=True,
-        data={"reservations": [{"confirmationNumber": "HIST123"}], "total_count": 1},
-        status_code=200,
+    client.get_guest_reservation_history = AsyncMock(
+        return_value=APIResponse(
+            success=True,
+            data={
+                "reservations": [{"confirmationNumber": "HIST123"}],
+                "total_count": 1,
+            },
+            status_code=200,
+        )
     )
 
     return client
@@ -110,11 +127,26 @@ class TestReservationTools:
         for tool_name in expected_tools:
             assert tool_name in tool_names
 
-    @patch("opera_cloud_mcp.utils.client_factory.create_reservations_client")
+    @patch("opera_cloud_mcp.tools.reservation_tools.create_reservations_client")
+    @patch("opera_cloud_mcp.utils.client_factory.get_oauth_handler")
     async def test_search_reservations_tool(
-        self, mock_create_client, mock_app, mock_reservations_client
+        self,
+        mock_get_oauth_handler,
+        mock_create_client,
+        mock_app,
+        mock_reservations_client,
     ):
         """Test search_reservations MCP tool by calling it directly."""
+        # Mock the OAuth handler to avoid real network calls
+        from unittest.mock import Mock
+
+        mock_oauth_handler = Mock()
+        mock_oauth_handler.get_token = AsyncMock(return_value="mock_token")
+        mock_oauth_handler.get_auth_header.return_value = {
+            "Authorization": "Bearer mock_token"
+        }
+        mock_get_oauth_handler.return_value = mock_oauth_handler
+
         mock_create_client.return_value = mock_reservations_client
 
         # Import and call the function directly
@@ -146,11 +178,26 @@ class TestReservationTools:
         # Verify client was called
         mock_reservations_client.search_reservations.assert_called_once()
 
-    @patch("opera_cloud_mcp.utils.client_factory.create_reservations_client")
+    @patch("opera_cloud_mcp.tools.reservation_tools.create_reservations_client")
+    @patch("opera_cloud_mcp.utils.client_factory.get_oauth_handler")
     async def test_get_reservation_tool(
-        self, mock_create_client, mock_app, mock_reservations_client
+        self,
+        mock_get_oauth_handler,
+        mock_create_client,
+        mock_app,
+        mock_reservations_client,
     ):
         """Test get_reservation MCP tool."""
+        # Mock the OAuth handler to avoid real network calls
+        from unittest.mock import Mock
+
+        mock_oauth_handler = Mock()
+        mock_oauth_handler.get_token = AsyncMock(return_value="mock_token")
+        mock_oauth_handler.get_auth_header.return_value = {
+            "Authorization": "Bearer mock_token"
+        }
+        mock_get_oauth_handler.return_value = mock_oauth_handler
+
         mock_create_client.return_value = mock_reservations_client
 
         test_app = FastMCP("test")
@@ -170,14 +217,29 @@ class TestReservationTools:
 
         # Verify client was called correctly
         mock_reservations_client.get_reservation.assert_called_once_with(
-            confirmation_number="TEST123", include_folios=False, include_history=True
+            confirmation_number="TEST123", include_charges=False, include_history=True
         )
 
-    @patch("opera_cloud_mcp.utils.client_factory.create_reservations_client")
+    @patch("opera_cloud_mcp.tools.reservation_tools.create_reservations_client")
+    @patch("opera_cloud_mcp.utils.client_factory.get_oauth_handler")
     async def test_check_room_availability_tool(
-        self, mock_create_client, mock_app, mock_reservations_client
+        self,
+        mock_get_oauth_handler,
+        mock_create_client,
+        mock_app,
+        mock_reservations_client,
     ):
         """Test check_room_availability MCP tool."""
+        # Mock the OAuth handler to avoid real network calls
+        from unittest.mock import Mock
+
+        mock_oauth_handler = Mock()
+        mock_oauth_handler.get_token = AsyncMock(return_value="mock_token")
+        mock_oauth_handler.get_auth_header.return_value = {
+            "Authorization": "Bearer mock_token"
+        }
+        mock_get_oauth_handler.return_value = mock_oauth_handler
+
         mock_create_client.return_value = mock_reservations_client
 
         test_app = FastMCP("test")
@@ -194,16 +256,32 @@ class TestReservationTools:
 
         assert result["success"] is True
         assert "availability" in result
+        assert len(result["availability"]["rooms"]) == 1
         assert result["availability"]["rooms"][0]["roomType"] == "STANDARD"
 
         # Verify client was called correctly
         mock_reservations_client.check_availability.assert_called_once()
 
-    @patch("opera_cloud_mcp.utils.client_factory.create_reservations_client")
+    @patch("opera_cloud_mcp.tools.reservation_tools.create_reservations_client")
+    @patch("opera_cloud_mcp.utils.client_factory.get_oauth_handler")
     async def test_get_reservation_history_tool(
-        self, mock_create_client, mock_app, mock_reservations_client
+        self,
+        mock_get_oauth_handler,
+        mock_create_client,
+        mock_app,
+        mock_reservations_client,
     ):
         """Test get_reservation_history MCP tool."""
+        # Mock the OAuth handler to avoid real network calls
+        from unittest.mock import Mock
+
+        mock_oauth_handler = Mock()
+        mock_oauth_handler.get_token = AsyncMock(return_value="mock_token")
+        mock_oauth_handler.get_auth_header.return_value = {
+            "Authorization": "Bearer mock_token"
+        }
+        mock_get_oauth_handler.return_value = mock_oauth_handler
+
         mock_create_client.return_value = mock_reservations_client
 
         test_app = FastMCP("test")
@@ -248,9 +326,21 @@ class TestReservationTools:
         with pytest.raises(ValidationError, match="limit must be between 1 and 100"):
             await search_tool.fn(limit=0)
 
-    @patch("opera_cloud_mcp.utils.client_factory.create_reservations_client")
-    async def test_tool_error_handling(self, mock_create_client, mock_app):
+    @patch("opera_cloud_mcp.tools.reservation_tools.create_reservations_client")
+    @patch("opera_cloud_mcp.utils.client_factory.get_oauth_handler")
+    async def test_tool_error_handling(
+        self, mock_get_oauth_handler, mock_create_client, mock_app
+    ):
         """Test error handling in MCP tools."""
+        # Mock the OAuth handler to avoid real network calls
+        from unittest.mock import Mock
+
+        mock_oauth_handler = Mock()
+        mock_oauth_handler.get_token = AsyncMock(return_value="mock_token")
+        mock_oauth_handler.get_auth_header.return_value = {
+            "Authorization": "Bearer mock_token"
+        }
+        mock_get_oauth_handler.return_value = mock_oauth_handler
         # Mock client that returns failure responses
         failure_client = AsyncMock()
         failure_client.search_reservations.return_value = APIResponse(

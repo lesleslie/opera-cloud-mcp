@@ -5,9 +5,10 @@ Provides common validation functions for API inputs, dates,
 and data formats used throughout the application.
 """
 
-import re
 from datetime import date, datetime
 from typing import Any
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from opera_cloud_mcp.utils.exceptions import ValidationError
 
@@ -91,12 +92,16 @@ def validate_confirmation_number(confirmation_number: str) -> str:
         raise ValidationError("Confirmation number cannot be empty")
 
     # Basic alphanumeric validation (can be enhanced based on actual format)
-    if not re.match(r"^[A-Z0-9]{6,20}$", confirmation_number.upper()):
-        raise ValidationError(
-            f"Invalid confirmation number format '{confirmation_number}'"
+    try:
+        confirmation_validator = ConfirmationNumberValidator(
+            confirmation_number=confirmation_number
         )
-
-    return confirmation_number.upper()
+        return confirmation_validator.confirmation_number
+    except Exception as e:
+        # Catch any validation errors and convert to our custom ValidationError
+        raise ValidationError(
+            f"Invalid confirmation number format: {confirmation_number}"
+        ) from e
 
 
 def validate_room_number(room_number: str) -> str:
@@ -139,11 +144,11 @@ def validate_email(email: str) -> str:
     if not email:
         raise ValidationError("Email address cannot be empty")
 
-    email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-    if not re.match(email_pattern, email):
-        raise ValidationError(f"Invalid email address format '{email}'")
-
-    return email.lower()
+    try:
+        email_validator = EmailValidator(email=email)
+        return email_validator.email
+    except Exception as e:
+        raise ValidationError(f"Invalid email address format '{email}'") from e
 
 
 def validate_phone(phone: str) -> str:
@@ -162,13 +167,11 @@ def validate_phone(phone: str) -> str:
     if not phone:
         raise ValidationError("Phone number cannot be empty")
 
-    # Remove common formatting characters
-    cleaned_phone = re.sub(r"[^\d+]", "", phone)
-
-    if len(cleaned_phone) < 7 or len(cleaned_phone) > 15:
-        raise ValidationError(f"Invalid phone number length '{phone}'")
-
-    return cleaned_phone
+    try:
+        phone_validator = PhoneValidator(phone=phone)
+        return phone_validator.phone
+    except Exception as e:
+        raise ValidationError(f"Invalid phone number format '{phone}'") from e
 
 
 def validate_pagination_params(page: int, page_size: int) -> tuple[int, int]:
@@ -222,3 +225,34 @@ def validate_required_fields(data: dict[str, Any], required_fields: list[str]) -
 
     if empty_fields:
         raise ValidationError(f"Empty required fields: {', '.join(empty_fields)}")
+
+
+# Pydantic models for validation
+class ConfirmationNumberValidator(BaseModel):
+    confirmation_number: str = Field(..., pattern=r"^[A-Z0-9]{6,20}$")
+
+    @field_validator("confirmation_number")
+    @classmethod
+    def validate_and_upper(cls, v: str) -> str:
+        return v.upper()
+
+
+class EmailValidator(BaseModel):
+    email: EmailStr
+
+
+def clean_phone_number(phone: str) -> str:
+    """Clean phone number by removing non-digit characters except +"""
+    return "".join(c for c in phone if c.isdigit() or c == "+")
+
+
+class PhoneValidator(BaseModel):
+    phone: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone_format(cls, v: str) -> str:
+        cleaned = clean_phone_number(v)
+        if len(cleaned) < 7 or len(cleaned) > 15:
+            raise ValueError(f"Invalid phone number length: {len(cleaned)}")
+        return cleaned
