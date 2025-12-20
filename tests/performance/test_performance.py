@@ -24,7 +24,7 @@ class TestPerformance:
     def mock_auth_handler(self) -> OAuthHandler:
         """Create a mock OAuth handler for testing."""
         handler = Mock(spec=OAuthHandler)
-        handler.get_token.return_value = "test_token"
+        handler.get_token = AsyncMock(return_value="test_token")
         handler.get_auth_header.return_value = {"Authorization": "Bearer test_token"}
         handler.get_token_info.return_value = {
             "has_token": True,
@@ -37,6 +37,8 @@ class TestPerformance:
     def mock_settings(self) -> Settings:
         """Create mock settings for testing."""
         settings = Mock(spec=Settings)
+        settings.opera_base_url = "https://placeholder.example.com/api"
+        settings.opera_api_version = "v1"
         settings.request_timeout = 30
         settings.max_retries = 3
         settings.retry_backoff = 1.0
@@ -71,8 +73,8 @@ class TestPerformance:
 
         with patch("httpx.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
-            mock_client_instance.request.return_value = mock_response
-            mock_http_client.return_value.__aenter__.return_value = mock_client_instance
+            mock_client_instance.request = AsyncMock(return_value=mock_response)
+            mock_http_client.return_value = mock_client_instance
 
             # Test concurrent requests
             start_time = time.time()
@@ -113,8 +115,8 @@ class TestPerformance:
 
         with patch("httpx.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
-            mock_client_instance.request.return_value = mock_response
-            mock_http_client.return_value.__aenter__.return_value = mock_client_instance
+            mock_client_instance.request = AsyncMock(return_value=mock_response)
+            mock_http_client.return_value = mock_client_instance
 
             # Measure cache hit performance
             response1 = await api_client.get(
@@ -147,8 +149,8 @@ class TestPerformance:
 
         with patch("httpx.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
-            mock_client_instance.request.return_value = mock_response
-            mock_http_client.return_value.__aenter__.return_value = mock_client_instance
+            mock_client_instance.request = AsyncMock(return_value=mock_response)
+            mock_http_client.return_value = mock_client_instance
 
             # Test burst of requests that should trigger rate limiting
             start_time = time.time()
@@ -193,11 +195,13 @@ class TestPerformance:
         with patch("httpx.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             # First call fails, second succeeds
-            mock_client_instance.request.side_effect = [
-                mock_error_response,
-                mock_success_response,
-            ]
-            mock_http_client.return_value.__aenter__.return_value = mock_client_instance
+            mock_client_instance.request = AsyncMock(
+                side_effect=[
+                    mock_error_response,
+                    mock_success_response,
+                ]
+            )
+            mock_http_client.return_value = mock_client_instance
 
             start_time = time.time()
             response = await api_client.get("/test/retry-endpoint")
@@ -249,12 +253,14 @@ class TestPerformance:
     async def test_concurrent_client_sessions(self):
         """Test performance with multiple concurrent client sessions."""
         mock_auth_handler = Mock()
-        mock_auth_handler.get_token.return_value = "test_token"
+        mock_auth_handler.get_token = AsyncMock(return_value="test_token")
         mock_auth_handler.get_auth_header.return_value = {
             "Authorization": "Bearer test_token"
         }
 
         mock_settings = Mock()
+        mock_settings.opera_base_url = "https://placeholder.example.com/api"
+        mock_settings.opera_api_version = "v1"
         mock_settings.request_timeout = 30
         mock_settings.max_retries = 3
         mock_settings.retry_backoff = 1.0
@@ -284,8 +290,8 @@ class TestPerformance:
 
         with patch("httpx.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
-            mock_client_instance.request.return_value = mock_response
-            mock_http_client.return_value.__aenter__.return_value = mock_client_instance
+            mock_client_instance.request = AsyncMock(return_value=mock_response)
+            mock_http_client.return_value = mock_client_instance
 
             # Run concurrent requests across all clients
             start_time = time.time()

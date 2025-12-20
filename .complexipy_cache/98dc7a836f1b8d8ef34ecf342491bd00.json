@@ -61,9 +61,27 @@
       "path": "cli.py"
     },
     {
+      "complexity": 0,
+      "file_name": "main.py",
+      "function_name": "api_documentation",
+      "path": "main.py"
+    },
+    {
       "complexity": 1,
       "file_name": "main.py",
       "function_name": "_check_observability",
+      "path": "main.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "main.py",
+      "function_name": "_current_auth_handler",
+      "path": "main.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "main.py",
+      "function_name": "get_auth_handler",
       "path": "main.py"
     },
     {
@@ -136,6 +154,12 @@
       "complexity": 6,
       "file_name": "main.py",
       "function_name": "get_auth_status",
+      "path": "main.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "main.py",
+      "function_name": "hotel_configuration",
       "path": "main.py"
     },
     {
@@ -1257,6 +1281,24 @@
     {
       "complexity": 2,
       "file_name": "room_tools.py",
+      "function_name": "register_create_maintenance_request_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_get_cleaning_schedule_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_get_inventory_status_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
       "function_name": "register_housekeeping_tasks_tool",
       "path": "room_tools.py"
     },
@@ -1264,6 +1306,12 @@
       "complexity": 2,
       "file_name": "room_tools.py",
       "function_name": "register_room_status_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_update_inventory_stock_tool",
       "path": "room_tools.py"
     },
     {
@@ -1441,6 +1489,36 @@
       "path": "reservation_tools.py"
     },
     {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_get_reservations_client",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_reservation_metrics_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_reservation_support_tools",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "register_reservation_tools",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation_tools.py",
+      "function_name": "_maybe_await",
+      "path": "reservation_tools.py"
+    },
+    {
       "complexity": 1,
       "file_name": "reservation_tools.py",
       "function_name": "_validate_cancel_reservation_params",
@@ -1473,6 +1551,12 @@
     {
       "complexity": 2,
       "file_name": "reservation_tools.py",
+      "function_name": "_register_check_room_availability_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation_tools.py",
       "function_name": "_register_get_reservation_tool",
       "path": "reservation_tools.py"
     },
@@ -1486,6 +1570,12 @@
       "complexity": 2,
       "file_name": "reservation_tools.py",
       "function_name": "_validate_get_reservation_history_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_reservation_history_tool",
       "path": "reservation_tools.py"
     },
     {
@@ -1507,7 +1597,7 @@
       "path": "reservation_tools.py"
     },
     {
-      "complexity": 3,
+      "complexity": 4,
       "file_name": "reservation_tools.py",
       "function_name": "_validate_search_reservations_params",
       "path": "reservation_tools.py"
@@ -1528,12 +1618,6 @@
       "complexity": 5,
       "file_name": "reservation_tools.py",
       "function_name": "_register_create_reservation_tool",
-      "path": "reservation_tools.py"
-    },
-    {
-      "complexity": 5,
-      "file_name": "reservation_tools.py",
-      "function_name": "register_reservation_tools",
       "path": "reservation_tools.py"
     },
     {
@@ -1558,6 +1642,12 @@
       "complexity": 9,
       "file_name": "reservation_tools.py",
       "function_name": "_build_modifications",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_bulk_reservation_tools",
       "path": "reservation_tools.py"
     },
     {
@@ -2277,6 +2367,12 @@
     {
       "complexity": 1,
       "file_name": "oauth_handler.py",
+      "function_name": "Token::is_expired",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "oauth_handler.py",
       "function_name": "TokenCache::__init__",
       "path": "oauth_handler.py"
     },
@@ -2329,27 +2425,21 @@
       "path": "oauth_handler.py"
     },
     {
-      "complexity": 5,
-      "file_name": "oauth_handler.py",
-      "function_name": "OAuthHandler::ensure_valid_token",
-      "path": "oauth_handler.py"
-    },
-    {
-      "complexity": 6,
+      "complexity": 7,
       "file_name": "oauth_handler.py",
       "function_name": "OAuthHandler::get_token_info",
-      "path": "oauth_handler.py"
-    },
-    {
-      "complexity": 6,
-      "file_name": "oauth_handler.py",
-      "function_name": "Token::is_expired",
       "path": "oauth_handler.py"
     },
     {
       "complexity": 7,
       "file_name": "oauth_handler.py",
       "function_name": "TokenCache::load_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::ensure_valid_token",
       "path": "oauth_handler.py"
     },
     {

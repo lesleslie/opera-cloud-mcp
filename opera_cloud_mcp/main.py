@@ -10,6 +10,7 @@ import json
 import logging
 import sys
 import tempfile
+from dataclasses import dataclass
 from typing import Any
 
 from fastmcp import FastMCP
@@ -87,12 +88,31 @@ app = FastMCP(
     name="opera-cloud-mcp",
     version="0.1.0",
 )
+app.description = "MCP server for Oracle OPERA Cloud API integration"
+
+
+@dataclass(frozen=True)
+class ResourceDescriptor:
+    """Simple resource descriptor for documentation-style responses."""
+
+    uri: str
+    name: str
+    description: str
+    mimeType: str
+    text: str
+
 
 # Global settings instance (initialized on first use)
 settings = None
 
 # Global OAuth handler (initialized on startup)
 oauth_handler = None
+auth_handler = None
+
+
+def _current_auth_handler():
+    """Return the active authentication handler, if any."""
+    return auth_handler if auth_handler is not None else oauth_handler
 
 
 def get_settings() -> Settings | None:
@@ -204,6 +224,7 @@ def health_check() -> dict[str, Any]:
     """
     try:
         current_settings = get_settings()
+        handler = _current_auth_handler()
         # Basic health checks
         checks: dict[str, Any] = {
             "mcp_server": True,
@@ -212,12 +233,12 @@ def health_check() -> dict[str, Any]:
                 and current_settings.opera_client_id
                 and current_settings.opera_client_secret
             ),
-            "oauth_handler": oauth_handler is not None,
+            "oauth_handler": handler is not None,
             "version": app.version,
         }
 
         # Test authentication if OAuth handler is available
-        checks["authentication"] = _check_authentication(oauth_handler)
+        checks["authentication"] = _check_authentication(handler)
 
         # Add observability metrics if available
         checks["observability"] = _check_observability()
@@ -240,6 +261,64 @@ def health_check() -> dict[str, Any]:
         }
 
 
+async def api_documentation() -> ResourceDescriptor:
+    """Return documentation resource metadata and contents."""
+    text = "\n".join(
+        [
+            "# OPERA Cloud API Documentation",
+            "",
+            "## Authentication",
+            "OAuth2 client credentials are required for all API requests.",
+            "",
+            "## Reservations",
+            "Reservation search, create, modify, and cancel workflows.",
+            "",
+            "## Front Office",
+            "Check-in, check-out, room assignment, and reporting operations.",
+        ]
+    )
+    return ResourceDescriptor(
+        uri="opera://api/docs",
+        name="OPERA Cloud API Documentation",
+        description="Comprehensive documentation for OPERA Cloud REST APIs.",
+        mimeType="text/markdown",
+        text=text,
+    )
+
+
+async def hotel_configuration() -> ResourceDescriptor:
+    """Return hotel configuration resource metadata and contents."""
+    current_settings = get_settings()
+    config = {
+        "default_hotel_id": current_settings.default_hotel_id
+        if current_settings
+        else None,
+        "api_environment": current_settings.opera_environment
+        if current_settings
+        else None,
+        "api_version": current_settings.opera_api_version if current_settings else None,
+        "cache_enabled": "true"
+        if current_settings and current_settings.enable_cache
+        else "false",
+        "cache_ttl": current_settings.cache_ttl if current_settings else None,
+    }
+    return ResourceDescriptor(
+        uri="opera://config/hotel",
+        name="Hotel Configuration",
+        description="Current hotel configuration settings for the MCP server.",
+        mimeType="application/json",
+        text=json.dumps(config),
+    )
+
+
+def get_auth_handler():
+    """Return the active OAuth handler or raise if unavailable."""
+    handler = _current_auth_handler()
+    if handler is None:
+        raise RuntimeError("Authentication handler not initialized")
+    return handler
+
+
 @app.tool()
 async def get_auth_status() -> dict[str, Any]:
     """
@@ -248,7 +327,8 @@ async def get_auth_status() -> dict[str, Any]:
     Returns:
         Dictionary containing authentication status and token metadata
     """
-    if not oauth_handler:
+    handler = _current_auth_handler()
+    if not handler:
         return {
             "status": "not_initialized",
             "error": "OAuth handler not initialized",
@@ -262,7 +342,7 @@ async def get_auth_status() -> dict[str, Any]:
                 "error": "Settings not initialized",
             }
 
-        token_info = oauth_handler.get_token_info()
+        token_info = handler.get_token_info()
 
         return {
             "status": "success",
@@ -294,7 +374,8 @@ async def validate_auth_credentials() -> dict[str, Any]:
     Returns:
         Dictionary containing validation results
     """
-    if not oauth_handler:
+    handler = _current_auth_handler()
+    if not handler:
         return {
             "status": "error",
             "error": "OAuth handler not initialized",
@@ -302,10 +383,10 @@ async def validate_auth_credentials() -> dict[str, Any]:
 
     try:
         logger.info("Validating OAuth credentials")
-        is_valid = await oauth_handler.validate_credentials()
+        is_valid = await handler.validate_credentials()
 
         if is_valid:
-            token_info = oauth_handler.get_token_info()
+            token_info = handler.get_token_info()
             return {
                 "status": "success",
                 "valid": True,
@@ -352,7 +433,7 @@ async def get_server_info() -> dict[str, str]:
 
 async def initialize_server() -> None:
     """Initialize server components."""
-    global oauth_handler
+    global oauth_handler, auth_handler
 
     current_settings = get_settings()
     if current_settings is None:
@@ -366,6 +447,7 @@ async def initialize_server() -> None:
 
     # Create OAuth handler
     oauth_handler = create_oauth_handler(current_settings)
+    auth_handler = oauth_handler
 
 
 def _build_startup_features() -> list[str]:
@@ -403,7 +485,8 @@ def _display_startup_message() -> None:
 
 def _perform_shutdown_cleanup() -> None:
     """Perform cleanup during shutdown."""
-    if oauth_handler and hasattr(oauth_handler, "persistent_cache"):
+    handler = _current_auth_handler()
+    if handler and hasattr(handler, "persistent_cache"):
         logger.info("Performing cleanup...")
 
 

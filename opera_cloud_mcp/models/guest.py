@@ -4,7 +4,7 @@ Provides comprehensive Pydantic models for guest profiles, preferences,
 loyalty programs, history tracking, and customer relationship management.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Any

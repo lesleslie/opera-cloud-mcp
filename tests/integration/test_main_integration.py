@@ -55,49 +55,42 @@ class TestMainIntegration:
         assert "MCP server for Oracle OPERA Cloud API integration" in app.description
 
     @patch("opera_cloud_mcp.main.get_settings")
-    @patch("opera_cloud_mcp.main.OAuthHandler")
+    @patch("opera_cloud_mcp.main.create_oauth_handler")
     async def test_startup_success(
-        self, mock_oauth_class, mock_get_settings, mock_settings, mock_oauth_handler
+        self,
+        mock_create_oauth_handler,
+        mock_get_settings,
+        mock_settings,
+        mock_oauth_handler,
     ):
         """Test successful server startup and authentication."""
         mock_get_settings.return_value = mock_settings
-        mock_oauth_class.return_value = mock_oauth_handler
+        mock_settings.validate_oauth_credentials_at_startup = MagicMock()
+        mock_create_oauth_handler.return_value = mock_oauth_handler
 
-        # Import startup function
-        from opera_cloud_mcp.main import startup
+        from opera_cloud_mcp.main import initialize_server
 
-        # Test startup
-        await startup()
+        await initialize_server()
 
-        # Verify OAuth handler creation
-        mock_oauth_class.assert_called_once_with(
-            client_id=mock_settings.opera_client_id,
-            client_secret=mock_settings.opera_client_secret,
-            token_url=mock_settings.opera_token_url,
-            base_url=mock_settings.opera_base_url,
-        )
-
-        # Verify authentication test
-        mock_oauth_handler.get_token.assert_called_once()
+        mock_settings.validate_oauth_credentials_at_startup.assert_called_once()
+        mock_create_oauth_handler.assert_called_once_with(mock_settings)
 
     @patch("opera_cloud_mcp.main.get_settings")
-    @patch("opera_cloud_mcp.main.OAuthHandler")
+    @patch("opera_cloud_mcp.main.create_oauth_handler")
     async def test_startup_auth_failure(
-        self, mock_oauth_class, mock_get_settings, mock_settings
+        self, mock_create_oauth_handler, mock_get_settings, mock_settings
     ):
         """Test startup failure when authentication fails."""
         mock_get_settings.return_value = mock_settings
+        mock_settings.validate_oauth_credentials_at_startup = MagicMock()
 
-        # Mock OAuth handler that fails authentication
-        failing_handler = AsyncMock()
-        failing_handler.get_token.side_effect = Exception("Auth failed")
-        mock_oauth_class.return_value = failing_handler
-
-        from opera_cloud_mcp.main import startup
+        mock_create_oauth_handler.side_effect = Exception("Auth failed")
 
         # Test that startup raises exception on auth failure
+        from opera_cloud_mcp.main import initialize_server
+
         with pytest.raises(Exception, match="Auth failed"):
-            await startup()
+            await initialize_server()
 
     @patch("opera_cloud_mcp.main.get_settings")
     async def test_api_documentation_resource(self, mock_get_settings, mock_settings):
@@ -151,20 +144,24 @@ class TestMainIntegration:
         mock_get_settings.return_value = mock_settings
 
         # Mock healthy auth handler
-        healthy_auth = AsyncMock()
-        healthy_auth.get_token.return_value = "test_token"
+        healthy_auth = MagicMock()
+        healthy_auth.get_token_info.return_value = {
+            "has_token": True,
+            "status": "valid",
+            "refresh_count": 0,
+            "expires_in": 3600,
+        }
 
         with patch("opera_cloud_mcp.main.auth_handler", healthy_auth):
             from opera_cloud_mcp.main import health_check
 
-            result = await health_check()
+            result = health_check()
 
             assert result["status"] == "healthy"
-            assert result["checks"]["server"]
-            assert result["checks"]["auth"]
-            assert result["checks"]["config"]
-            assert result["version"] == "0.1.0"
-            assert result["server"] == "opera-cloud-mcp"
+            assert result["checks"]["mcp_server"]
+            assert result["checks"]["oauth_handler"]
+            assert result["checks"]["configuration"]
+            assert result["checks"]["version"] == "0.1.0"
 
     @patch("opera_cloud_mcp.main.get_settings")
     @patch("opera_cloud_mcp.main.auth_handler", None)  # Reset global auth_handler
@@ -173,18 +170,19 @@ class TestMainIntegration:
         mock_get_settings.return_value = mock_settings
 
         # Mock failing auth handler
-        failing_auth = AsyncMock()
-        failing_auth.get_token.side_effect = Exception("Auth failed")
+        failing_auth = MagicMock()
+        failing_auth.get_token_info.side_effect = Exception("Auth failed")
 
         with patch("opera_cloud_mcp.main.auth_handler", failing_auth):
             from opera_cloud_mcp.main import health_check
 
-            result = await health_check()
+            result = health_check()
 
-            assert result["status"] == "degraded"
-            assert result["checks"]["server"]
-            assert not result["checks"]["auth"]
-            assert result["checks"]["config"]
+            assert result["status"] == "unhealthy"
+            assert result["checks"]["mcp_server"]
+            assert result["checks"]["oauth_handler"]
+            assert result["checks"]["configuration"]
+            assert result["checks"]["authentication"]["status"] == "error"
 
     @patch("opera_cloud_mcp.main.get_settings")
     async def test_health_check_config_failure(self, mock_get_settings):
@@ -195,15 +193,18 @@ class TestMainIntegration:
         bad_settings.opera_client_secret = TEST_CLIENT_SECRET
         mock_get_settings.return_value = bad_settings
 
-        with patch("opera_cloud_mcp.main.auth_handler", None):
+        with (
+            patch("opera_cloud_mcp.main.auth_handler", None),
+            patch("opera_cloud_mcp.main.oauth_handler", None),
+        ):
             from opera_cloud_mcp.main import health_check
 
-            result = await health_check()
+            result = health_check()
 
-            assert result["status"] == "degraded"
-            assert result["checks"]["server"]
-            assert not result["checks"]["auth"]
-            assert not result["checks"]["config"]
+            assert result["status"] == "unhealthy"
+            assert result["checks"]["mcp_server"]
+            assert not result["checks"]["oauth_handler"]
+            assert not result["checks"]["configuration"]
 
     def test_get_auth_handler_success(self):
         """Test get_auth_handler returns the global handler."""
@@ -222,33 +223,28 @@ class TestMainIntegration:
 
         with (
             patch("opera_cloud_mcp.main.auth_handler", None),
+            patch("opera_cloud_mcp.main.oauth_handler", None),
             pytest.raises(RuntimeError, match="Authentication handler not initialized"),
         ):
             get_auth_handler()
 
-    @patch("opera_cloud_mcp.main.register_reservation_tools")
-    @patch("opera_cloud_mcp.main.register_guest_tools")
-    @patch("opera_cloud_mcp.main.register_room_tools")
-    @patch("opera_cloud_mcp.main.register_operation_tools")
-    @patch("opera_cloud_mcp.main.register_financial_tools")
-    def test_tool_registration(
-        self, mock_financial, mock_operation, mock_room, mock_guest, mock_reservation
-    ):
-        """Test that all tool registration functions are called."""
-        # This test verifies that the main module imports and calls all
-        # registration functions
-        # The actual calls happen at module import time
+    async def test_tool_registration(self):
+        """Test that the server module registers tools."""
+        import opera_cloud_mcp.server as server_module
 
-        # Import the main module (this triggers tool registration)
-        import opera_cloud_mcp.main as main_module
+        tools = await server_module.app.get_tools()
+        tool_names = list(tools.keys())
 
-        # Verify the app exists and tools would be registered
-        assert hasattr(main_module, "app")
-        assert isinstance(main_module.app, FastMCP)
+        expected_tools = [
+            "search_reservations",
+            "search_guests",
+            "check_room_availability",
+            "check_in_guest",
+            "get_guest_folio",
+        ]
 
-        # Note: The actual registration calls happen at import time,
-        # so we can't easily test them here without complex mocking.
-        # The functional tests above verify that the registration works.
+        for tool_name in expected_tools:
+            assert tool_name in tool_names
 
     def test_uvicorn_configuration(self):
         """Test uvicorn configuration in __main__ block."""

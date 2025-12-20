@@ -5,13 +5,15 @@ Provides MCP tools for searching, creating, modifying, and managing
 hotel reservations through the OPERA Cloud Reservations API.
 """
 
+import inspect
 from datetime import date, datetime
-from typing import Any
+from typing import Any, cast
 
 from fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import create_reservations_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
+from opera_cloud_mcp.utils.validators import validate_confirmation_number
 
 
 def _get_reservations_client(hotel_id: str | None = None):
@@ -19,13 +21,20 @@ def _get_reservations_client(hotel_id: str | None = None):
     return create_reservations_client(hotel_id)
 
 
-def _validate_search_reservations_params(hotel_id: str | None, limit: int) -> None:
+def _validate_search_reservations_params(
+    hotel_id: str | None,
+    limit: int,
+    confirmation_number: str | None = None,
+) -> None:
     """Validate search reservations parameters."""
     if hotel_id == "":
         raise ValidationError("hotel_id cannot be empty string")
 
     if limit < 1 or limit > 100:
         raise ValidationError("limit must be between 1 and 100")
+
+    if confirmation_number:
+        validate_confirmation_number(confirmation_number)
 
 
 def _build_search_criteria(
@@ -293,7 +302,14 @@ def _build_history_criteria(
     return history_criteria
 
 
-def _register_search_reservations_tool(app: FastMCP) -> None:
+async def _maybe_await(value: Any) -> Any:
+    """Await coroutine-like values and return sync values unchanged."""
+    if inspect.isawaitable(value):
+        return await value
+    return value
+
+
+def _register_search_reservations_tool(app: FastMCP) -> Any:
     """Register search reservations tool."""
 
     @app.tool()
@@ -323,9 +339,9 @@ def _register_search_reservations_tool(app: FastMCP) -> None:
         Returns:
             Dictionary containing search results and metadata
         """
-        _validate_search_reservations_params(hotel_id, limit)
+        _validate_search_reservations_params(hotel_id, limit, confirmation_number)
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         search_criteria = _build_search_criteria(
             arrival_date,
@@ -340,7 +356,7 @@ def _register_search_reservations_tool(app: FastMCP) -> None:
         response = await client.search_reservations(search_criteria)
 
         if response.success:
-            data = response.data or {}
+            data = cast("dict[str, Any]", response.data or {})
             return {
                 "success": True,
                 "reservations": data.get("reservations", []),
@@ -355,8 +371,10 @@ def _register_search_reservations_tool(app: FastMCP) -> None:
             "search_criteria": search_criteria,
         }
 
+    return search_reservations
 
-def _register_get_reservation_tool(app: FastMCP) -> None:
+
+def _register_get_reservation_tool(app: FastMCP) -> Any:
     """Register get reservation tool."""
 
     @app.tool()
@@ -380,7 +398,7 @@ def _register_get_reservation_tool(app: FastMCP) -> None:
         """
         _validate_get_reservation_params(hotel_id)
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         response = await client.get_reservation(
             confirmation_number=confirmation_number,
@@ -402,8 +420,10 @@ def _register_get_reservation_tool(app: FastMCP) -> None:
             "hotel_id": hotel_id,
         }
 
+    return get_reservation
 
-def _register_create_reservation_tool(app: FastMCP) -> None:
+
+def _register_create_reservation_tool(app: FastMCP) -> Any:
     """Register create reservation tool."""
 
     @app.tool()
@@ -437,7 +457,7 @@ def _register_create_reservation_tool(app: FastMCP) -> None:
         """
         _validate_create_reservation_params(hotel_id, arrival_date, departure_date)
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         reservation_data = _build_reservation_data(
             guest_profile,
@@ -469,8 +489,10 @@ def _register_create_reservation_tool(app: FastMCP) -> None:
             "hotel_id": hotel_id,
         }
 
+    return create_reservation
 
-def _register_modify_reservation_tool(app: FastMCP) -> None:
+
+def _register_modify_reservation_tool(app: FastMCP) -> Any:
     """Register modify reservation tool."""
 
     @app.tool()
@@ -502,7 +524,7 @@ def _register_modify_reservation_tool(app: FastMCP) -> None:
         """
         _validate_modify_reservation_params(hotel_id, None, None)
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         modification_data = _build_modifications(
             None,  # arrival_date
@@ -532,8 +554,10 @@ def _register_modify_reservation_tool(app: FastMCP) -> None:
             "hotel_id": hotel_id,
         }
 
+    return modify_reservation
 
-def _register_cancel_reservation_tool(app: FastMCP) -> None:
+
+def _register_cancel_reservation_tool(app: FastMCP) -> Any:
     """Register cancel reservation tool."""
 
     @app.tool()
@@ -559,7 +583,7 @@ def _register_cancel_reservation_tool(app: FastMCP) -> None:
         """
         _validate_cancel_reservation_params(hotel_id)
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         cancellation_data = _build_cancellation_data(
             cancellation_reason or "No reason provided",
@@ -585,14 +609,11 @@ def _register_cancel_reservation_tool(app: FastMCP) -> None:
             "hotel_id": hotel_id,
         }
 
+    return cancel_reservation
 
-def register_reservation_tools(app: FastMCP):
-    """Register all reservation-related MCP tools."""
-    _register_search_reservations_tool(app)
-    _register_get_reservation_tool(app)
-    _register_create_reservation_tool(app)
-    _register_modify_reservation_tool(app)
-    _register_cancel_reservation_tool(app)
+
+def _register_check_room_availability_tool(app: FastMCP) -> None:
+    """Register availability tool."""
 
     @app.tool()
     async def check_room_availability(
@@ -625,7 +646,7 @@ def register_reservation_tools(app: FastMCP):
             hotel_id, arrival_date, departure_date, number_of_rooms
         )
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         availability_criteria = _build_availability_criteria(
             arrival_date,
@@ -652,6 +673,10 @@ def register_reservation_tools(app: FastMCP):
             "search_criteria": availability_criteria,
             "hotel_id": hotel_id,
         }
+
+
+def _register_reservation_history_tool(app: FastMCP) -> None:
+    """Register reservation history tool."""
 
     @app.tool()
     async def get_reservation_history(
@@ -682,7 +707,7 @@ def register_reservation_tools(app: FastMCP):
             hotel_id, guest_email, guest_phone, guest_name
         )
 
-        client = create_reservations_client(hotel_id=hotel_id)
+        client = _get_reservations_client(hotel_id=hotel_id)
 
         history_criteria = _build_history_criteria(
             guest_email, guest_phone, guest_name, date_from, date_to, limit
@@ -691,7 +716,7 @@ def register_reservation_tools(app: FastMCP):
         response = await client.get_guest_reservation_history(history_criteria)
 
         if response.success:
-            data = response.data or {}
+            data = cast("dict[str, Any]", response.data or {})
             return {
                 "success": True,
                 "history": data.get("reservations", []),
@@ -705,3 +730,129 @@ def register_reservation_tools(app: FastMCP):
             "search_criteria": history_criteria,
             "hotel_id": hotel_id,
         }
+
+
+def _register_bulk_reservation_tools(app: FastMCP) -> None:
+    """Register bulk reservation tools."""
+
+    @app.tool()
+    async def bulk_create_reservations(
+        reservations_data: list[dict[str, Any]],
+        hotel_id: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create multiple reservations in a bulk operation.
+
+        Args:
+            reservations_data: List of reservation payloads
+            hotel_id: Hotel identifier (uses default if not provided)
+
+        Returns:
+            Dictionary containing bulk job details
+        """
+        client = _get_reservations_client(hotel_id=hotel_id)
+        response = await client.bulk_create_reservations(reservations_data)
+
+        if response.success:
+            data = cast("dict[str, Any]", response.data or {})
+            job_id = data.get("jobId")
+            return {
+                "success": True,
+                "job_id": job_id,
+                "status": data.get("status"),
+                "data": data,
+                "hotel_id": hotel_id,
+                "message": f"Bulk operation started: {job_id}",
+            }
+        return {
+            "success": False,
+            "error": response.error,
+            "hotel_id": hotel_id,
+        }
+
+    @app.tool()
+    async def get_bulk_operation_status(
+        job_id: str,
+        hotel_id: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Retrieve status for a bulk reservation operation.
+
+        Args:
+            job_id: Bulk operation job identifier
+            hotel_id: Hotel identifier (uses default if not provided)
+
+        Returns:
+            Dictionary containing bulk operation status
+        """
+        client = _get_reservations_client(hotel_id=hotel_id)
+        response = await client.get_bulk_operation_status(job_id)
+
+        if response.success:
+            data = cast("dict[str, Any]", response.data or {})
+            processed = data.get("processedCount")
+            total = data.get("totalReservations")
+            progress = (
+                f"({processed}/{total} processed)"
+                if processed is not None and total is not None
+                else "(progress unknown)"
+            )
+            status = data.get("status")
+            return {
+                "success": True,
+                "job_id": job_id,
+                "status": status,
+                "data": data,
+                "hotel_id": hotel_id,
+                "message": f"Bulk operation {status} {progress}",
+            }
+        return {
+            "success": False,
+            "error": response.error,
+            "hotel_id": hotel_id,
+        }
+
+
+def _register_reservation_metrics_tool(app: FastMCP) -> None:
+    """Register reservation metrics tool."""
+
+    @app.tool()
+    async def get_reservation_client_metrics(
+        hotel_id: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get client metrics for reservation operations.
+
+        Args:
+            hotel_id: Hotel identifier (uses default if not provided)
+
+        Returns:
+            Dictionary containing client metrics and health status
+        """
+        client = _get_reservations_client(hotel_id=hotel_id)
+        metrics = await _maybe_await(client.get_metrics())
+        return {
+            "success": True,
+            "data": {
+                "hotel_id": hotel_id,
+                "metrics": metrics,
+            },
+        }
+
+
+def _register_reservation_support_tools(app: FastMCP) -> None:
+    """Register availability, history, and bulk reservation tools."""
+    _register_check_room_availability_tool(app)
+    _register_reservation_history_tool(app)
+    _register_bulk_reservation_tools(app)
+    _register_reservation_metrics_tool(app)
+
+
+def register_reservation_tools(app: FastMCP):
+    """Register all reservation-related MCP tools."""
+    _register_search_reservations_tool(app)
+    _register_get_reservation_tool(app)
+    _register_create_reservation_tool(app)
+    _register_modify_reservation_tool(app)
+    _register_cancel_reservation_tool(app)
+    _register_reservation_support_tools(app)

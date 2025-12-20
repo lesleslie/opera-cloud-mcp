@@ -29,6 +29,9 @@ class TestReservationToolsSimple:
             "cancel_reservation",
             "check_room_availability",
             "get_reservation_history",
+            "bulk_create_reservations",
+            "get_bulk_operation_status",
+            "get_reservation_client_metrics",
         ]
 
         for tool_name in expected_tools:

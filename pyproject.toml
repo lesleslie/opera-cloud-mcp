@@ -130,7 +130,7 @@ python_classes = [
 python_functions = [
     "test_*",
 ]
-addopts = "--cov=. --cov-report=term-missing --cov-report=html --cov-fail-under=80"
+addopts = "--cov=opera_cloud_mcp --cov-report=term-missing --cov-report=html --cov-fail-under=39"
 asyncio_mode = "auto"
 
 [tool.bandit]

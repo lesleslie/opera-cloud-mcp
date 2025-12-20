@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "acb"
-version = "0.31.22"
+version = "0.32.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioconsole" },
@@ -19,13 +19,11 @@ dependencies = [
     { name = "brotli" },
     { name = "devtools" },
     { name = "dill" },
-    { name = "fastmcp" },
     { name = "google-api-python-client" },
     { name = "google-crc32c" },
     { name = "icecream" },
     { name = "inflection" },
     { name = "loguru" },
-    { name = "mcp-common" },
     { name = "msgspec", extra = ["toml", "yaml"] },
     { name = "nest-asyncio" },
     { name = "pydantic", extra = ["email"] },
@@ -41,9 +39,9 @@ dependencies = [
     { name = "uuid-utils" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/35/58/cac0f7c7ec2aa8da7f4ffc2eec5ff2a255564eb10f90679065865fe2837e/acb-0.31.22.tar.gz", hash = "sha256:ac683ce6f99bc16714fd3526ac87555d809f035c4e17744bae22cb6913ff6ba1", size = 1458132, upload-time = "2025-12-19T21:23:59.002Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/78/d3e8965953d464e1d3d3d796f3aff4931e60b0e6b79db052dfc3d36cdf87/acb-0.32.0.tar.gz", hash = "sha256:1776e1a146306b8223cce85a483b54fe1c28e726309bc70a26ff209c4cd4ac34", size = 1468775, upload-time = "2025-12-20T06:31:35.671Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/d9/58d5a0f469f9cb9fb70c180a48c651657f733b54108d8fb748a61c5fdf55/acb-0.31.22-py3-none-any.whl", hash = "sha256:f3e92eb04281a4e98aa0896a70e0d6104f3301afbcf0d45b18fac29e09987813", size = 820903, upload-time = "2025-12-19T21:23:55.951Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/17/d2627c6fa3f8c0fa4fd0bc97bf4b7c75f59709fa9063822186017a9e4089/acb-0.32.0-py3-none-any.whl", hash = "sha256:d09de51941e812056a7e6b896f6f83e09a80029fbca25600ea2b738312d1cc6a", size = 802969, upload-time = "2025-12-20T06:31:32.14Z" },
 ]
 
 [[package]]
@@ -2096,16 +2094,16 @@ wheels = [
 
 [[package]]
 name = "mcp-common"
-version = "0.3.3"
+version = "0.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "acb" },
     { name = "pydantic" },
     { name = "rich" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2f/5a/8b0b51c23e82ec9449f6fe3bce220f5af0f9db01c7a0908a1c8735192f29/mcp_common-0.3.3.tar.gz", hash = "sha256:ce9c0837c4a796b23dbc05a64c054ea85957910030121a716d119138a1cde08d", size = 265899, upload-time = "2025-11-17T09:23:59.65Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/1f/a6a861a8af1bce844d790231d1f2281726f569234d1f6269e824e2ac02b7/mcp_common-0.3.4.tar.gz", hash = "sha256:1ddbc2a992bbda487734dbb7b5d94ba4e7661c4ce944b60cee01763e40af8fe2", size = 291645, upload-time = "2025-12-20T10:56:31.067Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/ed/49e654739f03a242dbad56e44f2d395c8c9423d247ee268992b1fa6c2e50/mcp_common-0.3.3-py3-none-any.whl", hash = "sha256:2227f8ce344395dee2b485d096ae4891f74a3a4472c491806e76f7796d0121a1", size = 33158, upload-time = "2025-11-17T09:23:57.899Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/6d/caf8cf6f69c77f6531d646fe695eee60806e6cdf53c6bdd0d7a31c48929c/mcp_common-0.3.4-py3-none-any.whl", hash = "sha256:2539f1703090e36d650e79cc3fa97dd0b170751668a706b1981bf84c8c7e1860", size = 33136, upload-time = "2025-12-20T10:56:29.436Z" },
 ]
 
 [[package]]
@@ -2453,11 +2451,11 @@ wheels = [
 
 [[package]]
 name = "nodeenv"
-version = "1.9.1"
+version = "1.10.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/43/16/fc88b08840de0e0a72a2f9d8c6bae36be573e475a6326ae854bcc549fc45/nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f", size = 47437, upload-time = "2024-06-04T18:44:11.171Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/bf/d1bda4f6168e0b2e9e5958945e01910052158313224ada5ce1fb2e1113b8/nodeenv-1.10.0.tar.gz", hash = "sha256:996c191ad80897d076bdfba80a41994c2b47c68e224c542b48feba42ba00f8bb", size = 55611, upload-time = "2025-12-20T14:08:54.006Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/1d/1b658dbd2b9fa9c4c9f32accbfc0205d532c8c6194dc0f2a4c0428e7128a/nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9", size = 22314, upload-time = "2024-06-04T18:44:08.352Z" },
+    { url = "https://files.pythonhosted.org/packages/88/b2/d0896bdcdc8d28a7fc5717c305f1a861c26e18c05047949fb371034d98bd/nodeenv-1.10.0-py2.py3-none-any.whl", hash = "sha256:5bb13e3eed2923615535339b3c620e76779af4cb4c6a90deccc9e36b274d3827", size = 23438, upload-time = "2025-12-20T14:08:52.782Z" },
 ]
 
 [[package]]
