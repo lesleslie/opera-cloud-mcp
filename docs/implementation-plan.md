@@ -16,7 +16,7 @@ Build a FastMCP-based Model Context Protocol server to interface with Oracle OPE
 
 ### Available API Domains
 
-Based on the Oracle Hospitality API documentation (github.com/oracle/hospitality-api-docs):
+Based on the Oracle Hospitality API documentation:
 
 | API Code | Domain | Description |
 |----------|--------|-------------|
@@ -735,11 +735,11 @@ async def health_check():
 ## Resources & References
 
 - [Oracle Hospitality Integration Platform](https://www.oracle.com/hospitality/integration-platform/)
-- [Oracle Hospitality API Docs (GitHub)](https://github.com/oracle/hospitality-api-docs)
+- Oracle Hospitality API Documentation
 - [OPERA Cloud API Documentation](https://docs.oracle.com/en/industries/hospitality/integration-platform/)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
-- [Crackerjack Standards](https://github.com/lesliepython/crackerjack)
+- Crackerjack Standards
 
 ______________________________________________________________________
 

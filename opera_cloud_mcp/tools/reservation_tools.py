@@ -14,6 +14,11 @@ from opera_cloud_mcp.utils.client_factory import create_reservations_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
 
 
+def _get_reservations_client(hotel_id: str | None = None):
+    """Internal function to get a reservations client, used for testing/mocking."""
+    return create_reservations_client(hotel_id)
+
+
 def _validate_search_reservations_params(hotel_id: str | None, limit: int) -> None:
     """Validate search reservations parameters."""
     if hotel_id == "":

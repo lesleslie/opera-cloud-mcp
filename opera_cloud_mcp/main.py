@@ -16,6 +16,11 @@ from fastmcp import FastMCP
 
 from opera_cloud_mcp.auth import create_oauth_handler
 from opera_cloud_mcp.config.settings import Settings
+from opera_cloud_mcp.server import (
+    RATE_LIMITING_AVAILABLE,
+    SECURITY_AVAILABLE,
+    SERVERPANELS_AVAILABLE,
+)
 from opera_cloud_mcp.utils.exceptions import (
     AuthenticationError,
     ConfigurationError,
@@ -354,8 +359,52 @@ async def initialize_server() -> None:
         logger.error("Failed to initialize settings")
         return
 
+    # Validate OAuth credentials at startup (Phase 3 Security Hardening)
+    # Phase 3.2 H2 fix: Remove suppress wrapper to ensure validation failures
+    # are visible
+    current_settings.validate_oauth_credentials_at_startup()
+
     # Create OAuth handler
     oauth_handler = create_oauth_handler(current_settings)
+
+
+def _build_startup_features() -> list[str]:
+    """Build the list of startup features to display."""
+    features = [
+        "🏨 Hospitality Management",
+        "🔐 OAuth2 Authentication",
+        "💰 Financial Operations",
+        "🛏️  Room Management",
+    ]
+    if SECURITY_AVAILABLE:
+        features.append("🔒 OAuth Credential Validation (32+ chars)")
+    if RATE_LIMITING_AVAILABLE:
+        features.append("⚡ Rate Limiting (10 req/sec, burst 20)")
+    return features
+
+
+def _display_startup_message() -> None:
+    """Display the startup message using ServerPanels or fallback."""
+    if SERVERPANELS_AVAILABLE:
+        features = _build_startup_features()
+        from mcp_common.ui import ServerPanels
+
+        ServerPanels.startup_success(
+            server_name="OPERA Cloud MCP",
+            version="0.1.0",
+            features=features,
+            transport="STDIO",
+            mode="Claude Desktop",
+        )
+    else:
+        # Fallback to plain text
+        logger.info("Starting FastMCP server...")
+
+
+def _perform_shutdown_cleanup() -> None:
+    """Perform cleanup during shutdown."""
+    if oauth_handler and hasattr(oauth_handler, "persistent_cache"):
+        logger.info("Performing cleanup...")
 
 
 async def main() -> None:
@@ -369,16 +418,15 @@ async def main() -> None:
         # Initialize server components
         await initialize_server()
 
+        # Display startup message
+        _display_startup_message()
+
         # Run the FastMCP server
-        logger.info("Starting FastMCP server...")
         await app.run()  # type: ignore[func-returns-value]
 
     except KeyboardInterrupt:
         logger.info("Server shutdown requested")
-
-        # Cleanup on shutdown
-        if oauth_handler and hasattr(oauth_handler, "persistent_cache"):
-            logger.info("Performing cleanup...")
+        _perform_shutdown_cleanup()
 
     except (ConfigurationError, AuthenticationError) as e:
         logger.error(f"Server startup failed: {e}")

@@ -300,7 +300,7 @@ class SecureTokenCache:
             # Add integrity protection
             payload = {
                 "token_data": token_data,
-                "binding": binding.dict() if binding else None,
+                "binding": binding.model_dump() if binding else None,
                 "checksum": self._calculate_checksum(token_data),
                 "timestamp": datetime.now(UTC).isoformat(),
             }

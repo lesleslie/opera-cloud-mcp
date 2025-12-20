@@ -13,3 +13,5 @@ wheels/
 /.python-version
 /.coverage
 /.crackerjack/
+/.claude/
+/.benchmarks/

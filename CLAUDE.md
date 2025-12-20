@@ -124,7 +124,7 @@ Always use the security settings in production and never commit credentials to t
 
 ## Crackerjack Integration
 
-This project uses [Crackerjack](https://github.com/lesliepython/crackerjack) for automated code quality and best practices.
+This project uses Crackerjack for automated code quality and best practices.
 
 ### Quality Standards
 
@@ -173,6 +173,6 @@ Quality gates are enforced in CI/CD:
 - `pyproject.toml` - Tool configurations (ruff, mypy, pytest, bandit)
 - Quality standards are automatically enforced
 
-For more information, see: https://github.com/lesliepython/crackerjack
+For more information, see the Crackerjack repository.
 
 <!-- CRACKERJACK_END -->

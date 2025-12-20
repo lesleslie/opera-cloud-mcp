@@ -4,7 +4,7 @@ Unit tests for reservation data models.
 Tests Pydantic models for validation, transformation, and business rules.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -57,7 +57,7 @@ class TestGuestProfile:
             address=address,
             loyaltyNumber="GOLD123456",
             vipStatus="VIP",
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             createdBy="test_user",
         )
 
@@ -295,7 +295,7 @@ class TestComprehensiveReservation:
                 hotelId="TEST_HOTEL",
                 primaryGuest=guest,
                 roomStay=room_stay,
-                createdDate=datetime.utcnow(),
+                createdDate=datetime.now(UTC),
             )
 
     def test_reservation_timestamp_validation(self):
@@ -356,7 +356,7 @@ class TestComprehensiveReservation:
             hotelId="TEST_HOTEL",
             primaryGuest=guest,
             roomStay=room_stay,
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
         )
 
         assert isinstance(reservation, ComprehensiveReservation)
@@ -380,7 +380,7 @@ class TestReservationSearchResult:
             hotelId="TEST_HOTEL",
             primaryGuest=guest,
             roomStay=room_stay,
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
         )
 
         search_result = ReservationSearchResult(
@@ -449,7 +449,7 @@ class TestEnumerations:
             hotelId="TEST_HOTEL",
             primaryGuest=guest,
             roomStay=room_stay,
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             status=ReservationStatus.PROVISIONAL,
         )
 

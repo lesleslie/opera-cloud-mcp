@@ -15,6 +15,8 @@ dependencies = [
     "sqlmodel>=0.0.14",
     "cryptography>=41.0.0",
     "typer>=0.9.0",
+    "mcp-common>=0.2.0",
+    "bevy>=3.1.0b12",
 ]
 
 [project.scripts]
@@ -24,7 +26,7 @@ opera-cloud-mcp = "opera_cloud_mcp.cli:main"
 dev = [
     "crackerjack>=0.31.10",
     "excalidraw-mcp>=0.1.2",
-    "session-mgmt-mcp>=0.1.3",
+    "session-buddy>=0.1.3",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "mypy>=1.5.0",
@@ -45,6 +47,11 @@ packages = [
     "opera_cloud_mcp",
 ]
 
+[tool.opera-cloud-mcp]
+http_port = 3037
+http_host = "127.0.0.1"
+enable_http_transport = true
+
 [tool.ruff]
 line-length = 88
 target-version = "py313"
@@ -56,6 +63,7 @@ exclude = [
     "tests/",
     "test_*.py",
     "*_test.py",
+    "examples/",
 ]
 
 [tool.ruff.lint]
@@ -128,6 +136,7 @@ asyncio_mode = "auto"
 [tool.bandit]
 exclude_dirs = [
     "tests",
+    "examples",
 ]
 skips = [
     "B101",
@@ -164,10 +173,11 @@ quiet-level = 3
 ignore-words-list = "crate,uptodate,nd,nin,fof,FOF,checkin,Checkin,CHECKIN"
 
 [tool.complexipy]
-default_pattern = "**/*.py"
+default_pattern = "opera_cloud_mcp/**/*.py"
 exclude_patterns = [
     "**/tests/**",
     "**/test_*.py",
+    "**/examples/**",
 ]
 max_complexity = 15
 

@@ -87,24 +87,9 @@ class CRMClient(BaseAPIClient):
 
         # Use structured criteria if provided, otherwise build from
         # individual parameters
-        if criteria:
-            search_data = criteria.dict(exclude_none=True, by_alias=True)
-        else:
-            search_data = {}
-            if name:
-                search_data["name"] = name
-            if email:
-                search_data["email"] = email
-            if phone:
-                search_data["phone"] = phone
-            if guest_id:
-                search_data["guestId"] = guest_id
-            if loyalty_number:
-                search_data["loyaltyNumber"] = loyalty_number
-            if vip_status:
-                search_data["vipStatus"] = vip_status.value
-            if status:
-                search_data["status"] = status.value
+        search_data = self._build_search_data(
+            criteria, name, email, phone, guest_id, loyalty_number, vip_status, status
+        )
 
         # Add search criteria to request body
         request_data = {
@@ -186,6 +171,138 @@ class CRMClient(BaseAPIClient):
                 ) from e
             raise
 
+    def _validate_guest_profile_fields(self, first_name: str, last_name: str) -> None:
+        """Validate required fields for guest profile creation."""
+        if not first_name or not first_name.strip():
+            raise ValidationError("First name is required")
+        if not last_name or not last_name.strip():
+            raise ValidationError("Last name is required")
+
+    def _build_contact_info(
+        self, email: str | None, phone: str | None
+    ) -> dict[str, Any] | None:
+        """Build contact information dictionary."""
+        contact_info = {}
+        if email:
+            contact_info["email"] = email
+        if phone:
+            contact_info["phone"] = phone
+        return contact_info if contact_info else None
+
+    def _build_search_data_from_criteria(
+        self,
+        criteria: GuestSearchCriteria | None,
+    ) -> dict[str, Any]:
+        """Build search data from structured criteria."""
+        if criteria:
+            return criteria.model_dump(exclude_none=True, by_alias=True)
+        return {}
+
+    def _build_search_data_from_individual_params(
+        self,
+        name: str | None,
+        email: str | None,
+        phone: str | None,
+        guest_id: str | None,
+        loyalty_number: str | None,
+        vip_status: VIPStatus | None,
+        status: ProfileStatus | None,
+    ) -> dict[str, Any]:
+        """Build search data from individual parameters."""
+        search_data = {}
+        if name:
+            search_data["name"] = name
+        if email:
+            search_data["email"] = email
+        if phone:
+            search_data["phone"] = phone
+        if guest_id:
+            search_data["guestId"] = guest_id
+        if loyalty_number:
+            search_data["loyaltyNumber"] = loyalty_number
+        if vip_status:
+            search_data["vipStatus"] = vip_status.value
+        if status:
+            search_data["status"] = status.value
+        return search_data
+
+    def _build_search_data(
+        self,
+        criteria: GuestSearchCriteria | None,
+        name: str | None,
+        email: str | None,
+        phone: str | None,
+        guest_id: str | None,
+        loyalty_number: str | None,
+        vip_status: VIPStatus | None,
+        status: ProfileStatus | None,
+    ) -> dict[str, Any]:
+        """Build search data from criteria or individual parameters."""
+        if criteria:
+            return self._build_search_data_from_criteria(criteria)
+        else:
+            return self._build_search_data_from_individual_params(
+                name, email, phone, guest_id, loyalty_number, vip_status, status
+            )
+
+    def _build_guest_profile_data(
+        self,
+        first_name: str,
+        last_name: str,
+        contact_info: dict[str, Any] | None,
+        address: dict[str, Any] | None,
+        birth_date: date | None,
+        gender: str | None,
+        nationality: str | None,
+        language: str | None,
+        vip_status: VIPStatus | None,
+        preferences: list[dict[str, Any]] | None,
+        marketing_preferences: dict[str, Any] | None,
+        special_instructions: str | None,
+    ) -> dict[str, Any]:
+        """Build the guest profile data dictionary."""
+        guest_data: dict[str, Any] = {
+            "firstName": first_name.strip().title(),
+            "lastName": last_name.strip().title(),
+            "status": ProfileStatus.ACTIVE.value,
+            "createdDate": datetime.now(tz=UTC).isoformat(),
+            "createdBy": "system",  # This would come from auth context
+            "dataProtectionConsent": True,
+            "consentDate": datetime.now(tz=UTC).isoformat(),
+        }
+
+        if contact_info:
+            guest_data["contact"] = contact_info
+
+        if address:
+            guest_data["address"] = address
+
+        if birth_date:
+            guest_data["birthDate"] = birth_date.isoformat()
+
+        if gender:
+            guest_data["gender"] = gender
+
+        if nationality:
+            guest_data["nationality"] = nationality
+
+        if language:
+            guest_data["language"] = language
+
+        if vip_status:
+            guest_data["vipStatus"] = vip_status.value
+
+        if preferences:
+            guest_data["preferences"] = preferences
+
+        if marketing_preferences:
+            guest_data["marketingPreferences"] = marketing_preferences
+
+        if special_instructions:
+            guest_data["specialInstructions"] = special_instructions
+
+        return guest_data
+
     async def create_guest_profile(
         self,
         first_name: str,
@@ -237,57 +354,26 @@ class CRMClient(BaseAPIClient):
         )
 
         # Validate required fields
-        if not first_name or not first_name.strip():
-            raise ValidationError("First name is required")
-        if not last_name or not last_name.strip():
-            raise ValidationError("Last name is required")
+        self._validate_guest_profile_fields(first_name, last_name)
+
+        # Build contact information
+        contact_info = self._build_contact_info(email, phone)
 
         # Build guest profile data
-        guest_data: dict[str, Any] = {
-            "firstName": first_name.strip().title(),
-            "lastName": last_name.strip().title(),
-            "status": ProfileStatus.ACTIVE.value,
-            "createdDate": datetime.now(tz=UTC).isoformat(),
-            "createdBy": "system",  # This would come from auth context
-            "dataProtectionConsent": True,
-            "consentDate": datetime.now(tz=UTC).isoformat(),
-        }
-
-        # Add optional fields
-        if email:
-            guest_data["contact"] = guest_data.get("contact", {})
-            guest_data["contact"]["email"] = email
-
-        if phone:
-            guest_data["contact"] = guest_data.get("contact", {})
-            guest_data["contact"]["phone"] = phone
-
-        if address:
-            guest_data["address"] = address
-
-        if birth_date:
-            guest_data["birthDate"] = birth_date.isoformat()
-
-        if gender:
-            guest_data["gender"] = gender
-
-        if nationality:
-            guest_data["nationality"] = nationality
-
-        if language:
-            guest_data["language"] = language
-
-        if vip_status:
-            guest_data["vipStatus"] = vip_status.value
-
-        if preferences:
-            guest_data["preferences"] = preferences
-
-        if marketing_preferences:
-            guest_data["marketingPreferences"] = marketing_preferences
-
-        if special_instructions:
-            guest_data["specialInstructions"] = special_instructions
+        guest_data = self._build_guest_profile_data(
+            first_name,
+            last_name,
+            contact_info,
+            address,
+            birth_date,
+            gender,
+            nationality,
+            language,
+            vip_status,
+            preferences,
+            marketing_preferences,
+            special_instructions,
+        )
 
         return await self.post(
             "crm/v1/guests",

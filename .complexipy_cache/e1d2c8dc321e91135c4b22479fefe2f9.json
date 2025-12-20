@@ -1,0 +1,5222 @@
+{
+  "functions": [
+    {
+      "complexity": 15,
+      "file_name": "auth_example.py",
+      "function_name": "main",
+      "path": "auth_example.py"
+    },
+    {
+      "complexity": 52,
+      "file_name": "base_client_usage.py",
+      "function_name": "main",
+      "path": "base_client_usage.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "server.py",
+      "function_name": "main",
+      "path": "server.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cli.py",
+      "function_name": "remove_pid_file",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cli.py",
+      "function_name": "show_version",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cli.py",
+      "function_name": "write_pid_file",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cli.py",
+      "function_name": "restart_server",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cli.py",
+      "function_name": "show_status",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cli.py",
+      "function_name": "get_server_pid",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "cli.py",
+      "function_name": "stop_server",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "cli.py",
+      "function_name": "start_server",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "cli.py",
+      "function_name": "main",
+      "path": "cli.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "main.py",
+      "function_name": "_check_observability",
+      "path": "main.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "main.py",
+      "function_name": "initialize_server",
+      "path": "main.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "main.py",
+      "function_name": "_build_startup_features",
+      "path": "main.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "main.py",
+      "function_name": "_display_startup_message",
+      "path": "main.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "main.py",
+      "function_name": "_perform_shutdown_cleanup",
+      "path": "main.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "main.py",
+      "function_name": "get_settings",
+      "path": "main.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "main.py",
+      "function_name": "health_check",
+      "path": "main.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "main.py",
+      "function_name": "get_server_info",
+      "path": "main.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "main.py",
+      "function_name": "_determine_overall_status",
+      "path": "main.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "main.py",
+      "function_name": "main",
+      "path": "main.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "main.py",
+      "function_name": "validate_auth_credentials",
+      "path": "main.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "main.py",
+      "function_name": "_check_authentication",
+      "path": "main.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "main.py",
+      "function_name": "get_auth_status",
+      "path": "main.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "main.py",
+      "function_name": "setup_logging",
+      "path": "main.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::__aenter__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::__aexit__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_calculate_backoff",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_rate_limit_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_resource_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::base_url",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::delete",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::get",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::head",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::options",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::patch",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::post",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::put",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::__init__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::_on_success",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::get_state",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "HealthMonitor::__init__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "RateLimiter::__init__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client.py",
+      "function_name": "RateLimiter::get_stats",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_authentication_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_client_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_execute_single_request",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_extract_retry_after",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_handle_json_decode_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_handle_response",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_handle_unexpected_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_prepare_request_headers",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_process_successful_response",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_record_request_metrics",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::health_check",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::_on_failure",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::_should_attempt_reset",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "DataTransformer::_apply_field_transformation",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client.py",
+      "function_name": "RateLimiter::wait_if_needed",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_apply_rate_limiting",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_build_error_details",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_validation_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_extract_error_message",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_start_tracing",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::close",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::get_health_status",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client.py",
+      "function_name": "RateLimiter::acquire",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_convert_to_opera_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_log_response",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_store_cache",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::__init__",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_create_server_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_ensure_session",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_log_request",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_parse_error_json",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_parse_error_response",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_check_cache",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_execute_with_retry",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client.py",
+      "function_name": "HealthMonitor::get_health_status",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_finish_tracing",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_should_retry",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client.py",
+      "function_name": "DataTransformer::_get_nested_field_parent",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client.py",
+      "function_name": "HealthMonitor::record_request",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_handle_success_response",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_map_status_to_exception",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client.py",
+      "function_name": "CircuitBreaker::call",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "base_client.py",
+      "function_name": "DataTransformer::transform_response_data",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::request",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "base_client.py",
+      "function_name": "DataTransformer::_mask_sensitive_data",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "base_client.py",
+      "function_name": "BaseAPIClient::_handle_retry_error",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "base_client.py",
+      "function_name": "DataTransformer::sanitize_request_data",
+      "path": "base_client.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::__aenter__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::__aexit__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::base_url",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::delete",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::get",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::head",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::options",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::patch",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::post",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::put",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::_on_success",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::get_state",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "HealthMonitor::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RateLimiter::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RateLimiter::get_stats",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RequestHandler::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RetryHandler::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_record_metrics",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::health_check",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::_on_failure",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::_should_attempt_reset",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RateLimiter::wait_if_needed",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RequestHandler::execute_request",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RequestHandler::prepare_headers",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_extract_error_message",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_extract_retry_after",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::handle_response",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RetryHandler::calculate_backoff",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RetryHandler::should_retry",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_start_trace_span",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::close",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::get_health_status",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RateLimiter::acquire",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RequestHandler::save_to_cache",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_build_error_details",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RetryHandler::handle_retry",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_finish_trace_span",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_log_response",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_ensure_session",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_log_request",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_raise_final_error",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client_refactored.py",
+      "function_name": "DataTransformer::_apply_field_transformation",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base_client_refactored.py",
+      "function_name": "RequestHandler::check_cache",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::__init__",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client_refactored.py",
+      "function_name": "DataTransformer::transform_response_data",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "base_client_refactored.py",
+      "function_name": "HealthMonitor::get_health_status",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client_refactored.py",
+      "function_name": "DataTransformer::_get_nested_field_value",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "base_client_refactored.py",
+      "function_name": "HealthMonitor::record_request",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client_refactored.py",
+      "function_name": "CircuitBreaker::call",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_handle_success_response",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_raise_exception",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::_execute_with_retry",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "base_client_refactored.py",
+      "function_name": "BaseAPIClient::request",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "base_client_refactored.py",
+      "function_name": "DataTransformer::_mask_sensitive_data",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "base_client_refactored.py",
+      "function_name": "ResponseHandler::_handle_error_response",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "base_client_refactored.py",
+      "function_name": "DataTransformer::sanitize_request_data",
+      "path": "base_client_refactored.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "client_factory.py",
+      "function_name": "APIClientProtocol::__init__",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::__init__",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::create_basic_factory",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::create_secure_factory",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::list_registered_clients",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::register_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "cleanup_client_factory",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "get_client_factory",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "initialize_client_factory",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::cleanup",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::get_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "client_factory.py",
+      "function_name": "ClientFactory::health_check",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_booking_data",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_checkin_data",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_checkout_data",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_guest_profile",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_reservation_data",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_walkin_data",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "_create_report_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "register_front_office_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "register_operation_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "operation_tools.py",
+      "function_name": "register_report_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_handle_report_response",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_assign_room_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_arrivals_report_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_departures_report_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_front_desk_summary_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_in_house_guests_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_no_show_report_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_get_occupancy_report_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_create_activity_booking_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_create_dining_reservation_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_process_walk_in_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "register_arrivals_report_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "register_departures_report_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "register_front_desk_summary_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "register_no_show_report_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "operation_tools.py",
+      "function_name": "register_occupancy_report_tool",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "operation_tools.py",
+      "function_name": "_build_search_criteria",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_check_in_guest_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "operation_tools.py",
+      "function_name": "_validate_check_out_guest_params",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "operation_tools.py",
+      "function_name": "register_activity_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "operation_tools.py",
+      "function_name": "register_guest_management_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "operation_tools.py",
+      "function_name": "register_check_in_tools",
+      "path": "operation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "room_tools.py",
+      "function_name": "_build_adjustment_data",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "room_tools.py",
+      "function_name": "_build_maintenance_data",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "room_tools.py",
+      "function_name": "_build_task_data",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "room_tools.py",
+      "function_name": "_build_update_data",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "room_tools.py",
+      "function_name": "register_room_tools",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_get_cleaning_schedule_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_get_housekeeping_tasks_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_get_inventory_status_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_get_room_status_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "_build_availability_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_check_room_availability_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_create_maintenance_request_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_update_inventory_stock_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_update_room_status_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_check_room_availability_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_complete_housekeeping_task_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_create_housekeeping_task_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_housekeeping_tasks_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_room_status_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "room_tools.py",
+      "function_name": "register_update_room_status_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "room_tools.py",
+      "function_name": "_build_inventory_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_check_room_availability_dates",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "room_tools.py",
+      "function_name": "_validate_create_housekeeping_task_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "room_tools.py",
+      "function_name": "register_update_inventory_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "room_tools.py",
+      "function_name": "_build_schedule_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "room_tools.py",
+      "function_name": "register_inventory_levels_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "room_tools.py",
+      "function_name": "register_room_inspection_tool",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "room_tools.py",
+      "function_name": "_build_task_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "room_tools.py",
+      "function_name": "_build_status_params",
+      "path": "room_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::__init__",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::_get_top_tools_by_usage",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::get_tool_dependencies",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::get_tools_by_category",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "tool_registry.py",
+      "function_name": "register_opera_tool",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::_create_tool_wrapper",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::cleanup_history",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::register_tool",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tool_registry.py",
+      "function_name": "get_tool_registry",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tool_registry.py",
+      "function_name": "initialize_tool_registry",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::_check_rate_limit",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::get_health_status",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::_validate_tool_function",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::get_tool_metrics",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::_execute_with_monitoring",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "tool_registry.py",
+      "function_name": "ToolRegistry::list_tools",
+      "path": "tool_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_cancellation_data",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_guest_profile",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_reservation_data",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_cancel_reservation_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_create_reservation_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_get_reservation_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_modify_reservation_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_availability_criteria",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_get_reservation_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_check_room_availability_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_get_reservation_history_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_search_reservations_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_check_room_availability_dates",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_create_reservation_dates",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_search_reservations_params",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_history_criteria",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_cancel_reservation_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_create_reservation_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation_tools.py",
+      "function_name": "register_reservation_tools",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_search_criteria",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "reservation_tools.py",
+      "function_name": "_register_modify_reservation_tool",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "reservation_tools.py",
+      "function_name": "_validate_modify_reservation_dates",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "reservation_tools.py",
+      "function_name": "_build_modifications",
+      "path": "reservation_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_merge_options",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "guest_tools.py",
+      "function_name": "register_guest_tools",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_address_data",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_parse_birth_date",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_create_guest_profile_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_get_guest_loyalty_info_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_get_guest_preferences_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_get_guest_profile_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_get_guest_stay_history_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_search_guests_criteria",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_update_guest_profile_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_history_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_get_guest_loyalty_info_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_get_guest_profile_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_merge_guest_profiles_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_merge_guest_profiles_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_profile_data",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_search_name",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_build_update_data",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_get_guest_stay_history_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_update_guest_preferences_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_search_guests_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_search_guests_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_update_guest_profile_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "guest_tools.py",
+      "function_name": "_validate_update_guest_preferences_params",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_create_guest_profile_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "guest_tools.py",
+      "function_name": "_register_get_guest_preferences_tool",
+      "path": "guest_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_balance_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_payment_data",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_refund_data",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_report_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_revenue_report_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_transfer_data",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_void_data",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "register_financial_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "register_folio_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "register_report_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "financial_tools.py",
+      "function_name": "register_transaction_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_get_daily_revenue_report_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_void_transaction_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "_build_charge_data",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_generate_folio_report_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_get_guest_folio_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_get_outstanding_balances_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_post_charge_to_room_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_charge_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_folio_report_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_guest_folio_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_outstanding_balances_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_payment_tools",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_refund_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_transfer_charges_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "financial_tools.py",
+      "function_name": "register_void_transaction_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_process_payment_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_process_refund_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "financial_tools.py",
+      "function_name": "register_revenue_report_tool",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "financial_tools.py",
+      "function_name": "_validate_transfer_charges_params",
+      "path": "financial_tools.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_settings.py",
+      "function_name": "ProductionSecuritySettings::validate_production_readiness",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::generate_secure_defaults",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::validate_security_configuration",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::get_allowed_ips",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::get_audit_db_path",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::get_audit_encryption_key",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_settings.py",
+      "function_name": "ProductionSecuritySettings::_check_weak_configurations",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::get_security_headers",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::_check_weak_configurations",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_settings.py",
+      "function_name": "ProductionSecuritySettings::_check_security_configuration_requirements",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::_check_missing_security_features",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::validate_encryption_key",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "security_settings.py",
+      "function_name": "ProductionSecuritySettings::_check_critical_security_requirements",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::_check_production_readiness",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "security_settings.py",
+      "function_name": "SecuritySettings::validate_ip_addresses",
+      "path": "security_settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_api_config",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_client_config",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_oauth_config",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_oauth_handler_config",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "settings.py",
+      "function_name": "get_settings",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_masked_client_id",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "settings.py",
+      "function_name": "Settings::get_masked_client_secret",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "settings.py",
+      "function_name": "Settings::validate_required_settings",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "settings.py",
+      "function_name": "Settings::validate_oauth_credentials_at_startup",
+      "path": "settings.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "RateLimiter::__init__",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::_calculate_checksum",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::_get_cache_file",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::__init__",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::_hash_client_id",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_enhancements.py",
+      "function_name": "TokenBinding::is_valid",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::_get_cipher",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::create_token_binding",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::_cleanup_audit_log",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::get_audit_events",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_enhancements.py",
+      "function_name": "RateLimiter::check_rate_limit",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_enhancements.py",
+      "function_name": "RateLimiter::get_reset_time",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::__init__",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::clear_token",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::validate_token_binding",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::save_token_secure",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::get_risk_assessment",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::_derive_master_key",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::is_client_blocked",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecurityMonitor::record_authentication_attempt",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "security_enhancements.py",
+      "function_name": "SecureTokenCache::load_token_secure",
+      "path": "security_enhancements.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_sqlmodel.py",
+      "function_name": "AuditLoggerSQLModel::log_audit_event",
+      "path": "audit_sqlmodel.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "audit_sqlmodel.py",
+      "function_name": "AuditLoggerSQLModel::_get_or_create_encryption_key",
+      "path": "audit_sqlmodel.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "audit_sqlmodel.py",
+      "function_name": "AuditLoggerSQLModel::__init__",
+      "path": "audit_sqlmodel.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "audit_sqlmodel.py",
+      "function_name": "AuditLoggerSQLModel::get_audit_events",
+      "path": "audit_sqlmodel.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "__init__.py",
+      "function_name": "validate_security_configuration",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "__init__.py",
+      "function_name": "_validate_main_settings",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "__init__.py",
+      "function_name": "create_oauth_handler",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "__init__.py",
+      "function_name": "_add_security_recommendations",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "__init__.py",
+      "function_name": "create_security_components",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "__init__.py",
+      "function_name": "create_enhanced_oauth_security",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "__init__.py",
+      "function_name": "_validate_security_settings",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "__init__.py",
+      "function_name": "_validate_production_settings",
+      "path": "__init__.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_make_token_request",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_prepare_token_request",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::get_auth_header",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "oauth_handler.py",
+      "function_name": "Token::expires_at",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::_get_cache_file",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::__init__",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::_get_encryption_key",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::save_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_process_successful_token_response",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::invalidate_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::validate_credentials",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::clear_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::__init__",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_handle_error_response",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::ensure_valid_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::get_token_info",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "oauth_handler.py",
+      "function_name": "Token::is_expired",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "oauth_handler.py",
+      "function_name": "TokenCache::load_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::revoke_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_handle_request_exception",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::get_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 15,
+      "file_name": "oauth_handler.py",
+      "function_name": "OAuthHandler::_refresh_token",
+      "path": "oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::__init__",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::__init__",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_frequency_threats",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_is_known_malicious_ip",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "security_middleware.py",
+      "function_name": "create_security_middleware",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_behavioral_threats",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_ip_threats",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_user_agent_threats",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_check_malicious_ip_ranges",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_get_historical_events",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_record_ip_request",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_activity_spikes",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_ip_address",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_time_based_patterns",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::_trigger_incident_response",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::get_security_status",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_behavioral_patterns",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_ip_patterns",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_check_ip_reputation",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::process_request",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_check_private_ip_in_production",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_check_request_frequency",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_is_suspicious_ip_range",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::analyze_request",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::_handle_high_risk_request",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_request_frequency",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::_check_blocked_entities",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "security_middleware.py",
+      "function_name": "ThreatDetector::_analyze_user_agent",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::_enforce_rate_limits",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "security_middleware.py",
+      "function_name": "SecurityMiddleware::_validate_ip_restrictions",
+      "path": "security_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_init_database",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditLogger::__init__",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::cleanup_old_records",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::get_statistics",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::insert_record_sqlmodel",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::verify_database_integrity",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditLogger::get_audit_trail",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditLogger::log_authentication_event",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditRecord::verify_checksum",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_build_query",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_convert_row_to_record",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_decrypt_record_details",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditRecord::calculate_checksum",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_get_or_create_encryption_key",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_verify_record_integrity",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_check_all_records",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditLogger::get_security_report",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::__init__",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::_build_query_conditions",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::insert_record",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditLogger::_generate_recommendations",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "audit_logger.py",
+      "function_name": "AuditDatabase::query_records",
+      "path": "audit_logger.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_handle_auth_success",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_hash_client_id",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_hash_secret",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::get_token",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureToken::expires_at",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_cache_secure_token",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_record_security_event",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureToken::is_binding_valid",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_handle_network_error",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_handle_unexpected_error",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_prepare_secure_token_request",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_should_retry_authentication",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::invalidate_token_secure",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_create_secure_token",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::get_security_status",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_needs_token_refresh",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::rotate_credentials",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::__init__",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_calculate_entropy",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_validate_security_context",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureToken::is_expired",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_validate_token_response",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_handle_auth_failure",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::get_token_secure",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_detect_suspicious_activity",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 15,
+      "file_name": "secure_oauth_handler.py",
+      "function_name": "SecureOAuthHandler::_refresh_token_secure",
+      "path": "secure_oauth_handler.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "api_specs.py",
+      "function_name": "get_example_request",
+      "path": "api_specs.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "api_specs.py",
+      "function_name": "get_all_endpoints",
+      "path": "api_specs.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "api_specs.py",
+      "function_name": "validate_request_schema",
+      "path": "api_specs.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "api_specs.py",
+      "function_name": "get_api_spec",
+      "path": "api_specs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "health_check.py",
+      "function_name": "liveness_check",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "health_check.py",
+      "function_name": "register_health_resources",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "health_check.py",
+      "function_name": "_check_observability",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "health_check.py",
+      "function_name": "health_status",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "health_check.py",
+      "function_name": "_determine_overall_status",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "health_check.py",
+      "function_name": "_check_authentication",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "health_check.py",
+      "function_name": "readiness_check",
+      "path": "health_check.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "formatters.py",
+      "function_name": "_clean_dict_value",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "formatters.py",
+      "function_name": "format_date_for_api",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "formatters.py",
+      "function_name": "format_datetime_for_api",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "formatters.py",
+      "function_name": "format_money",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "formatters.py",
+      "function_name": "snake_to_camel_case",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "formatters.py",
+      "function_name": "format_guest_name",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "formatters.py",
+      "function_name": "format_phone_display",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "formatters.py",
+      "function_name": "camel_to_snake_case",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "formatters.py",
+      "function_name": "format_api_response",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "formatters.py",
+      "function_name": "format_search_params",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "formatters.py",
+      "function_name": "_clean_list_value",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 17,
+      "file_name": "formatters.py",
+      "function_name": "clean_api_data",
+      "path": "formatters.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_get_entries_to_evict",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::__init__",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_calculate_eviction_score",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_generate_cache_key",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_remove_entry",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::cleanup_expired",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::start_background_tasks",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_ensure_capacity",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_get_keys_to_invalidate_by_dependency",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::get_stats",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_invalidate_keys",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_update_statistics_on_remove",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::close",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::invalidate",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_get_specific_key_to_invalidate",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_should_invalidate_entry",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_background_cleanup",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_calculate_size",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_get_keys_to_invalidate_by_criteria",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::health_check",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::get",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::_remove_from_dependency_map",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::set",
+      "path": "cache_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validators.py",
+      "function_name": "ConfirmationNumberValidator::validate_and_upper",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validators.py",
+      "function_name": "clean_phone_number",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "validators.py",
+      "function_name": "validate_date_format",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "validators.py",
+      "function_name": "validate_date_string",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "PhoneValidator::validate_phone_format",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "validate_confirmation_number",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "validate_email",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "validate_phone",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "validate_required_fields",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validators.py",
+      "function_name": "validate_room_number",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "validators.py",
+      "function_name": "validate_hotel_id",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "validators.py",
+      "function_name": "validate_pagination_params",
+      "path": "validators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::__init__",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::_find_critical_path",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::start_span",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::__init__",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::increment",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::record_timer",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::set_gauge",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::timer",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "ObservabilityManager::__init__",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::__init__",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::_setup_console_handler",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::_setup_file_handler",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::business_event",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::get_trace_analysis",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::trace",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::_percentile",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::_record_time_series",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::record_histogram",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "ObservabilityManager::_get_error_summary",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "ObservabilityManager::get_health_dashboard",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::_get_current_context",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "get_observability",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "observability.py",
+      "function_name": "initialize_observability",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::finish_span",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::_make_key",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::_setup_handlers",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::context",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::log",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "observability.py",
+      "function_name": "DistributedTracer::_analyze_service_breakdown",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::_cleanup_old_data",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "observability.py",
+      "function_name": "ObservabilityManager::_calculate_health_status",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "observability.py",
+      "function_name": "MetricsCollector::get_metrics_summary",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "observability.py",
+      "function_name": "ObservabilityManager::_get_top_operations",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 15,
+      "file_name": "observability.py",
+      "function_name": "StructuredLogger::_create_structured_formatter",
+      "path": "observability.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "BulkheadIsolator::__init__",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "BulkheadIsolator::get_metrics",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::__init__",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::get_metrics",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "ResilienceManager::__init__",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_handle_exhausted_attempts",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_handle_non_retryable_failure",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_is_last_attempt",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_log_retry_attempt",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_should_retry",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::_calculate_failure_rate",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::__init__",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_calculate_delay",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::_should_attempt_reset",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "resilience_manager.py",
+      "function_name": "ResilienceManager::get_or_create_bulkhead",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "resilience_manager.py",
+      "function_name": "ResilienceManager::get_or_create_circuit_breaker",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_handle_retry_success",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::_record_failure",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::get_retry_statistics",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "resilience_manager.py",
+      "function_name": "BulkheadIsolator::execute",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::_record_success",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "resilience_manager.py",
+      "function_name": "CircuitBreaker::call",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "resilience_manager.py",
+      "function_name": "ResilienceManager::execute_with_resilience",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "resilience_manager.py",
+      "function_name": "ResilienceManager::get_overall_health",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::_classify_failure",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "resilience_manager.py",
+      "function_name": "RetryManager::execute_with_retry",
+      "path": "resilience_manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::__init__",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::_update_client_limits",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::get_endpoint_statistics",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::cleanup",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::_optimize_pool_size",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::get_pool_health_status",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::_normalize_endpoint",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::get_optimized_client_config",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::record_request_metrics",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "connection_optimizer.py",
+      "function_name": "ConnectionPoolOptimizer::get_optimized_client",
+      "path": "connection_optimizer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "CancellationError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "CircuitBreakerError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "PaymentError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "RateLimitError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "ReservationConflictError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "ReservationError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "ReservationValidationError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "SecurityError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "TimeoutError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "APIError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "APIError::is_client_error",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "APIError::is_retryable",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "APIError::is_server_error",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "BulkOperationError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "BulkOperationError::get_success_rate",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "BulkOperationError::has_partial_success",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "OperaCloudError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "OperaCloudError::__str__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "RateLimitError::get_backoff_time",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "exceptions.py",
+      "function_name": "RoomAvailabilityError::__init__",
+      "path": "exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "create_activities_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "create_cashier_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "create_front_office_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "create_housekeeping_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "client_factory.py",
+      "function_name": "create_inventory_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "client_factory.py",
+      "function_name": "create_crm_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "client_factory.py",
+      "function_name": "create_reservations_client",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "client_factory.py",
+      "function_name": "get_oauth_handler",
+      "path": "client_factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservation.py",
+      "function_name": "ReservationSearchResult::validate_reservation_list",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservation.py",
+      "function_name": "ComprehensiveReservation::validate_confirmation_number_format",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation.py",
+      "function_name": "ComprehensiveReservation::validate_modification_consistency",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservation.py",
+      "function_name": "RoomStayDetails::validate_departure_after_arrival",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "reservation.py",
+      "function_name": "GuestProfile::validate_birth_date",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "reservation.py",
+      "function_name": "GuestProfile::validate_contact_info",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation.py",
+      "function_name": "ComprehensiveReservation::validate_timestamps",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservation.py",
+      "function_name": "RoomStayDetails::calculate_nights",
+      "path": "reservation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "guest.py",
+      "function_name": "GuestProfile::get_full_name",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "guest.py",
+      "function_name": "GuestProfile::get_preferences_by_type",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest.py",
+      "function_name": "GuestPreference::validate_priority",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest.py",
+      "function_name": "GuestProfile::validate_guest_id",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "guest.py",
+      "function_name": "GuestProfile::validate_names",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "guest.py",
+      "function_name": "GuestProfile::get_primary_loyalty_program",
+      "path": "guest.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::__init__",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::book_spa_service",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_activity_details",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_activity_schedule",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_popular_activities",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::rent_equipment",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::return_equipment",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::update_booking_status",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::cancel_activity_booking",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::create_activity_booking",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::create_dining_reservation",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_activity_usage_report",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_dining_availability",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_guest_activity_history",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_revenue_report",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_spa_availability",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "Activity::validate_category",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "ActivityBooking::validate_status",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "Equipment::validate_category",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "activities.py",
+      "function_name": "SpaService::validate_service_type",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::create_activity",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_equipment",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_restaurants",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::update_activity_schedule",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "activities.py",
+      "function_name": "DiningReservation::validate_seating_area",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_spa_services",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_activities",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::get_activity_bookings",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "activities.py",
+      "function_name": "ActivitiesClient::batch_update_bookings",
+      "path": "activities.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_guest_profiles",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_loyalty_programs",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_merge_conflicts",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::create_guest_profile",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_guest_loyalty_info",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_loyalty_programs",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::search_guests",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::update_guest_preferences",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::update_guest_profile",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::update_marketing_preferences",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_build_search_data_from_criteria",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_guest_stay_history",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::merge_guest_profiles",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_build_search_data",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_merge_result",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_points_transaction",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_guest_preferences",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::update_loyalty_points",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_build_contact_info",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_parse_date",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_parse_datetime",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_marketing_preferences",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_validate_guest_profile_fields",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_guest_history",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::get_guest_profile",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_build_search_data_from_individual_params",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_guest_preferences",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_guest_statistics",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_guest_profile",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_build_guest_profile_data",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_loyalty_program",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "crm.py",
+      "function_name": "CRMClient::_transform_stay_history",
+      "path": "crm.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::__init__",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::assign_room",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_guest_folio",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::post_charge_to_room",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "CheckInRequest::parse_arrival_time",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "CheckOutRequest::parse_departure_time",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_no_show_report",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_occupancy_report",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_room_assignments",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::process_walk_in",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::search_in_house_guests",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::check_in_guest",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::check_out_guest",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_departures_report",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_arrivals_report",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::batch_check_in",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "front_office.py",
+      "function_name": "FrontOfficeClient::get_front_desk_summary",
+      "path": "front_office.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::__init__",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::bulk_status_update",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::update_inventory_stock",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "CleaningSchedule::validate_shift",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::create_cleaning_schedule",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_housekeeping_summary",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_productivity_report",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::update_room_status",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::update_task_status",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "MaintenanceRequest::validate_category",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "housekeeping.py",
+      "function_name": "RoomStatusUpdate::validate_housekeeping_status",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::create_housekeeping_task",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::create_maintenance_request",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_cleaning_schedule",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_inventory_status",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_maintenance_requests",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_room_status",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::get_housekeeping_tasks",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "housekeeping.py",
+      "function_name": "HousekeepingClient::batch_create_tasks",
+      "path": "housekeeping.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::__init__",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::allocate_block_inventory",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_contract",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_details",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_rooming_list",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::release_block_inventory",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::update_block_status",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "block.py",
+      "function_name": "BlockClient::upload_rooming_list",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::create_group_reservation",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_availability",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_inventory",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_pickup_report",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_block_reservations",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_blocks_summary_report",
+      "path": "block.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "block.py",
+      "function_name": "RoomBlock::validate_status",
+      "path": "block.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "block.py",
+      "function_name": "BlockClient::create_room_block",
+      "path": "block.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "block.py",
+      "function_name": "BlockClient::create_block_contract",
+      "path": "block.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "block.py",
+      "function_name": "BlockClient::get_blocks",
+      "path": "block.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "block.py",
+      "function_name": "BlockClient::batch_create_group_reservations",
+      "path": "block.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::__init__",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::auto_settle",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::batch_post_charges",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_folio",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_payment_method_report",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_payment_summary",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_refund_status",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::quick_cash_payment",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::reverse_charge",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::settle_folio",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::split_folio",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::authorize_credit_card",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::capture_authorization",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_outstanding_balances_report",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_payment_options",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::process_refund",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::void_authorization",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_charge_history",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::get_daily_revenue_report",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::is_folio_settled",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::post_charge",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::transfer_charges",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "cashiering.py",
+      "function_name": "PaymentRequest::validate_card_number",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::process_payment",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "cashiering.py",
+      "function_name": "CashieringClient::batch_process_payments",
+      "path": "cashiering.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::__init__",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_cancel_request",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_charges_data",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_reservation_list",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_room_availability",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::bulk_create_reservations",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::check_availability",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::get_bulk_operation_status",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::get_guest_reservation_history",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::get_metrics",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservations.py",
+      "function_name": "ReservationSearchCriteria::validate_confirmation",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "reservations.py",
+      "function_name": "ReservationSearchCriteria::validate_dates",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_create_request",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_reservation_data",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_transform_modify_request",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::cancel_reservation",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::get_availability",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_prepare_cancel_response_data",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::get_reservation",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::search_reservations",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::create_reservation",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::modify_reservation",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_handle_cancellation_input",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "reservations.py",
+      "function_name": "ReservationsClient::_build_search_params",
+      "path": "reservations.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::__init__",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::bulk_update_restrictions",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_best_available_rates",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_rate_code_details",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_yield_recommendations",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::update_rate_code",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::validate_promotional_code",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "PromotionalRate::validate_discount_type",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RateCode::validate_rate_category",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatePlan::validate_plan_type",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::configure_yield_management",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::create_rate_plan",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_competitive_analysis",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_rate_restrictions",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::set_rate_restriction",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "rates.py",
+      "function_name": "RateRestriction::validate_los",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::create_rate_code",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_promotional_rates",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_rate_analysis",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_rate_plans",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::create_promotional_rate",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "rates.py",
+      "function_name": "YieldConfiguration::validate_occupancy_thresholds",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::get_rate_codes",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "rates.py",
+      "function_name": "RatesClient::batch_create_rate_codes",
+      "path": "rates.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::__init__",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::bulk_create_restrictions",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::bulk_update_availability",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::delete_restriction",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_availability_trends",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_room_type_availability",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::release_room_block",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::update_restriction",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::update_room_block",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::adjust_inventory",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::create_restriction",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_availability_calendar",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_available_rates",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_displacement_report",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_pickup_report",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_rate_details",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "inventory.py",
+      "function_name": "AvailabilityRequest::validate_departure_after_arrival",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::create_room_block",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_adjustment_history",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_inventory_levels",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_restrictions",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_room_blocks",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::check_room_availability",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::get_best_available_rate",
+      "path": "inventory.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "inventory.py",
+      "function_name": "InventoryClient::check_minimum_stay_compliance",
+      "path": "inventory.py"
+    }
+  ],
+  "targets": [
+    "/Users/les/Projects/opera-cloud-mcp/examples/auth_example.py",
+    "/Users/les/Projects/opera-cloud-mcp/examples/base_client_usage.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/__main__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/audit_logger.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/audit_sqlmodel.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/oauth_handler.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/secure_oauth_handler.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/security_enhancements.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/auth/security_middleware.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/cli.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/activities.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/block.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/cashiering.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/crm.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/front_office.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/housekeeping.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/inventory.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/rates.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/api_clients/reservations.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/base_client.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/base_client_refactored.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/clients/client_factory.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/config/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/config/security_settings.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/config/settings.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/main.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/common.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/financial.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/guest.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/reservation.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/models/room.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/resources/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/resources/api_specs.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/resources/health_check.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/server.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/financial_tools.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/guest_tools.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/operation_tools.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/reservation_tools.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/room_tools.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/tools/tool_registry.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/__init__.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/cache_manager.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/client_factory.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/connection_optimizer.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/exceptions.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/formatters.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/observability.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/resilience_manager.py",
+    "/Users/les/Projects/opera-cloud-mcp/opera_cloud_mcp/utils/validators.py"
+  ]
+}

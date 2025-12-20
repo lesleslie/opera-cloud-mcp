@@ -46,19 +46,13 @@ class Token(BaseModel):
     @property
     def is_expired(self) -> bool:
         """Check if token is expired (with 60 second buffer)."""
-        # Handle timezone-aware vs timezone-naive datetime comparison
+        # Ensure both datetimes are timezone-aware for comparison
         now = datetime.now(UTC)
         expires_at = self.expires_at
 
-        # If issued_at has timezone info, use timezone-aware comparison
-        if self.issued_at.tzinfo is not None:
-            if now.tzinfo is None:
-                # Convert now to UTC timezone-aware
-                now = now.replace(tzinfo=UTC)
-        else:
-            # If issued_at is timezone-naive, ensure expires_at comparison is also naive
-            if expires_at.tzinfo is not None:
-                expires_at = expires_at.replace(tzinfo=None)
+        # If expires_at is timezone-naive, make it timezone-aware to match 'now'
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
 
         return now >= (expires_at - timedelta(seconds=60))
 
@@ -543,8 +537,12 @@ class OAuthHandler:
                 else None,
             }
 
+        # Ensure both datetimes are timezone-aware for comparison
         now = datetime.now(UTC)
-        expires_in = max(0, (self._token_cache.expires_at - now).total_seconds())
+        token_expires_at = self._token_cache.expires_at
+        if token_expires_at.tzinfo is None:
+            token_expires_at = token_expires_at.replace(tzinfo=UTC)
+        expires_in = max(0, (token_expires_at - now).total_seconds())
 
         status = "valid"
         if self._token_cache.is_expired:
@@ -588,9 +586,13 @@ class OAuthHandler:
             needs_refresh = True
 
             if self._token_cache:
-                time_until_expiry = (
-                    self._token_cache.expires_at - datetime.now(UTC)
-                ).total_seconds()
+                # Ensure both datetimes are timezone-aware for comparison
+                current_time = datetime.now(UTC)
+                token_expires_at = self._token_cache.expires_at
+                if token_expires_at.tzinfo is None:
+                    token_expires_at = token_expires_at.replace(tzinfo=UTC)
+
+                time_until_expiry = (token_expires_at - current_time).total_seconds()
                 needs_refresh = time_until_expiry <= min_validity_seconds
 
                 if not needs_refresh:

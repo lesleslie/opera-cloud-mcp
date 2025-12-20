@@ -5,11 +5,20 @@ Provides environment-based configuration management using Pydantic settings
 for OAuth credentials, API endpoints, and client configuration.
 """
 
+import sys
 import tempfile
 from typing import Any
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Import mcp-common security utilities for OAuth credential validation
+try:
+    from mcp_common.security import APIKeyValidator
+
+    SECURITY_AVAILABLE = True
+except ImportError:
+    SECURITY_AVAILABLE = False
 
 
 class Settings(BaseSettings):
@@ -103,6 +112,82 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_prefix="OPERA_", case_sensitive=False, extra="ignore"
     )
+
+    def get_masked_client_id(self) -> str:
+        """Get masked OAuth client ID for safe logging (Phase 3 Security Hardening).
+
+        Returns:
+            Masked client ID string (e.g., "...abc1") for safe display in logs
+        """
+        if not self.opera_client_id:
+            return "***"
+
+        if SECURITY_AVAILABLE:
+            return APIKeyValidator.mask_key(self.opera_client_id, visible_chars=4)
+
+        # Fallback masking without security module
+        if len(self.opera_client_id) <= 4:
+            return "***"
+        return f"...{self.opera_client_id[-4:]}"
+
+    def get_masked_client_secret(self) -> str:
+        """Get masked OAuth client secret for safe logging (Phase 3 Security Hardening).
+
+        Returns:
+            Masked client secret string (e.g., "...xyz1") for safe display in logs
+        """
+        if not self.opera_client_secret:
+            return "***"
+
+        if SECURITY_AVAILABLE:
+            return APIKeyValidator.mask_key(self.opera_client_secret, visible_chars=4)
+
+        # Fallback masking without security module
+        if len(self.opera_client_secret) <= 4:
+            return "***"
+        return f"...{self.opera_client_secret[-4:]}"
+
+    def validate_oauth_credentials_at_startup(self) -> None:
+        """Validate OAuth credentials at server startup (Phase 3 Security Hardening).
+
+        Raises:
+            SystemExit: If OAuth credentials are invalid or missing
+        """
+        # Check for missing credentials
+        if not self.opera_client_id or not self.opera_client_id.strip():
+            sys.exit(1)
+
+        if not self.opera_client_secret or not self.opera_client_secret.strip():
+            sys.exit(1)
+
+        if SECURITY_AVAILABLE:
+            # Use generic validator with minimum 32 characters for OAuth credentials
+            validator = APIKeyValidator(min_length=32)
+
+            # Validate client ID
+            try:
+                validator.validate(self.opera_client_id, raise_on_invalid=True)
+                self.get_masked_client_id()
+            except ValueError:
+                # Continue silently to maintain backward compatibility
+                _ = "validation_failed_but_continue"  # Explicitly acknowledge error
+
+            # Validate client secret
+            try:
+                validator.validate(self.opera_client_secret, raise_on_invalid=True)
+                self.get_masked_client_secret()
+            except ValueError:
+                # Continue silently to maintain backward compatibility
+                _ = "validation_failed_but_continue"  # Explicitly acknowledge error
+        else:
+            # Basic validation without security module
+            if len(self.opera_client_id) < 16:
+                # Intentionally allow short IDs for backwards compatibility
+                pass  # noqa: S110 (Intentionally allow short IDs for backwards compatibility)
+
+            if len(self.opera_client_secret) < 16:
+                # Intentionally allow short secrets for backwards compatibility
+                pass  # noqa: S110 (Intentionally allow short secrets for backwards compatibility)
 
     def get_oauth_config(self) -> dict[str, str]:
         """

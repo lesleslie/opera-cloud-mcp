@@ -121,7 +121,7 @@ class RequestMetrics(BaseModel):
     request_size_bytes: int = 0
     response_size_bytes: int = 0
     retry_count: int = 0
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     hotel_id: str | None = None
     error_type: str | None = None
 

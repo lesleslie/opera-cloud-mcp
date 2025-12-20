@@ -19,7 +19,7 @@ This directory contains comprehensive documentation for the OPERA Cloud MCP serv
 
 - **[../README.md](../README.md)** - Main project overview and setup instructions
 - **[../AGENTS.md](../AGENTS.md)** - MCP tools and capabilities reference for AI agents
-- **[../OPERA_CLOUD_MCP_PLAN.md](../OPERA_CLOUD_MCP_PLAN.md)** - Complete implementation plan and phases
+- **[implementation-plan.md](implementation-plan.md)** - Complete implementation plan and phases
 
 ### Configuration Examples
 

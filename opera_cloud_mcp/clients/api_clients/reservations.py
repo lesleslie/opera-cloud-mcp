@@ -788,10 +788,10 @@ class ReservationsClient(BaseAPIClient):
                 "lastName": request.guest.last_name,
                 "middleName": request.guest.middle_name,
                 "title": request.guest.title,
-                "contact": request.guest.contact.dict()
+                "contact": request.guest.contact.model_dump()
                 if request.guest.contact
                 else None,
-                "address": request.guest.address.dict()
+                "address": request.guest.address.model_dump()
                 if request.guest.address
                 else None,
                 "loyaltyNumber": request.guest.loyalty_number,

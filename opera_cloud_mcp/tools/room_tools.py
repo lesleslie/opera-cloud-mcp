@@ -789,6 +789,211 @@ def register_room_inspection_tool(app: FastMCP):
         }
 
 
+def register_create_maintenance_request_tool(app: FastMCP):
+    """Register create maintenance request tool."""
+
+    @app.tool()
+    async def create_maintenance_request(
+        room_number: str,
+        issue_description: str,
+        priority: str = "normal",
+        hotel_id: str | None = None,
+        category: str | None = None,
+        estimated_cost: float | None = None,
+        vendor_required: bool = False,
+        assigned_to: str | None = None,
+        due_date: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a maintenance request for a room.
+
+        Args:
+            room_number: Room number requiring maintenance
+            issue_description: Detailed description of the issue
+            priority: Priority level (low, normal, high, urgent)
+            hotel_id: Hotel identifier (uses default if not provided)
+            category: Category of maintenance (plumbing, electrical, HVAC, etc.)
+            estimated_cost: Estimated cost of repairs
+            vendor_required: Whether external vendor is required
+            assigned_to: Staff member or vendor assigned to the task
+            due_date: Due date for completion in YYYY-MM-DD format
+
+        Returns:
+            Dictionary containing maintenance request confirmation
+        """
+        _validate_create_maintenance_request_params(hotel_id, priority)
+
+        client = create_housekeeping_client(hotel_id=hotel_id)
+
+        maintenance_data = _build_maintenance_data(
+            room_number,
+            issue_description,
+            priority,
+            category,
+            estimated_cost,
+            vendor_required,
+        )
+
+        # Add additional fields
+        maintenance_data["assignedTo"] = assigned_to
+        maintenance_data["dueDate"] = due_date
+
+        response = await client.create_maintenance_request(maintenance_data)
+
+        if response.success:
+            return {
+                "success": True,
+                "maintenance_request": response.data,
+                "room_number": room_number,
+                "hotel_id": hotel_id,
+            }
+        return {
+            "success": False,
+            "error": response.error,
+            "room_number": room_number,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_get_inventory_status_tool(app: FastMCP):
+    """Register get inventory status tool."""
+
+    @app.tool()
+    async def get_inventory_status(
+        hotel_id: str | None = None,
+        item_category: str | None = None,
+        location: str | None = None,
+        low_stock_only: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Get current inventory status for hotel supplies and amenities.
+
+        Args:
+            hotel_id: Hotel identifier (uses default if not provided)
+            item_category: Filter by item category (linen, amenity,
+                cleaning_supply, etc.)
+            location: Filter by location (all, rooms, housekeeping, etc.)
+            low_stock_only: Only show items with low stock levels
+
+        Returns:
+            Dictionary containing inventory status information
+        """
+        _validate_get_inventory_status_params(hotel_id)
+
+        client = create_inventory_client(hotel_id=hotel_id)
+
+        inventory_params = _build_inventory_params(
+            item_category, location, low_stock_only
+        )
+
+        response = await client.get_inventory_status(inventory_params)
+
+        if response.success:
+            return {
+                "success": True,
+                "inventory_items": response.data.get("items", []),
+                "summary": response.data.get("summary", {}),
+                "low_stock_count": response.data.get("lowStockCount", 0),
+                "hotel_id": hotel_id,
+            }
+        return {"success": False, "error": response.error, "hotel_id": hotel_id}
+
+
+def register_update_inventory_stock_tool(app: FastMCP):
+    """Register update inventory stock tool."""
+
+    @app.tool()
+    async def update_inventory_stock(
+        item_id: str,
+        adjustment_reason: str,
+        quantity_adjustment: int,
+        hotel_id: str | None = None,
+        location: str | None = None,
+        notes: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Update inventory stock levels for a specific item.
+
+        Args:
+            item_id: Item identifier
+            adjustment_reason: Reason for adjustment (received, used, damaged, etc.)
+            quantity_adjustment: Quantity to adjust (positive for additions,
+                negative for removals)
+            hotel_id: Hotel identifier (uses default if not provided)
+            location: Specific location for the adjustment
+            notes: Additional notes about the adjustment
+
+        Returns:
+            Dictionary containing inventory stock update confirmation
+        """
+        _validate_update_inventory_stock_params(hotel_id, adjustment_reason)
+
+        client = create_inventory_client(hotel_id=hotel_id)
+
+        adjustment_data = _build_adjustment_data(
+            item_id, quantity_adjustment, adjustment_reason, location, notes
+        )
+
+        response = await client.update_inventory_stock(adjustment_data)
+
+        if response.success:
+            return {
+                "success": True,
+                "updated_item": response.data,
+                "item_id": item_id,
+                "quantity_adjustment": quantity_adjustment,
+                "new_quantity": response.data.get("currentQuantity"),
+                "hotel_id": hotel_id,
+            }
+        return {
+            "success": False,
+            "error": response.error,
+            "item_id": item_id,
+            "hotel_id": hotel_id,
+        }
+
+
+def register_get_cleaning_schedule_tool(app: FastMCP):
+    """Register get cleaning schedule tool."""
+
+    @app.tool()
+    async def get_cleaning_schedule(
+        hotel_id: str | None = None,
+        schedule_date: str | None = None,
+        room_type: str | None = None,
+        staff_member: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get cleaning schedule for rooms.
+
+        Args:
+            hotel_id: Hotel identifier (uses default if not provided)
+            schedule_date: Date for schedule in YYYY-MM-DD format (defaults to today)
+            room_type: Filter by room type
+            staff_member: Filter by assigned staff member
+
+        Returns:
+            Dictionary containing cleaning schedule information
+        """
+        _validate_get_cleaning_schedule_params(hotel_id)
+
+        client = create_housekeeping_client(hotel_id=hotel_id)
+
+        schedule_params = _build_schedule_params(schedule_date, room_type, staff_member)
+
+        response = await client.get_cleaning_schedule(schedule_params)
+
+        if response.success:
+            return {
+                "success": True,
+                "schedule": response.data.get("schedule", []),
+                "summary": response.data.get("summary", {}),
+                "hotel_id": hotel_id,
+                "date": schedule_params.get("date"),
+            }
+        return {"success": False, "error": response.error, "hotel_id": hotel_id}
+
+
 def register_room_tools(app: FastMCP):
     """Register all room and inventory management MCP tools."""
     register_room_status_tool(app)
@@ -800,3 +1005,7 @@ def register_room_tools(app: FastMCP):
     register_inventory_levels_tool(app)
     register_update_inventory_tool(app)
     register_room_inspection_tool(app)
+    register_create_maintenance_request_tool(app)
+    register_get_inventory_status_tool(app)
+    register_update_inventory_stock_tool(app)
+    register_get_cleaning_schedule_tool(app)

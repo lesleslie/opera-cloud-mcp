@@ -482,7 +482,7 @@ class TestCRMClient:
                         "mergeLoyalty": merge_request.merge_loyalty,
                         "mergeReason": merge_request.merge_reason,
                         "mergedBy": merge_request.merged_by,
-                    }
+                    },
                 )
 
                 assert result.success is True

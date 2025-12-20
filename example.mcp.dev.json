@@ -1,7 +1,6 @@
 {
   "mcpServers": {
     "opera-cloud-mcp": {
-      "command": "uv",
       "args": [
         "run",
         "uvicorn",
@@ -12,23 +11,24 @@
         "8000",
         "--reload"
       ],
+      "command": "uv",
       "cwd": "/path/to/opera-cloud-mcp",
       "env": {
+        "CACHE_TTL": "60",
+        "DEFAULT_HOTEL_ID": "DEMO001",
+        "ENABLE_CACHE": "true",
+        "ENVIRONMENT": "development",
+        "LOG_FILE_PATH": "logs/opera-cloud-mcp-dev.log",
+        "LOG_LEVEL": "DEBUG",
+        "OPERA_API_VERSION": "v1",
+        "OPERA_BASE_URL": "https://api-dev.opera-cloud.com/v1",
         "OPERA_CLIENT_ID": "your-development-client-id",
         "OPERA_CLIENT_SECRET": "your-development-client-secret",
-        "OPERA_TOKEN_URL": "https://api-dev.opera-cloud.com/oauth/token",
-        "OPERA_BASE_URL": "https://api-dev.opera-cloud.com/v1",
-        "DEFAULT_HOTEL_ID": "DEMO001",
         "OPERA_ENVIRONMENT": "development",
-        "OPERA_API_VERSION": "v1",
-        "ENABLE_CACHE": "true",
-        "CACHE_TTL": "60",
-        "LOG_LEVEL": "DEBUG",
-        "LOG_FILE_PATH": "logs/opera-cloud-mcp-dev.log",
-        "ENVIRONMENT": "development",
+        "OPERA_TOKEN_URL": "https://api-dev.opera-cloud.com/oauth/token",
         "PORT": "8000",
-        "UV_KEYRING_PROVIDER": "subprocess",
-        "PYTHONPATH": "."
+        "PYTHONPATH": ".",
+        "UV_KEYRING_PROVIDER": "subprocess"
       }
     }
   }

@@ -451,5 +451,7 @@ class ProfileMergeResult(OperaBaseModel):
     conflicts_resolved: int = Field(0, alias="conflictsResolved")
     manual_resolution_required: int = Field(0, alias="manualResolutionRequired")
 
-    merge_date: datetime = Field(default_factory=datetime.utcnow, alias="mergeDate")
+    merge_date: datetime = Field(
+        default_factory=lambda: datetime.now(UTC), alias="mergeDate"
+    )
     processing_time_ms: int | None = Field(None, alias="processingTimeMs")

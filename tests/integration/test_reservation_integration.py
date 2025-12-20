@@ -188,10 +188,9 @@ class TestReservationIntegration:
         mock_opera_cloud_api.set_availability("DELUXE", 3)
 
         # Step 1: Check availability
-        availability_tool = next(
-            tool for tool in app.tools if tool.name == "check_room_availability"
-        )
-        availability_result = await availability_tool.handler(
+        tools = await app.get_tools()
+        availability_tool = tools["check_room_availability"]
+        availability_result = await availability_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             arrival_date="2024-12-15",
             departure_date="2024-12-18",
@@ -203,19 +202,22 @@ class TestReservationIntegration:
         assert availability_result["data"]["roomTypes"][0]["availableRooms"] == 3
 
         # Step 2: Create reservation
-        create_tool = next(
-            tool for tool in app.tools if tool.name == "create_reservation"
-        )
-        create_result = await create_tool.handler(
+        create_tool = tools["create_reservation"]
+        create_result = await create_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
-            guest_first_name="Jane",
-            guest_last_name="Smith",
+            guest_profile={
+                "firstName": "Jane",
+                "lastName": "Smith",
+                "email": "jane.smith@corp.com",
+                "phoneNumber": "+1-555-0123",
+            },
             arrival_date="2024-12-15",
             departure_date="2024-12-18",
             room_type="DELUXE",
             rate_code="CORPORATE",
             adults=2,
-            guest_email="jane.smith@corp.com",
+            children=0,
+            special_requests="Late checkout requested",
         )
 
         assert create_result["success"] is True
@@ -223,8 +225,8 @@ class TestReservationIntegration:
         assert confirmation_number.startswith("NEW")
 
         # Step 3: Retrieve the created reservation
-        get_tool = next(tool for tool in app.tools if tool.name == "get_reservation")
-        get_result = await get_tool.handler(
+        get_tool = tools["get_reservation"]
+        get_result = await get_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number=confirmation_number
         )
 
@@ -236,14 +238,12 @@ class TestReservationIntegration:
         assert retrieved_reservation["primaryGuest"]["lastName"] == "Smith"
 
         # Step 4: Search for the reservation
-        search_tool = next(
-            tool for tool in app.tools if tool.name == "search_reservations"
-        )
+        search_tool = tools["search_reservations"]
 
         # Add reservation to search results
         mock_opera_cloud_api.set_search_results([retrieved_reservation])
 
-        search_result = await search_tool.handler(
+        search_result = await search_tool.fn(
             hotel_id="INTEGRATION_HOTEL", guest_name="Jane Smith"
         )
 
@@ -253,10 +253,8 @@ class TestReservationIntegration:
         assert found_reservation["confirmationNumber"] == confirmation_number
 
         # Step 5: Modify the reservation
-        modify_tool = next(
-            tool for tool in app.tools if tool.name == "modify_reservation"
-        )
-        modify_result = await modify_tool.handler(
+        modify_tool = tools["modify_reservation"]
+        modify_result = await modify_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             confirmation_number=confirmation_number,
             adults=3,
@@ -266,13 +264,11 @@ class TestReservationIntegration:
         assert modify_result["success"] is True
 
         # Step 6: Cancel the reservation
-        cancel_tool = next(
-            tool for tool in app.tools if tool.name == "cancel_reservation"
-        )
-        cancel_result = await cancel_tool.handler(
+        cancel_tool = tools["cancel_reservation"]
+        cancel_result = await cancel_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             confirmation_number=confirmation_number,
-            reason="Travel plans changed",
+            cancellation_reason="Travel plans changed",
         )
 
         assert cancel_result["success"] is True
@@ -371,11 +367,10 @@ class TestReservationIntegration:
 
     async def test_error_handling_integration(self, integrated_app):
         """Test error handling across the integrated system."""
-        app = integrated_app
 
         # Test getting non-existent reservation
-        get_tool = next(tool for tool in app.tools if tool.name == "get_reservation")
-        get_result = await get_tool.handler(
+        get_tool = tools["get_reservation"]
+        get_result = await get_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT"
         )
 
@@ -383,10 +378,8 @@ class TestReservationIntegration:
         assert "Reservation not found" in get_result["error"]
 
         # Test modifying non-existent reservation
-        modify_tool = next(
-            tool for tool in app.tools if tool.name == "modify_reservation"
-        )
-        modify_result = await modify_tool.handler(
+        modify_tool = tools["modify_reservation"]
+        modify_result = await modify_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT", adults=2
         )
 
@@ -394,10 +387,8 @@ class TestReservationIntegration:
         assert "Could not retrieve current reservation" in modify_result["error"]
 
         # Test canceling non-existent reservation
-        cancel_tool = next(
-            tool for tool in app.tools if tool.name == "cancel_reservation"
-        )
-        cancel_result = await cancel_tool.handler(
+        cancel_tool = tools["cancel_reservation"]
+        cancel_result = await cancel_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT"
         )
 
@@ -406,16 +397,17 @@ class TestReservationIntegration:
 
     async def test_validation_integration(self, integrated_app):
         """Test validation errors in the integrated system."""
-        app = integrated_app
 
         # Test create reservation with invalid date
-        create_tool = next(
-            tool for tool in app.tools if tool.name == "create_reservation"
-        )
-        create_result = await create_tool.handler(
+        create_tool = tools["create_reservation"]
+        create_result = await create_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
-            guest_first_name="John",
-            guest_last_name="Doe",
+            guest_profile={
+                "firstName": "John",
+                "lastName": "Doe",
+                "email": "john.doe@example.com",
+                "phoneNumber": "+1-555-0124",
+            },
             arrival_date="invalid-date",
             departure_date="2024-12-18",
             room_type="STANDARD",
@@ -426,10 +418,8 @@ class TestReservationIntegration:
         assert "Validation error" in create_result["error"]
 
         # Test search with invalid confirmation number format
-        search_tool = next(
-            tool for tool in app.tools if tool.name == "search_reservations"
-        )
-        search_result = await search_tool.handler(
+        search_tool = tools["search_reservations"]
+        search_result = await search_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="invalid"
         )
 
@@ -458,14 +448,8 @@ class TestReservationIntegration:
                 "opera_cloud_mcp.tools.reservation_tools._get_reservations_client",
                 return_value=mock_client,
             ):
-                metrics_tool = next(
-                    tool
-                    for tool in app.tools
-                    if tool.name == "get_reservation_client_metrics"
-                )
-                metrics_result = await metrics_tool.handler(
-                    hotel_id="INTEGRATION_HOTEL"
-                )
+                metrics_tool = tools["get_reservation_client_metrics"]
+                metrics_result = await metrics_tool.fn(hotel_id="INTEGRATION_HOTEL")
 
                 assert metrics_result["success"] is True
                 assert metrics_result["data"]["hotel_id"] == "INTEGRATION_HOTEL"

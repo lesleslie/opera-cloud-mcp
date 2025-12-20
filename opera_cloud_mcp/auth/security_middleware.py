@@ -137,52 +137,83 @@ class ThreatDetector:
             return await self._analyze_behavioral_patterns(context)
         return 0, []
 
+    def _check_private_ip_in_production(
+        self, ip, ip_address: str, risk_score: int, threats: list[str]
+    ) -> tuple[int, list[str]]:
+        """Check for private/local addresses in production."""
+        if (
+            self.settings.require_https
+            and (ip.is_private or ip.is_loopback)
+            and not self.settings.security_testing_mode
+        ):
+            risk_score += 20
+            threats.append("private_ip_in_production")
+        return risk_score, threats
+
+    def _check_malicious_ip_ranges(
+        self, ip, ip_address: str, risk_score: int, threats: list[str]
+    ) -> tuple[int, list[str]]:
+        """Check for known malicious ranges."""
+        if self._is_suspicious_ip_range(ip):
+            risk_score += 30
+            threats.append("suspicious_ip_range")
+        return risk_score, threats
+
+    def _check_request_frequency(
+        self, ip_address: str, risk_score: int, threats: list[str]
+    ) -> tuple[int, list[str]]:
+        """Check request frequency from this IP."""
+        if ip_address in self._suspicious_ips:
+            recent_requests = self._suspicious_ips[ip_address]
+            cutoff = datetime.now(UTC) - timedelta(minutes=10)
+            recent_requests = [req for req in recent_requests if req > cutoff]
+
+            if len(recent_requests) > 50:  # More than 50 requests in 10 minutes
+                risk_score += 40
+                threats.append("high_frequency_requests")
+            elif len(recent_requests) > 20:
+                risk_score += 20
+                threats.append("elevated_request_frequency")
+        return risk_score, threats
+
+    def _record_ip_request(self, ip_address: str) -> None:
+        """Record this request and clean old entries."""
+        now = datetime.now(UTC)
+        if ip_address not in self._suspicious_ips:
+            self._suspicious_ips[ip_address] = []
+        self._suspicious_ips[ip_address].append(now)
+
+        # Clean old entries
+        cutoff = now - timedelta(hours=1)
+        self._suspicious_ips[ip_address] = [
+            req for req in self._suspicious_ips[ip_address] if req > cutoff
+        ]
+
     async def _analyze_ip_address(self, ip_address: str) -> tuple[int, list[str]]:
         """Analyze IP address for threats."""
         risk_score = 0
-        threats = []
+        threats: list[str] = []
 
         try:
             ip = ipaddress.ip_address(ip_address)
 
             # Check for private/local addresses in production
-            if (
-                self.settings.require_https
-                and (ip.is_private or ip.is_loopback)
-                and not self.settings.security_testing_mode
-            ):
-                risk_score += 20
-                threats.append("private_ip_in_production")
+            risk_score, threats = self._check_private_ip_in_production(
+                ip, ip_address, risk_score, threats
+            )
 
-            # Check for known malicious ranges (this would normally use threat intel)
-            if self._is_suspicious_ip_range(ip):
-                risk_score += 30
-                threats.append("suspicious_ip_range")
+            # Check for known malicious ranges
+            risk_score, threats = self._check_malicious_ip_ranges(
+                ip, ip_address, risk_score, threats
+            )
 
             # Check request frequency from this IP
-            if ip_address in self._suspicious_ips:
-                recent_requests = self._suspicious_ips[ip_address]
-                cutoff = datetime.now(UTC) - timedelta(minutes=10)
-                recent_requests = [req for req in recent_requests if req > cutoff]
-
-                if len(recent_requests) > 50:  # More than 50 requests in 10 minutes
-                    risk_score += 40
-                    threats.append("high_frequency_requests")
-                elif len(recent_requests) > 20:
-                    risk_score += 20
-                    threats.append("elevated_request_frequency")
+            risk_score, threats = self._check_request_frequency(
+                ip_address, risk_score, threats
+            )
 
             # Record this request
-            now = datetime.now(UTC)
-            if ip_address not in self._suspicious_ips:
-                self._suspicious_ips[ip_address] = []
-            self._suspicious_ips[ip_address].append(now)
-
-            # Clean old entries
-            cutoff = now - timedelta(hours=1)
-            self._suspicious_ips[ip_address] = [
-                req for req in self._suspicious_ips[ip_address] if req > cutoff
-            ]
+            self._record_ip_request(ip_address)
 
         except ValueError:
             risk_score += 50

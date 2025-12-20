@@ -266,7 +266,7 @@ async def main():
         oauth_max_retries=3,
         oauth_retry_backoff=1.0,
         enable_persistent_token_cache=True,
-        token_cache_dir="/tmp",
+        token_cache_dir=None,  # Use default secure location
         log_level="INFO",
         log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         enable_structured_logging=True,

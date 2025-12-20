@@ -4,7 +4,7 @@ Unit tests for data models.
 Tests Pydantic models for validation, serialization, and deserialization.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -112,7 +112,7 @@ class TestReservationModels:
             hotelId="TEST_HOTEL",
             primaryGuest=guest,
             roomStay=room_stay,
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             status="CONFIRMED",
         )
 
@@ -183,7 +183,7 @@ class TestGuestModels:
             vipStatus="VIP",
             preferences=[preference],
             specialInstructions="Allergic to peanuts",
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             createdBy="test_user",
         )
 
@@ -261,7 +261,7 @@ class TestFinancialModels:
             transactionCode="ROOM",
             description="Room charge",
             amount=amount,
-            postDate=datetime.utcnow(),
+            postDate=datetime.now(UTC),
             postedBy="SYSTEM",
         )
 
@@ -278,7 +278,7 @@ class TestFinancialModels:
             folioNumber="FOLIO123",
             paymentMethod="CASH",
             amount=amount,
-            paymentDate=datetime.utcnow(),
+            paymentDate=datetime.now(UTC),
             referenceNumber="PAY123",
             processedBy="CLERK01",
         )
@@ -296,14 +296,14 @@ class TestFinancialModels:
             transactionCode="ROOM",
             description="Room charge",
             amount=Money(amount=200.00),
-            postDate=datetime.utcnow(),
+            postDate=datetime.now(UTC),
             postedBy="SYSTEM",
         )
         payment = Payment(
             folioNumber="FOLIO123",
             paymentMethod="CASH",
             amount=Money(amount=50.00),
-            paymentDate=datetime.utcnow(),
+            paymentDate=datetime.now(UTC),
             processedBy="CLERK01",
         )
 

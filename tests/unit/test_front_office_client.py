@@ -5,7 +5,7 @@ Tests all front office operations including check-in, check-out,
 walk-in processing, and daily reports.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock, Mock
 
 import pytest
@@ -79,7 +79,7 @@ class TestFrontOfficeClient:
             lastName="Doe",
             email="john.doe@test.com",
             phone="+1-555-123-4567",
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             createdBy="test_user",
         )
 
@@ -881,7 +881,7 @@ class TestFrontOfficeModels:
             firstName="John",
             lastName="Doe",
             email="john.doe@test.com",
-            createdDate=datetime.utcnow(),
+            createdDate=datetime.now(UTC),
             createdBy="test_user",
         )
 

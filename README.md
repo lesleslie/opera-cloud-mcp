@@ -249,4 +249,4 @@ BSD 3-Clause License - see [LICENSE](LICENSE) for details.
 
 ______________________________________________________________________
 
-Built for the hospitality industry using [FastMCP](https://github.com/jlowin/fastmcp) and [Oracle OPERA Cloud](https://www.oracle.com/industries/hospitality/products/opera-cloud/).
+Built for the hospitality industry using [FastMCP](https://github.com/jlowin/fastmcp) and Oracle OPERA Cloud.

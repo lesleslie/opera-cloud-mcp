@@ -185,6 +185,55 @@ def snake_to_camel_case(snake_str: str) -> str:
     return components[0] + "".join(word.capitalize() for word in components[1:])
 
 
+def _clean_dict_value(value: dict[str, Any]) -> dict[str, Any]:
+    """Clean a dictionary value recursively."""
+    return clean_api_data(value)
+
+
+def _clean_list_value(value: list[Any]) -> list[Any]:
+    """Clean a list value recursively."""
+    cleaned_items = []
+    for item in value:
+        if item is not None and item != "":
+            if isinstance(item, dict):
+                cleaned_item = clean_api_data(item)
+                if cleaned_item:  # Only include non-empty dicts
+                    cleaned_items.append(cleaned_item)
+            else:
+                cleaned_items.append(item)
+    return cleaned_items
+
+
+def _should_include_value(value: Any) -> bool:
+    """Check if a value should be included in cleaned data."""
+    return value is not None and value != ""
+
+
+def _process_dict_value(value: dict[str, Any]) -> dict[str, Any] | None:
+    """Process a dictionary value."""
+    cleaned_value = clean_api_data(value)
+    if cleaned_value:
+        return cleaned_value
+    return None  # Return None if empty
+
+
+def _process_list_value(value: list[Any]) -> list[Any] | None:
+    """Process a list value."""
+    cleaned_value = _clean_list_value(value)
+    if cleaned_value:
+        return cleaned_value
+    return None  # Return None if empty
+
+
+def _process_value(value: Any) -> Any:
+    """Process a single value based on its type."""
+    if isinstance(value, dict):
+        return _process_dict_value(value)
+    elif isinstance(value, list):
+        return _process_list_value(value)
+    return value
+
+
 def clean_api_data(data: dict[str, Any]) -> dict[str, Any]:
     """
     Clean API data by removing None values and empty strings.
@@ -195,23 +244,12 @@ def clean_api_data(data: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Cleaned data dictionary
     """
-    cleaned = {}
+    cleaned: dict[str, Any] = {}
 
     for key, value in data.items():
-        if value is not None and value != "":
-            if isinstance(value, dict):
-                cleaned_value: dict[str, Any] | list[Any] = clean_api_data(value)
-                if cleaned_value:  # Only include non-empty dicts
-                    cleaned[key] = cleaned_value
-            elif isinstance(value, list):
-                cleaned_value = [
-                    clean_api_data(item) if isinstance(item, dict) else item
-                    for item in value
-                    if item is not None and item != ""
-                ]
-                if cleaned_value:  # Only include non-empty lists
-                    cleaned[key] = cleaned_value
-            else:
-                cleaned[key] = value
+        if _should_include_value(value):
+            processed_value = _process_value(value)
+            if processed_value is not None:
+                cleaned[key] = processed_value
 
     return cleaned
