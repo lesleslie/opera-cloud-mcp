@@ -10,6 +10,10 @@ htmlcov/
 .coverage.*
 wheels/
 *.egg-info
+.mypy_cache/
+
+# UV package manager
+uv.lock
 
 # Virtual environments
 .venv

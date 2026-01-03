@@ -98,7 +98,7 @@ class ResourceDescriptor:
     uri: str
     name: str
     description: str
-    mimeType: str
+    mime_type: str
     text: str
 
 
@@ -281,7 +281,7 @@ async def api_documentation() -> ResourceDescriptor:
         uri="opera://api/docs",
         name="OPERA Cloud API Documentation",
         description="Comprehensive documentation for OPERA Cloud REST APIs.",
-        mimeType="text/markdown",
+        mime_type="text/markdown",
         text=text,
     )
 
@@ -306,7 +306,7 @@ async def hotel_configuration() -> ResourceDescriptor:
         uri="opera://config/hotel",
         name="Hotel Configuration",
         description="Current hotel configuration settings for the MCP server.",
-        mimeType="application/json",
+        mime_type="application/json",
         text=json.dumps(config),
     )
 

@@ -10,12 +10,13 @@ requires-python = ">=3.13"
 dependencies = [
     "fastmcp>=2.12.0",
     "httpx>=0.27.0",
+    "mcp-common>=0.4.4",
+    "oneiric>=0.3.6",
     "pydantic[email]>=2.5.0",
     "pydantic-settings>=2.1.0",
     "sqlmodel>=0.0.14",
     "cryptography>=41.0.0",
     "typer>=0.9.0",
-    "mcp-common>=0.2.0",
     "bevy>=3.1.0b12",
 ]
 
@@ -130,6 +131,7 @@ python_classes = [
 python_functions = [
     "test_*",
 ]
+timeout = 300
 addopts = "--cov=opera_cloud_mcp --cov-report=term-missing --cov-report=html --cov-fail-under=39"
 asyncio_mode = "auto"
 
@@ -189,3 +191,6 @@ paths = [
     "opera_cloud_mcp",
 ]
 deps-file = "pyproject.toml"
+
+[tool.uv.sources.mcp-common]
+path = "../mcp-common"

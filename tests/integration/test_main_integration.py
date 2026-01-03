@@ -107,7 +107,7 @@ class TestMainIntegration:
             "Comprehensive documentation for OPERA Cloud REST APIs"
             in resource.description
         )
-        assert resource.mimeType == "text/markdown"
+        assert resource.mime_type == "text/markdown"
         assert "Authentication" in resource.text
         assert "Reservations" in resource.text
         assert "Front Office" in resource.text
@@ -124,7 +124,7 @@ class TestMainIntegration:
         assert resource.uri == "opera://config/hotel"
         assert resource.name == "Hotel Configuration"
         assert "Current hotel configuration settings" in resource.description
-        assert resource.mimeType == "application/json"
+        assert resource.mime_type == "application/json"
 
         # Parse the JSON content to verify structure
         import json
