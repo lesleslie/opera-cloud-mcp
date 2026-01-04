@@ -88,7 +88,6 @@ app = FastMCP(
     name="opera-cloud-mcp",
     version="0.1.0",
 )
-app.description = "MCP server for Oracle OPERA Cloud API integration"
 
 
 @dataclass(frozen=True)

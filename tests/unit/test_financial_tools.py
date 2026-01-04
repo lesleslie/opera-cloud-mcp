@@ -4,21 +4,39 @@ Unit tests for financial MCP tools.
 Tests the FastMCP tool registration for financial and cashiering operations.
 """
 
+import gc
+
+import pytest
+
 from fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.financial_tools import register_financial_tools
 
 
+@pytest.fixture
+async def financial_app():
+    """Create and cleanup a FastMCP app for testing.
+
+    Note: FastMCP internally uses SQLite for state management and may not
+    explicitly close connections. The gc.collect() call helps ensure cleanup.
+    This is a known limitation of FastMCP as of version 0.x.
+    """
+    app = FastMCP("test-app")
+    register_financial_tools(app)
+    yield app
+    # Explicit cleanup to help garbage collector close SQLite connections
+    del app
+    gc.collect()
+
+
 class TestFinancialTools:
     """Test suite for financial MCP tools."""
 
-    async def test_register_financial_tools(self):
+    async def test_register_financial_tools(self, financial_app):
         """Test that financial tools are registered correctly."""
-        app = FastMCP("test-app")
-        register_financial_tools(app)
 
         # Check that tools were registered using the correct FastMCP API
-        tools = await app.get_tools()
+        tools = await financial_app.get_tools()
         tool_names = list(tools.keys())
 
         expected_tools = [
@@ -43,12 +61,10 @@ class TestFinancialTools:
             f"Expected {len(expected_tools)} tools, got {len(tool_names)}: {tool_names}"
         )
 
-    async def test_financial_tool_functions_exist(self):
+    async def test_financial_tool_functions_exist(self, financial_app):
         """Test that financial tool functions can be accessed."""
-        app = FastMCP("test-app")
-        register_financial_tools(app)
 
-        tools = await app.get_tools()
+        tools = await financial_app.get_tools()
 
         # Test that each tool has the expected attributes
         for tool_name in ["get_guest_folio", "post_charge_to_room", "process_payment"]:
@@ -62,12 +78,10 @@ class TestFinancialTools:
                 f"Tool {tool_name} parameters should not be None"
             )
 
-    async def test_financial_tools_parameters(self):
+    async def test_financial_tools_parameters(self, financial_app):
         """Test financial tools have proper parameter structures."""
-        app = FastMCP("test-app")
-        register_financial_tools(app)
 
-        tools = await app.get_tools()
+        tools = await financial_app.get_tools()
 
         # Test key financial tools have hotel_id parameter
         key_tools = ["get_guest_folio", "post_charge_to_room", "process_payment"]

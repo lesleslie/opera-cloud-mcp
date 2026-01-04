@@ -32,7 +32,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
         # Initialize runtime components using mcp-common helper
         self.runtime = create_runtime_components(
             server_name="opera-cloud-mcp",
-            cache_dir=config.cache_dir or ".oneiric_cache"
+            cache_dir=config.cache_dir or ".oneiric_cache",
         )
 
     async def startup(self) -> None:
@@ -64,6 +64,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
     def _get_timestamp(self) -> str:
         """Get current timestamp in ISO format."""
         import time
+
         return time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     async def health_check(self):
@@ -110,7 +111,7 @@ def main():
         server_class=OperaCloudMCPServer,
         config_class=OperaCloudConfig,
         name="opera-cloud-mcp",
-        description="OPERA Cloud MCP Server - Hospitality management via OPERA Cloud API",
+        description="OPERA Cloud MCP Server - Hospitality management",
     )
 
     # Create and run CLI

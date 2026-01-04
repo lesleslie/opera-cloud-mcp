@@ -187,7 +187,7 @@ class CRMClient(BaseAPIClient):
             contact_info["email"] = email
         if phone:
             contact_info["phone"] = phone
-        return contact_info if contact_info else None
+        return contact_info or None
 
     def _build_search_data_from_criteria(
         self,
@@ -240,10 +240,9 @@ class CRMClient(BaseAPIClient):
         """Build search data from criteria or individual parameters."""
         if criteria:
             return self._build_search_data_from_criteria(criteria)
-        else:
-            return self._build_search_data_from_individual_params(
-                name, email, phone, guest_id, loyalty_number, vip_status, status
-            )
+        return self._build_search_data_from_individual_params(
+            name, email, phone, guest_id, loyalty_number, vip_status, status
+        )
 
     def _build_guest_profile_data(
         self,

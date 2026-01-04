@@ -30,7 +30,7 @@ def test_cli_factory():
     """Test CLI factory creation."""
     print("\nTesting OPERA Cloud CLI factory...")
     from oneiric.core.cli import MCPServerCLIFactory
-    
+
     config = OperaCloudConfig()
     cli_factory = MCPServerCLIFactory(
         server_class=OperaCloudMCPServer,
@@ -46,14 +46,14 @@ def test_cli_factory():
 
 if __name__ == "__main__":
     print("🚀 Starting OPERA Cloud MCP CLI tests...")
-    
+
     try:
         test_config()
         test_server_creation()
         test_cli_factory()
-        
+
         print("\n🎉 All OPERA Cloud tests passed! CLI integration is working.")
-        
+
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
