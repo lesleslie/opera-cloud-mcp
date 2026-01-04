@@ -51,7 +51,7 @@ def remove_pid_file() -> None:
 
 def start_server(background: bool = False) -> None:
     """Start the OPERA Cloud MCP server."""
-    existing_pid = get_server_pid()
+    existing_pid = None if background else get_server_pid()
     if existing_pid:
         typer.echo(f"MCP server is already running (PID: {existing_pid})")
         return
@@ -109,6 +109,8 @@ except Exception as e:
 
         try:
             mcp_app.run()
+        except KeyboardInterrupt:
+            pass
         finally:
             remove_pid_file()
 

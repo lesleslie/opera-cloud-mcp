@@ -23,7 +23,7 @@ class TestMainModule:
     def test_get_settings_with_defaults(self):
         """Test getting settings with default test values."""
         settings = main.get_settings()
-        
+
         assert settings is not None
         assert isinstance(settings, Settings)
         assert settings.opera_client_id == "test_client_id"
@@ -34,7 +34,7 @@ class TestMainModule:
         """Test that get_settings returns the same instance on multiple calls."""
         settings1 = main.get_settings()
         settings2 = main.get_settings()
-        
+
         assert settings1 is settings2
 
     def test_app_initialization(self):
@@ -100,7 +100,7 @@ class TestMainModule:
     def test_api_documentation(self):
         """Test API documentation resource."""
         result = asyncio.run(main.api_documentation())
-        
+
         assert hasattr(result, 'uri')
         assert hasattr(result, 'name')
         assert hasattr(result, 'description')
@@ -112,14 +112,14 @@ class TestMainModule:
     def test_hotel_configuration(self):
         """Test hotel configuration resource."""
         result = asyncio.run(main.hotel_configuration())
-        
+
         assert hasattr(result, 'uri')
         assert hasattr(result, 'name')
         assert hasattr(result, 'description')
         assert hasattr(result, 'mime_type')
         assert hasattr(result, 'text')
         assert result.uri == "opera://config/hotel"
-        
+
         import json
         config = json.loads(result.text)
         assert "default_hotel_id" in config
@@ -129,10 +129,10 @@ class TestMainModule:
         # Set both handlers
         main.oauth_handler = "oauth_handler"
         main.auth_handler = "auth_handler"
-        
+
         result = main._current_auth_handler()
         assert result == "auth_handler"
-        
+
         # Reset auth_handler and check it falls back to oauth_handler
         main.auth_handler = None
         result = main._current_auth_handler()
@@ -145,7 +145,7 @@ class TestMainModule:
             "oauth_handler": True,
             "authentication": {"status": "valid"}
         }
-        
+
         status = main._determine_overall_status(checks)
         assert status == "healthy"
 
@@ -156,25 +156,25 @@ class TestMainModule:
             "configuration": False,
             "oauth_handler": True
         }
-        
+
         status = main._determine_overall_status(checks)
         assert status == "unhealthy"
-        
+
         # Test missing oauth handler
         checks = {
             "configuration": True,
             "oauth_handler": False
         }
-        
+
         status = main._determine_overall_status(checks)
         assert status == "unhealthy"
-        
+
         # Test authentication error
         checks = {
             "configuration": True,
             "oauth_handler": True,
             "authentication": {"status": "error"}
         }
-        
+
         status = main._determine_overall_status(checks)
         assert status == "unhealthy"

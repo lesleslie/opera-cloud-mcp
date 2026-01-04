@@ -883,15 +883,15 @@
       "path": "opera_cloud_mcp/cli.py"
     },
     {
-      "complexity": 6,
-      "file_name": "cli.py",
-      "function_name": "start_server",
-      "path": "opera_cloud_mcp/cli.py"
-    },
-    {
       "complexity": 7,
       "file_name": "cli.py",
       "function_name": "main",
+      "path": "opera_cloud_mcp/cli.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "cli.py",
+      "function_name": "start_server",
       "path": "opera_cloud_mcp/cli.py"
     },
     {
@@ -1395,6 +1395,12 @@
     {
       "complexity": 1,
       "file_name": "crm.py",
+      "function_name": "CRMClient::_build_search_data",
+      "path": "opera_cloud_mcp/clients/api_clients/crm.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "crm.py",
       "function_name": "CRMClient::_build_search_data_from_criteria",
       "path": "opera_cloud_mcp/clients/api_clients/crm.py"
     },
@@ -1408,12 +1414,6 @@
       "complexity": 1,
       "file_name": "crm.py",
       "function_name": "CRMClient::merge_guest_profiles",
-      "path": "opera_cloud_mcp/clients/api_clients/crm.py"
-    },
-    {
-      "complexity": 2,
-      "file_name": "crm.py",
-      "function_name": "CRMClient::_build_search_data",
       "path": "opera_cloud_mcp/clients/api_clients/crm.py"
     },
     {
@@ -3145,6 +3145,12 @@
       "path": "opera_cloud_mcp/main.py"
     },
     {
+      "complexity": 0,
+      "file_name": "main.py",
+      "function_name": "create_oauth_handler",
+      "path": "opera_cloud_mcp/main.py"
+    },
+    {
       "complexity": 1,
       "file_name": "main.py",
       "function_name": "_check_observability",
@@ -3160,12 +3166,6 @@
       "complexity": 1,
       "file_name": "main.py",
       "function_name": "get_auth_handler",
-      "path": "opera_cloud_mcp/main.py"
-    },
-    {
-      "complexity": 1,
-      "file_name": "main.py",
-      "function_name": "initialize_server",
       "path": "opera_cloud_mcp/main.py"
     },
     {
@@ -3202,6 +3202,12 @@
       "complexity": 3,
       "file_name": "main.py",
       "function_name": "get_server_info",
+      "path": "opera_cloud_mcp/main.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "main.py",
+      "function_name": "initialize_server",
       "path": "opera_cloud_mcp/main.py"
     },
     {
@@ -4387,7 +4393,7 @@
       "path": "opera_cloud_mcp/tools/tool_registry.py"
     },
     {
-      "complexity": 6,
+      "complexity": 7,
       "file_name": "tool_registry.py",
       "function_name": "ToolRegistry::_validate_tool_function",
       "path": "opera_cloud_mcp/tools/tool_registry.py"
@@ -4489,12 +4495,6 @@
       "path": "opera_cloud_mcp/utils/cache_manager.py"
     },
     {
-      "complexity": 3,
-      "file_name": "cache_manager.py",
-      "function_name": "OperaCacheManager::invalidate",
-      "path": "opera_cloud_mcp/utils/cache_manager.py"
-    },
-    {
       "complexity": 4,
       "file_name": "cache_manager.py",
       "function_name": "OperaCacheManager::_get_specific_key_to_invalidate",
@@ -4516,6 +4516,12 @@
       "complexity": 5,
       "file_name": "cache_manager.py",
       "function_name": "OperaCacheManager::_calculate_size",
+      "path": "opera_cloud_mcp/utils/cache_manager.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "cache_manager.py",
+      "function_name": "OperaCacheManager::invalidate",
       "path": "opera_cloud_mcp/utils/cache_manager.py"
     },
     {

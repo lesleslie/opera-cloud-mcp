@@ -52,7 +52,7 @@ class TestMainIntegration:
         assert isinstance(app, FastMCP)
         assert app.name == "opera-cloud-mcp"
         assert app.version == "0.1.0"
-        assert "MCP server for Oracle OPERA Cloud API integration" in app.description
+        assert "MCP server for Oracle OPERA Cloud API integration" in app.instructions
 
     @patch("opera_cloud_mcp.main.get_settings")
     @patch("opera_cloud_mcp.main.create_oauth_handler")

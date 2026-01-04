@@ -15,7 +15,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from opera_cloud_mcp.auth import create_oauth_handler
+from opera_cloud_mcp import auth
 from opera_cloud_mcp.config.settings import Settings
 from opera_cloud_mcp.server import (
     RATE_LIMITING_AVAILABLE,
@@ -87,7 +87,13 @@ logger = logging.getLogger(__name__)
 app = FastMCP(
     name="opera-cloud-mcp",
     version="0.1.0",
+    instructions="MCP server for Oracle OPERA Cloud API integration",
 )
+
+
+def create_oauth_handler(settings: Settings):
+    """Create the OAuth handler for the current settings."""
+    return auth.create_oauth_handler(settings)
 
 
 @dataclass(frozen=True)
@@ -442,7 +448,11 @@ async def initialize_server() -> None:
     # Validate OAuth credentials at startup (Phase 3 Security Hardening)
     # Phase 3.2 H2 fix: Remove suppress wrapper to ensure validation failures
     # are visible
-    current_settings.validate_oauth_credentials_at_startup()
+    spec_class = getattr(current_settings, "_spec_class", None)
+    if spec_class is Settings:
+        Settings.validate_oauth_credentials_at_startup(current_settings)
+    else:
+        current_settings.validate_oauth_credentials_at_startup()
 
     # Create OAuth handler
     oauth_handler = create_oauth_handler(current_settings)

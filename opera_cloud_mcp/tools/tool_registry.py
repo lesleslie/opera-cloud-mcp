@@ -8,6 +8,7 @@ for OPERA Cloud MCP tools with automatic discovery and validation.
 import asyncio
 import inspect
 import logging
+import time
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -71,9 +72,7 @@ class ToolRegistration:
     metadata: ToolMetadata
     function: Callable
     fastmcp_tool: Any  # The decorated tool function
-    registered_at: float = field(
-        default_factory=lambda: asyncio.get_event_loop().time()
-    )
+    registered_at: float = field(default_factory=time.monotonic)
     call_count: int = 0
     last_called: float | None = None
     average_duration: float = 0.0
@@ -175,6 +174,7 @@ class ToolRegistry:
     ) -> None:
         """Validate tool function meets requirements."""
         sig = inspect.signature(function)
+        warned = False
 
         # Check if async when required
         if metadata.async_execution and not asyncio.iscoroutinefunction(function):
@@ -191,9 +191,10 @@ class ToolRegistry:
                     f"Hotel-specific tool {metadata.name} doesn't "
                     + "have hotel_id parameter"
                 )
+                warned = True
 
         # Validate return type hints
-        if sig.return_annotation == inspect.Signature.empty:
+        if not warned and sig.return_annotation == inspect.Signature.empty:
             logger.warning(f"Tool {metadata.name} missing return type annotation")
 
     def _create_tool_wrapper(
@@ -217,7 +218,7 @@ class ToolRegistry:
         self, function: Callable, metadata: ToolMetadata, args: tuple, kwargs: dict
     ) -> Any:
         """Execute tool with monitoring and error handling."""
-        start_time = asyncio.get_event_loop().time()
+        start_time = time.monotonic()
         registration = self.tools[metadata.name]
 
         # Check rate limits
@@ -236,7 +237,7 @@ class ToolRegistry:
                 result = function(*args, **kwargs)
 
             # Update success metrics
-            end_time = asyncio.get_event_loop().time()
+            end_time = time.monotonic()
             duration = end_time - start_time
 
             registration.call_count += 1
@@ -276,7 +277,7 @@ class ToolRegistry:
 
         except Exception as e:
             # Update error metrics
-            end_time = asyncio.get_event_loop().time()
+            end_time = time.monotonic()
             duration = end_time - start_time
 
             registration.error_count += 1
@@ -308,7 +309,7 @@ class ToolRegistry:
 
     def _check_rate_limit(self, tool_name: str, limit_per_minute: int) -> bool:
         """Check if tool is within rate limits."""
-        now = asyncio.get_event_loop().time()
+        now = time.monotonic()
         minute_ago = now - 60.0
 
         # Initialize tracking if needed

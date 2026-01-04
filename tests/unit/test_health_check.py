@@ -21,7 +21,7 @@ class TestHealthCheckModule:
     def test_check_authentication_no_handler(self):
         """Test _check_authentication when no handler is available."""
         result = health_check._check_authentication(None)
-        
+
         assert result["status"] == "not_initialized"
 
     @patch('opera_cloud_mcp.resources.health_check.oauth_handler')
@@ -33,9 +33,9 @@ class TestHealthCheckModule:
             "refresh_count": 1,
             "expires_in": 3600
         }
-        
+
         result = health_check._check_authentication(mock_oauth_handler)
-        
+
         assert result["has_token"] is True
         assert result["status"] == "valid"
         assert result["refresh_count"] == 1
@@ -51,9 +51,9 @@ class TestHealthCheckModule:
             "refresh_count": 1,
             "expires_in": 300
         }
-        
+
         result = health_check._check_authentication(mock_oauth_handler)
-        
+
         assert result["has_token"] is True
         assert result["status"] == "expiring_soon"
         assert result["token_valid"] is True
@@ -66,9 +66,9 @@ class TestHealthCheckModule:
             "status": "no_token",
             "refresh_count": 0
         }
-        
+
         result = health_check._check_authentication(mock_oauth_handler)
-        
+
         assert result["has_token"] is False
         assert result["status"] == "no_token"
         assert result["token_valid"] is False
@@ -77,9 +77,9 @@ class TestHealthCheckModule:
     def test_check_authentication_exception(self, mock_oauth_handler):
         """Test _check_authentication when exception occurs."""
         mock_oauth_handler.get_token_info.side_effect = Exception("Test error")
-        
+
         result = health_check._check_authentication(mock_oauth_handler)
-        
+
         assert result["status"] == "error"
         assert "Test error" in result["error"]
 
@@ -89,9 +89,9 @@ class TestHealthCheckModule:
         mock_observability = Mock()
         mock_observability.get_health_dashboard.return_value = {"status": "healthy", "metrics": []}
         mock_get_observability.return_value = mock_observability
-        
+
         result = health_check._check_observability()
-        
+
         assert result["status"] == "healthy"
         assert "metrics" in result
 
@@ -99,7 +99,7 @@ class TestHealthCheckModule:
     def test_check_observability_not_available(self, mock_get_observability):
         """Test _check_observability when observability is not available."""
         result = health_check._check_observability()
-        
+
         assert result["status"] == "not_initialized"
 
     def test_determine_overall_status_healthy(self):
@@ -109,7 +109,7 @@ class TestHealthCheckModule:
             "oauth_handler": True,
             "authentication": {"status": "valid"}
         }
-        
+
         status = health_check._determine_overall_status(checks)
         assert status == "healthy"
 
@@ -120,7 +120,7 @@ class TestHealthCheckModule:
             "oauth_handler": True,
             "authentication": {"status": "valid"}
         }
-        
+
         status = health_check._determine_overall_status(checks)
         assert status == "unhealthy"
 
@@ -131,7 +131,7 @@ class TestHealthCheckModule:
             "oauth_handler": False,
             "authentication": {"status": "valid"}
         }
-        
+
         status = health_check._determine_overall_status(checks)
         assert status == "unhealthy"
 
@@ -142,7 +142,7 @@ class TestHealthCheckModule:
             "oauth_handler": True,
             "authentication": {"status": "error"}
         }
-        
+
         status = health_check._determine_overall_status(checks)
         assert status == "unhealthy"
 
@@ -190,9 +190,9 @@ class TestHealthCheckModule:
     def test_register_health_resources(self, mock_logger):
         """Test register_health_resources logs registration."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test", version="1.0.0")
-        
+
         health_check.register_health_resources(app)
-        
+
         mock_logger.info.assert_called_once_with("Health check resources registered")

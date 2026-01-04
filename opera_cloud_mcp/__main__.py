@@ -34,6 +34,9 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
             server_name="opera-cloud-mcp",
             cache_dir=config.cache_dir or ".oneiric_cache",
         )
+        self.snapshot_manager = self.runtime.snapshot_manager
+        self.cache_manager = self.runtime.cache_manager
+        self.health_monitor = self.runtime.health_monitor
 
     async def startup(self) -> None:
         """Server startup lifecycle hook."""
@@ -115,8 +118,7 @@ def main():
     )
 
     # Create and run CLI
-    app = cli_factory.create_app()
-    app()
+    cli_factory.create_app()()
 
 
 if __name__ == "__main__":

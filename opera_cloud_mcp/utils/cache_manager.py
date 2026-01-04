@@ -446,13 +446,19 @@ class OperaCacheManager:
         # Invalidate by dependency
         keys_to_remove.extend(self._get_keys_to_invalidate_by_dependency(dependency))
 
-        # Invalidate by tags or data type
-        keys_to_remove.extend(self._get_keys_to_invalidate_by_criteria(data_type, tags))
+        # Invalidate by tags
+        if tags:
+            keys_to_remove.extend(self._get_keys_to_invalidate_by_criteria(None, tags))
 
-        # Remove specific key
-        keys_to_remove.extend(
-            self._get_specific_key_to_invalidate(data_type, identifier)
-        )
+        # Invalidate specific key when identifier provided; otherwise invalidate by type
+        if identifier:
+            keys_to_remove.extend(
+                self._get_specific_key_to_invalidate(data_type, identifier)
+            )
+        else:
+            keys_to_remove.extend(
+                self._get_keys_to_invalidate_by_criteria(data_type, None)
+            )
 
         # Invalidate keys
         invalidated_count = await self._invalidate_keys(keys_to_remove)

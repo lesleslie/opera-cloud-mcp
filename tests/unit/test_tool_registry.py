@@ -51,7 +51,7 @@ class TestToolRegistry:
             priority=ToolPriority.NORMAL,
             description="Test tool"
         )
-        
+
         assert metadata.name == "test_tool"
         assert metadata.category == ToolCategory.RESERVATION
         assert metadata.priority == ToolPriority.NORMAL
@@ -69,10 +69,10 @@ class TestToolRegistry:
     def test_tool_registry_initialization(self):
         """Test ToolRegistry initialization."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         assert registry.app == app
         assert registry.hotel_id == "HOTEL123"
         assert registry.tools == {}
@@ -85,29 +85,29 @@ class TestToolRegistry:
     def test_register_tool_success(self):
         """Test successful tool registration."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         async def test_tool():
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
             priority=ToolPriority.NORMAL,
             description="Test tool"
         )
-        
+
         # Register the tool
         decorated_tool = registry.register_tool(metadata, test_tool)
-        
+
         # Verify tool was registered
         assert "test_tool" in registry.tools
         assert registry.tools["test_tool"].metadata == metadata
         assert registry.tools["test_tool"].function == test_tool
         assert "test_tool" in registry.categories[ToolCategory.RESERVATION]
-        
+
         # Verify decorated tool is a FastMCP Tool
         from fastmcp.tools.tool import Tool
         assert isinstance(decorated_tool, Tool)
@@ -115,13 +115,13 @@ class TestToolRegistry:
     def test_validate_tool_function_async_required(self):
         """Test validation when async function is required but not provided."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         def sync_tool():  # Not async
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
@@ -129,20 +129,20 @@ class TestToolRegistry:
             description="Test tool",
             async_execution=True  # Requires async
         )
-        
+
         with pytest.raises(ValueError, match="requires async execution but function is not async"):
             registry._validate_tool_function(sync_tool, metadata)
 
     def test_validate_tool_function_missing_hotel_id(self):
         """Test validation when hotel-specific tool is missing hotel_id parameter."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         async def tool_without_hotel_id():
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
@@ -150,7 +150,7 @@ class TestToolRegistry:
             description="Test tool",
             hotel_specific=True  # Requires hotel_id
         )
-        
+
         # Should log a warning but not raise an exception
         with patch('opera_cloud_mcp.tools.tool_registry.logger') as mock_logger:
             registry._validate_tool_function(tool_without_hotel_id, metadata)
@@ -159,13 +159,13 @@ class TestToolRegistry:
     def test_create_tool_wrapper_async(self):
         """Test creating async tool wrapper."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         async def test_tool():
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
@@ -173,22 +173,22 @@ class TestToolRegistry:
             description="Test tool",
             async_execution=True
         )
-        
+
         wrapper = registry._create_tool_wrapper(test_tool, metadata)
-        
+
         # Verify it's an async function
         assert asyncio.iscoroutinefunction(wrapper)
 
     def test_create_tool_wrapper_sync(self):
         """Test creating sync tool wrapper."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         def test_tool():
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
@@ -196,9 +196,9 @@ class TestToolRegistry:
             description="Test tool",
             async_execution=False
         )
-        
+
         wrapper = registry._create_tool_wrapper(test_tool, metadata)
-        
+
         # Verify it's not an async function
         assert not asyncio.iscoroutinefunction(wrapper)
 
@@ -206,33 +206,33 @@ class TestToolRegistry:
     def test_execute_with_monitoring_success(self, mock_get_loop):
         """Test _execute_with_monitoring for successful execution."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         # Mock the event loop
         mock_loop = Mock()
         mock_loop.time.return_value = 100.0
         mock_get_loop.return_value = mock_loop
-        
+
         async def test_tool():
             return "success"
-        
+
         metadata = ToolMetadata(
             name="test_tool",
             category=ToolCategory.RESERVATION,
             priority=ToolPriority.NORMAL,
             description="Test tool"
         )
-        
+
         # Register the tool to create registration
         registry.register_tool(metadata, test_tool)
-        
+
         # Execute the tool
         result = asyncio.run(
             registry._execute_with_monitoring(test_tool, metadata, (), {})
         )
-        
+
         assert result == "success"
         assert registry.tools["test_tool"].call_count == 1
         assert len(registry.call_history) == 1
@@ -242,34 +242,34 @@ class TestToolRegistry:
     def test_execute_with_monitoring_error(self, mock_get_loop):
         """Test _execute_with_monitoring for error execution."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         # Mock the event loop
         mock_loop = Mock()
         mock_loop.time.return_value = 100.0
         mock_get_loop.return_value = mock_loop
-        
+
         async def failing_tool():
             raise ValueError("Test error")
-        
+
         metadata = ToolMetadata(
             name="failing_tool",
             category=ToolCategory.RESERVATION,
             priority=ToolPriority.NORMAL,
             description="Failing tool"
         )
-        
+
         # Register the tool to create registration
         registry.register_tool(metadata, failing_tool)
-        
+
         # Execute the tool and expect the error to be raised
         with pytest.raises(ValueError, match="Test error"):
             asyncio.run(
                 registry._execute_with_monitoring(failing_tool, metadata, (), {})
             )
-        
+
         assert registry.tools["failing_tool"].error_count == 1
         assert len(registry.error_history) == 1
         assert registry.error_history[0]["error_message"] == "Test error"
@@ -277,17 +277,17 @@ class TestToolRegistry:
     def test_check_rate_limit(self):
         """Test rate limiting functionality."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         # Initially should allow calls
         assert registry._check_rate_limit("test_tool", 5) is True
-        
+
         # Add 4 more calls (total 5) - should still allow
         for i in range(4):
             registry._check_rate_limit("test_tool", 5)
-        
+
         # Next call should be blocked
         assert registry._check_rate_limit("test_tool", 5) is False
 
@@ -536,25 +536,25 @@ class TestToolRegistry:
     def test_cleanup_history(self, mock_get_loop):
         """Test cleaning up old history entries."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
-        
+
         # Mock the event loop to return a time in the past
         mock_loop = Mock()
         mock_loop.time.return_value = 100.0  # Old time
         mock_get_loop.return_value = mock_loop
-        
+
         # Add some history entries
         registry.call_history.append({"timestamp": 50.0})  # Very old
         registry.error_history.append({"timestamp": 60.0})  # Very old
-        
+
         # Mock current time to be much later
         mock_loop.time.return_value = 100000.0  # Current time (much later)
-        
+
         # Clean up history (keep last 24 hours = 86400 seconds)
         removed = registry.cleanup_history(max_age_hours=24.0)
-        
+
         # All entries should be removed since they're older than 24 hours
         assert removed == 2  # 1 call + 1 error
         assert len(registry.call_history) == 0
@@ -576,14 +576,14 @@ class TestGlobalRegistry:
     def test_initialize_tool_registry(self):
         """Test initializing the global tool registry."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
-        
+
         registry = initialize_tool_registry(app, hotel_id="HOTEL123")
-        
+
         assert isinstance(registry, ToolRegistry)
         assert registry.hotel_id == "HOTEL123"
-        
+
         # Verify it's accessible via get_tool_registry
         retrieved_registry = get_tool_registry()
         assert retrieved_registry == registry
@@ -591,16 +591,16 @@ class TestGlobalRegistry:
     def test_initialize_tool_registry_warning(self):
         """Test initializing registry when already initialized."""
         from fastmcp import FastMCP
-        
+
         app = FastMCP(name="test_app", version="1.0.0")
-        
+
         # Initialize first time
         registry1 = initialize_tool_registry(app, hotel_id="HOTEL123")
-        
+
         with patch('opera_cloud_mcp.tools.tool_registry.logger') as mock_logger:
             # Initialize second time - should log warning
             registry2 = initialize_tool_registry(app, hotel_id="HOTEL456")
-            
+
             mock_logger.warning.assert_called_once()
             assert registry2.hotel_id == "HOTEL456"  # New instance should be used
 
