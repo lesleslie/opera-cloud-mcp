@@ -1,6 +1,6 @@
 [project]
 name = "opera-cloud-mcp"
-version = "0.3.2"
+version = "0.3.3"
 description = "Unofficial MCP Server for the Opera Cloud API"
 readme = "README.md"
 authors = [
