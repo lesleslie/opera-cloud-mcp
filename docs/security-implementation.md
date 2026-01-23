@@ -8,6 +8,12 @@ This guide provides comprehensive documentation for the production-grade securit
 
 ### Core Security Components
 
+```mermaid
+docs/diagrams/security-architecture.mmd
+```
+
+This diagram shows the complete security infrastructure including SecureOAuthHandler, SecurityMiddleware, AuditLogger, SecurityMonitor, and SecureTokenCache, plus their integration with external alerting and monitoring systems.
+
 1. **SecureOAuthHandler** - Enhanced OAuth2 implementation with token binding and security monitoring
 1. **SecurityMiddleware** - Request validation, rate limiting, and threat detection
 1. **AuditLogger** - Tamper-resistant audit logging with encryption
@@ -192,6 +198,12 @@ print(f"Security Status: {status}")
 
 ### Real-Time Monitoring
 
+```mermaid
+docs/diagrams/oauth2-token-lifecycle.mmd
+```
+
+This sequence diagram illustrates the complete OAuth2 token lifecycle from initialization through issuance, caching, usage, refresh, and security monitoring, showing how tokens are managed securely throughout their lifetime.
+
 ```python
 # Get current security status
 oauth_handler = create_oauth_handler(settings, enable_security_features=True)
@@ -313,6 +325,12 @@ security_settings = SecuritySettings(
 ## 🔧 Advanced Configuration
 
 ### Custom Threat Detection
+
+```mermaid
+docs/diagrams/threat-detection-flow.mmd
+```
+
+This flowchart shows how security events are analyzed, risk scores are calculated, and incident responses are triggered based on threat levels (low, medium, high).
 
 ```python
 class CustomThreatDetector(ThreatDetector):

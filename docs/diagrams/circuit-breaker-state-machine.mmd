@@ -1,0 +1,37 @@
+stateDiagram-v2
+    [*] --> Closed: Initialize
+
+    Closed --> Closed: Request succeeds<br/>(Reset failure count)
+
+    Closed --> Open: Failure threshold<br/>exceeded (default: 5)
+
+    note right of Closed
+        Normal operation
+        • All requests pass through
+        • Track failure count
+        • Reset on success
+    end note
+
+    Open --> Half-Open: Recovery timeout<br/>expires (default: 60s)
+
+    note right of Open
+        Circuit tripped
+        • Block all requests
+        • Prevent cascade failures
+        • Allow recovery timeout
+    end note
+
+    Half-Open --> Closed: Test request<br/>succeeds
+
+    Half-Open --> Open: Test request<br/>fails
+
+    note right of Half-Open
+        Testing recovery
+        • Allow one test request
+        • Verify service health
+        • Transition based on result
+    end note
+
+    Closed: Active state
+    Open: Tripped state
+    Half-Open: Testing state

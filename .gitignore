@@ -24,3 +24,47 @@ uv.lock
 /.crackerjack/
 /.claude/
 /.benchmarks/
+
+# Crackerjack patterns
+
+
+
+
+# Build/Distribution
+# Caches
+# Coverage
+# Crackerjack specific
+# Development
+*.egg-info
+*.egg-info/
+*.py[oc]
+*.pyc
+.DS_STORE
+.coverage
+.coverage*
+.coverage.*
+.crackerjack-*
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv
+.venv/
+/.benchmarks/
+/.claude/
+/.coverage
+/.crackerjack/
+/.envrc
+/.mcp.json
+/.python-version
+/build/
+/dist/
+__pycache__/
+build/
+coverage.json
+coverage.xml
+crackerjack-ai-debug-*.log
+crackerjack-debug-*.log
+dist/
+htmlcov/
+uv.lock
+wheels/

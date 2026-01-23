@@ -1,0 +1,69 @@
+flowchart TD
+    Start([Tool Request Received]) --> Validate[Validate Input Parameters]
+
+    Validate -->|Invalid| Error1([Return ValidationError])
+    Validate -->|Valid| GetToken[Get OAuth2 Token]
+
+    GetToken --> CheckRateLimit{Check Rate Limiter}
+
+    CheckRateLimit -->|Limit exceeded| Wait[Wait for token refill]
+    Wait --> CheckRateLimit
+
+    CheckRateLimit -->|Under limit| CheckCircuit{Check Circuit Breaker}
+
+    CheckCircuit -->|Circuit OPEN| Error2([Return Service Unavailable])
+    CheckCircuit -->|Circuit CLOSED| MakeRequest[Make HTTP Request]
+
+    MakeRequest --> Response{HTTP Response}
+
+    Response -->|Success 2xx| Transform[Transform Response]
+    Response -->|Client Error 4xx| ClassifyClient{Classify Error}
+    Response -->|Server Error 5xx| ClassifyServer{Classify Error}
+
+    Transform --> UpdateMetrics[Update Metrics]
+    UpdateMetrics --> ResetCircuit[Reset Circuit Breaker]
+    ResetCircuit --> Return1([Return Success])
+
+    ClassifyClient -->|401 Unauthorized| Refresh[Refresh Token]
+    ClassifyClient -->|Other 4xx| ErrorClient[Log Error]
+    Refresh --> GetToken
+
+    ClassifyServer -->|Retryable| CheckRetries{Retry Count<br/>< Max?}
+    ClassifyServer -->|Non-retryable| ErrorServer[Log Error]
+
+    ErrorClient --> Error3([Return Error])
+    ErrorServer --> Error3
+
+    CheckRetries -->|Yes| Error4([Return Max Retries Exceeded])
+    CheckRetries -->|No| CalculateBackoff[Calculate Exponential Backoff]
+
+    CalculateBackoff --> Jitter[Add Random Jitter]
+    Jitter --> WaitRetry[Wait Backoff + Jitter]
+    WaitRetry --> MakeRequest
+
+    UpdateMetrics --> RecordSuccess[Record Success Metrics]
+    RecordSuccess --> Return1
+
+    subgraph "Circuit Breaker Logic"
+        CheckCircuit
+        ResetCircuit
+        IncrementFail[Increment Failure Count]
+    end
+
+    Response -->|Failure| IncrementFail
+    IncrementFail --> CheckThreshold{Failure Count<br/>> Threshold?}
+
+    CheckThreshold -->|Yes| TripCircuit[Trip Circuit to OPEN]
+    CheckThreshold -->|No| RecordFailure[Record Failure]
+
+    TripCircuit --> Error5([Return Circuit Open])
+    RecordFailure --> CheckRetries
+
+    style Error1 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error2 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error3 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error4 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error5 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Return1 fill:#2ECC71,stroke:#1E8449,color:#fff
+    style TripCircuit fill:#F39C12,stroke:#B9770E,color:#fff
+    style CheckCircuit fill:#9B59B6,stroke:#6C3483,color:#fff

@@ -1,0 +1,69 @@
+graph TB
+    subgraph "MCP Client Layer"
+        MCPClient["MCP Client<br/>Claude Desktop, etc."]
+    end
+
+    subgraph "Application Layer"
+        MCPFastMCP["FastMCP Server<br/>45+ Tools"]
+    end
+
+    subgraph "Security Layer"
+        subgraph "Core Security Components"
+            SecureOAuth["SecureOAuthHandler<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Token binding & validation<br/>• Security monitoring<br/>• Encrypted token cache<br/>• Credential rotation"]
+
+            SecurityMiddleware["SecurityMiddleware<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Request validation<br/>• Rate limiting enforcement<br/>• IP whitelist/blacklist<br/>• Threat detection integration"]
+
+            AuditLogger["AuditLogger<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Tamper-resistant logging<br/>• Encrypted audit database<br/>• Security event tracking<br/>• Compliance reporting"]
+
+            SecurityMonitor["SecurityMonitor<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Behavioral anomaly detection<br/>• Risk scoring & analysis<br/>• Real-time threat assessment<br/>• Automated incident response"]
+
+            SecureTokenCache["SecureTokenCache<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• AES-256 encryption<br/>• Integrity protection<br/>• Automatic expiration<br/>• Secure persistence"]
+        end
+    end
+
+    subgraph "External Integration"
+        OAuthEndpoint["OAuth2 Token Endpoint<br/>Oracle Hospitality"]
+        OPERAAPI["OPERA Cloud API<br/>Production/Sandbox"]
+
+        subgraph "Alerting & Monitoring"
+            AlertSystem["Alerting System<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Webhook notifications<br/>• Email alerts<br/>• Slack integration"]
+
+            MonitoringSystem["Monitoring Dashboard<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Grafana metrics<br/>• Prometheus integration<br/>• Security analytics"]
+        end
+    end
+
+    subgraph "Data Protection"
+        EncryptedDB["Encrypted Audit DB<br/>SQLite + AES-256"]
+        TokenCache["Encrypted Token Cache<br/>File-based + Integrity"]
+    end
+
+    MCPClient --> MCPFastMCP
+    MCPFastMCP --> SecureOAuth
+    MCPFastMCP --> SecurityMiddleware
+
+    SecureOAuth --> SecureTokenCache
+    SecureOAuth --> SecurityMonitor
+
+    SecurityMiddleware --> SecurityMonitor
+    SecurityMiddleware --> AuditLogger
+
+    SecurityMonitor --> AuditLogger
+    SecurityMonitor --> AlertSystem
+
+    SecureOAuth --> OAuthEndpoint
+    SecureOAuth --> OPERAAPI
+
+    AuditLogger --> EncryptedDB
+    SecureTokenCache --> TokenCache
+
+    AlertSystem --> MonitoringSystem
+
+    style SecureOAuth fill:#9B59B6,stroke:#6C3483,stroke-width:3px,color:#fff
+    style SecurityMiddleware fill:#E74C3C,stroke:#922B21,stroke-width:3px,color:#fff
+    style AuditLogger fill:#3498DB,stroke:#1A5276,stroke-width:3px,color:#fff
+    style SecurityMonitor fill:#F39C12,stroke:#B9770E,stroke-width:3px,color:#fff
+    style SecureTokenCache fill:#2ECC71,stroke:#1E8449,stroke-width:3px,color:#fff
+    style EncryptedDB fill:#34495E,stroke:#1A252F,color:#fff
+    style TokenCache fill:#34495E,stroke:#1A252F,color:#fff
+    style AlertSystem fill:#E67E22,stroke:#B9770E,color:#fff
+    style MonitoringSystem fill:#16A085,stroke:#0E6655,color:#fff

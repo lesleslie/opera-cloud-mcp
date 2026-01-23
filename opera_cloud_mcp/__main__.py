@@ -26,7 +26,9 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
     """OPERA Cloud MCP Server with Oneiric integration."""
 
     def __init__(self, config: OperaCloudConfig):
-        self.config = config
+        # Store config with proper type - OperaCloudConfig extends OneiricMCPConfig
+        # which is compatible with MCPBaseSettings expected by parent class
+        self._opera_config: OperaCloudConfig = config
         self.app = app  # Use the existing FastMCP instance
 
         # Initialize runtime components using mcp-common helper
@@ -70,7 +72,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
 
         return time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    async def health_check(self):
+    async def health_check(self) -> dict[str, object]:
         """Perform health check."""
         # Build base health components using mixin helper
         base_components = await self._build_health_components()
@@ -99,14 +101,15 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
         )
 
         # Create health response
-        return self.runtime.health_monitor.create_health_response(base_components)
+        # no-any-return: Parent class method returns Any but is actually proper dict
+        return self.runtime.health_monitor.create_health_response(base_components)  # type: ignore[no-any-return]
 
-    def get_app(self):
+    def get_app(self) -> object:
         """Get the ASGI application."""
         return self.app.http_app
 
 
-def main():
+def main() -> None:
     """Main entry point for OPERA Cloud MCP Server."""
 
     # Create CLI factory using mcp-common's enhanced factory
@@ -114,7 +117,6 @@ def main():
         server_class=OperaCloudMCPServer,
         config_class=OperaCloudConfig,
         name="opera-cloud-mcp",
-        description="OPERA Cloud MCP Server - Hospitality management",
     )
 
     # Create and run CLI

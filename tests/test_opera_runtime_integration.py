@@ -56,7 +56,7 @@ def test_opera_cloud_server_creation():
     server = OperaCloudMCPServer(config)
 
     # Verify runtime components are initialized
-    assert server.config is not None
+    assert server._opera_config is not None
     assert server.snapshot_manager is not None
     assert server.cache_manager is not None
     assert server.health_monitor is not None

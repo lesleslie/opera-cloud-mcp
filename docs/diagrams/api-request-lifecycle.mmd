@@ -1,0 +1,87 @@
+sequenceDiagram
+    participant Client as MCP Client
+    participant Tool as MCP Tool
+    participant APIClient as API Client
+    participant RateLimiter as Rate Limiter
+    participant CircuitBreaker as Circuit Breaker
+    participant BaseClient as BaseAPIClient
+    participant OAuth as OAuth2 Handler
+    participant OPERA as OPERA Cloud API
+
+    Client->>Tool: Invoke tool (e.g., search_reservations)
+    activate Tool
+    Tool->>APIClient: Call API method
+    activate APIClient
+
+    APIClient->>RateLimiter: Check rate limit
+    activate RateLimiter
+
+    alt Rate limit exceeded
+        RateLimiter-->>APIClient: Throttled (wait required)
+        APIClient->>APIClient: Calculate wait time
+        RateLimiter->>RateLimiter: Wait for token refill
+        RateLimiter-->>APIClient: Proceed
+    end
+
+    deactivate RateLimiter
+
+    APIClient->>CircuitBreaker: Check circuit state
+    activate CircuitBreaker
+
+    alt Circuit is OPEN
+        CircuitBreaker-->>APIClient: CircuitOpenException
+        APIClient-->>Tool: Error: Service temporarily unavailable
+    else Circuit is CLOSED/HALF-OPEN
+        CircuitBreaker-->>APIClient: Allow request
+    end
+
+    deactivate CircuitBreaker
+
+    APIClient->>BaseClient: Make HTTP request
+    activate BaseClient
+
+    BaseClient->>OAuth: Get access token
+    activate OAuth
+    OAuth-->>BaseClient: Bearer token
+    deactivate OAuth
+
+    BaseClient->>OPERA: GET /api/v1/reservations
+    Note over BaseClient,OPERA: Authorization: Bearer {token}
+    activate OPERA
+
+    alt Success Response (200-299)
+        OPERA-->>BaseClient: 200 OK + JSON data
+        BaseClient->>CircuitBreaker: Record success
+        CircuitBreaker->>CircuitBreaker: Reset failure count
+        BaseClient->>RateLimiter: Record success
+        BaseClient->>BaseClient: Transform response
+        BaseClient-->>APIClient: Response(data, success=True)
+    else Client Error (400-499)
+        OPERA-->>BaseClient: 400/404/401 etc.
+        BaseClient->>BaseClient: Classify error
+        BaseClient->>CircuitBreaker: Record failure
+        BaseClient-->>APIClient: Response(error, success=False, retriable=false)
+    else Server Error (500-599)
+        OPERA-->>BaseClient: 500/502/503 etc.
+        BaseClient->>BaseClient: Check retry eligibility
+        BaseClient->>CircuitBreaker: Record failure
+
+        alt Below failure threshold
+            BaseClient->>BaseClient: Calculate backoff (exponential)
+            BaseClient->>BaseClient: Wait {backoff}ms
+            BaseClient->>OPERA: Retry request
+        else Exceeds failure threshold
+            CircuitBreaker->>CircuitBreaker: Trip to OPEN
+            BaseClient-->>APIClient: CircuitBreakerException
+        end
+    end
+
+    deactivate OPERA
+    deactivate BaseClient
+
+    APIClient->>APIClient: Update metrics
+    APIClient-->>Tool: Return result
+    deactivate APIClient
+
+    Tool-->>Client: Return formatted data
+    deactivate Tool

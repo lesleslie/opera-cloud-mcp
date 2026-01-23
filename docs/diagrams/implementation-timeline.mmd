@@ -1,0 +1,25 @@
+gantt
+    title OPFRA Cloud MCP Implementation Timeline
+    dateFormat  YYYY-MM-DD
+    section Phase 1: Foundation
+    Project Setup               :done, p1a, 2024-01-01, 1d
+    OAuth Implementation        :done, p1b, after p1a, 1d
+    Base Infrastructure         :done, p1c, after p1b, 1d
+
+    section Phase 2: Core APIs
+    Reservation Tools          :active, p2a, 2024-01-04, 2d
+    Guest Operations           :p2b, after p2a, 2d
+    Room Management            :p2c, after p2b, 1d
+
+    section Phase 3: Extended Operations
+    Front Office Operations    :p3a, after p2c, 2d
+    Financial Operations       :p3b, after p3a, 2d
+
+    section Phase 4: Testing & Documentation
+    Unit Tests                 :p4a, after p3b, 2d
+    Integration Tests          :p4b, after p4a, 2d
+    Documentation              :p4c, after p4a, 2d
+
+    section Phase 5: Production Readiness
+    Performance Optimization   :p5a, after p4b, 2d
+    Monitoring Setup           :p5b, after p4c, 1d

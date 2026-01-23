@@ -1,0 +1,60 @@
+sequenceDiagram
+    participant App as Application
+    participant OAuth as OAuth2Handler
+    participant Cache as TokenCache
+    participant AuthAPI as OAuth Token API
+    participant Secure as SecurityMonitor
+
+    App->>OAuth: Initialize with credentials
+    activate OAuth
+    OAuth->>Cache: Check for cached token
+    activate Cache
+
+    alt Cached token exists and valid
+        Cache-->>OAuth: Return cached token
+        OAuth->>Secure: Log cache hit
+    else No cached token or expired
+        Cache-->>OAuth: Cache miss/expired
+        OAuth->>AuthAPI: Request new token<br/>POST /oauth/tokens
+        activate AuthAPI
+        Note over OAuth,AuthAPI: Client credentials grant:<br/>client_id + client_secret
+        AuthAPI-->>OAuth: access_token + expires_in
+        deactivate AuthAPI
+        OAuth->>OAuth: Validate token format
+        OAuth->>Cache: Store encrypted token
+        OAuth->>Secure: Log token issued
+        Cache-->>OAuth: Token stored
+    end
+
+    deactivate Cache
+
+    OAuth-->>App: OAuth2Handler ready
+    deactivate OAuth
+
+    Note over App,Secure: ────────────────────────<br/>Token Usage Phase<br/>────────────────────────
+
+    App->>OAuth: get_token()
+    activate OAuth
+    OAuth->>Cache: Retrieve token
+    activate Cache
+    Cache-->>OAuth: Return token
+    deactivate Cache
+
+    alt Token expired (near expiry)
+        OAuth->>OAuth: Check expiry threshold<br/>(default: 5 min before)
+        OAuth->>AuthAPI: Refresh token
+        activate AuthAPI
+        AuthAPI-->>OAuth: New access_token
+        deactivate AuthAPI
+        OAuth->>Cache: Update cached token
+        OAuth->>Secure: Log token refresh
+    end
+
+    OAuth-->>App: Valid access_token
+    deactivate OAuth
+
+    Note over App,Secure: ────────────────────────<br/>Security Monitoring<br/>────────────────────────
+
+    Secure->>Secure: Track token lifecycle events
+    Secure->>Secure: Monitor for suspicious patterns
+    Secure->>Secure: Calculate risk scores

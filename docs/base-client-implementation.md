@@ -35,6 +35,12 @@ This document summarizes the complete implementation of the production-ready Bas
 - **Selective Retries**: Different strategies for different error types
 - **Authentication Retry**: Special handling for token expiry scenarios
 
+```mermaid
+docs/diagrams/request-flow-retry-logic.mmd
+```
+
+This flowchart illustrates the complete request processing flow, including input validation, rate limiting, circuit breaking, error classification, retry logic with exponential backoff and jitter, and circuit breaker integration.
+
 ### 5. **Comprehensive Error Handling**
 
 - **Custom Exception Hierarchy**: 10+ specialized exception types
@@ -70,12 +76,28 @@ This document summarizes the complete implementation of the production-ready Bas
 - **Recovery Timeout**: Automatic recovery attempt scheduling
 - **Service Protection**: Prevents cascade failures
 
+```mermaid
+docs/diagrams/circuit-breaker-state-machine.mmd
+```
+
+This state diagram illustrates the three circuit breaker states (Closed, Open, Half-Open) and the conditions that trigger transitions between them, protecting against cascade failures.
+
 ### 10. **Enhanced Session Management**
 
 - **Async Context Management**: Proper resource cleanup
 - **Thread-Safe Initialization**: Double-check locking pattern
 - **Graceful Shutdown**: Comprehensive resource cleanup
 - **Session Lifecycle Logging**: Detailed session state tracking
+
+## 📊 Architecture Diagram
+
+### BaseAPIClient Architecture
+
+```mermaid
+docs/diagrams/base-client-architecture.mmd
+```
+
+This diagram illustrates how the 45+ MCP tools interact with the API client layer, which in turn uses the BaseAPIClient with its core components (RateLimiter, HealthMonitor, DataTransformer, CircuitBreaker, RequestMetrics) to communicate with the OPERA Cloud API through OAuth2 authentication.
 
 ## 📁 File Structure
 
@@ -116,6 +138,14 @@ class BaseAPIClient:
 - **DataTransformer**: Request/response data processing utilities
 - **CircuitBreaker**: Service resilience and failure protection
 - **RequestMetrics**: Structured metrics collection
+
+### API Request Lifecycle
+
+```mermaid
+docs/diagrams/api-request-lifecycle.mmd
+```
+
+This sequence diagram shows the complete lifecycle of an API request from tool invocation through rate limiting, circuit breaking, authentication, and error handling with retry logic.
 
 ### Enhanced Exceptions
 

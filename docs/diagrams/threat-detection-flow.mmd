@@ -1,0 +1,56 @@
+flowchart TD
+    Start([Security Event Detected]) --> Analyze{Event Type}
+
+    Analyze -->|Auth Event| AuthCheck{Authentication<br/>Result?}
+    Analyze -->|API Request| RequestCheck{Request<br/>Pattern?}
+    Analyze -->|Token Operation| TokenCheck{Token<br/>Activity?}
+
+    AuthCheck -->|Success| LogSuccess["Log successful auth"]
+    AuthCheck -->|Failure| CheckFailures{Failed attempts<br/>in window?}
+
+    LogSuccess --> UpdateRisk["Update risk score"]
+    CheckFailures -->|Yes| IncrementFail["Increment failure count"]
+    CheckFailures -->|No| LogFailure["Log failed attempt"]
+
+    IncrementFail --> ThresholdCheck{Exceeds<br/>threshold?}
+    ThresholdCheck -->|Yes| BlockClient["Block client IP"]
+    ThresholdCheck -->|No| LogFailure
+
+    RequestCheck -->|Normal pattern| LogRequest["Log API request"]
+    RequestCheck -->|Unusual pattern| AnomalyCheck{Anomaly score<br/>> threshold?}
+
+    AnomalyCheck -->|Yes| IncreaseRisk["Increase monitoring"]
+    AnomalyCheck -->|No| LogRequest
+
+    TokenCheck -->|Valid operation| LogToken["Log token use"]
+    TokenCheck -->|Invalid operation| SecurityAlert["Generate security alert"]
+
+    BlockClient --> Incident[Incident Response]
+    IncreaseRisk --> Incident
+    SecurityAlert --> Incident
+
+    Incident --> ThreatLevel{Calculate<br/>Threat Level}
+
+    ThreatLevel -->|Low| LogIncident["Log for review"]
+    ThreatLevel -->|Medium| MonitorIncident["Increase monitoring<br/>Add to watchlist"]
+    ThreatLevel -->|High| ImmediateAction["Block source<br/>Send alerts<br/>Auto-remediate"]
+
+    UpdateRisk --> AssessRisk[Assess overall risk]
+    LogSuccess --> AssessRisk
+    LogRequest --> AssessRisk
+    LogToken --> AssessRisk
+    LogIncident --> AssessRisk
+    MonitorIncident --> AssessRisk
+    ImmediateAction --> AssessRisk
+
+    AssessRisk --> RiskScore{Risk Score}
+    RiskScore -->|< 30| Normal([Normal Operations])
+    RiskScore -->|30-70| Warning([Warning State])
+    RiskScore -->|> 70| Critical([Critical State])
+
+    style BlockClient fill:#E74C3C,stroke:#922B21,color:#fff
+    style Incident fill:#F39C12,stroke:#B9770E,color:#fff
+    style ImmediateAction fill:#E74C3C,stroke:#922B21,color:#fff
+    style Critical fill:#E74C3C,stroke:#922B21,color:#fff
+    style Warning fill:#F39C12,stroke:#B9770E,color:#fff
+    style Normal fill:#2ECC71,stroke:#1E8449,color:#fff

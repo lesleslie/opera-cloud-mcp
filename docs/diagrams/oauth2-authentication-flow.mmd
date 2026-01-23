@@ -1,0 +1,55 @@
+sequenceDiagram
+    participant MCP as MCP Client
+    participant Server as FastMCP Server
+    participant Tool as MCP Tool
+    participant OAuth as OAuth2Handler
+    participant TokenAPI as OAuth Token Endpoint
+    participant API as OPERA Cloud API
+
+    MCP->>Server: Initialize connection
+    activate Server
+    Server->>OAuth: Create handler with credentials
+    activate OAuth
+    OAuth-->>Server: Handler initialized
+    deactivate OAuth
+    Server-->>MCP: Server ready
+
+    MCP->>Tool: Call tool (e.g., search_reservations)
+    activate Tool
+    Tool->>OAuth: get_token()
+    activate OAuth
+
+    alt Token cached and valid
+        OAuth-->>Tool: Return cached token
+    else No token or expired
+        OAuth->>TokenAPI: POST /oauth/tokens
+        Note over OAuth,TokenAPI: Client credentials flow
+        activate TokenAPI
+        TokenAPI-->>OAuth: access_token + expires_in
+        deactivate TokenAPI
+        OAuth->>OAuth: Cache token with expiry
+        OAuth-->>Tool: Return new token
+    end
+
+    deactivate OAuth
+
+    Tool->>API: GET /api/v1/reservations
+    Note over Tool,API: Authorization: Bearer {token}
+    activate API
+
+    alt Token valid
+        API-->>Tool: 200 OK + data
+    else Token expired (401)
+        API-->>Tool: 401 Unauthorized
+        Tool->>OAuth: Token refresh required
+        OAuth->>TokenAPI: Refresh token
+        TokenAPI-->>OAuth: New access_token
+        OAuth-->>Tool: New token
+        Tool->>API: Retry request with new token
+        API-->>Tool: 200 OK + data
+    end
+
+    deactivate API
+
+    Tool-->>MCP: Return results
+    deactivate Tool

@@ -44,67 +44,21 @@ Based on the Oracle Hospitality API documentation:
 
 ### 1. Project Structure
 
+```mermaid
+docs/diagrams/project-structure.mmd
 ```
-opera_cloud_mcp/
-├── __init__.py
-├── main.py                    # FastMCP server entry point
-├── auth/
-│   ├── __init__.py
-│   └── oauth_handler.py       # OAuth2 token management
-├── clients/
-│   ├── __init__.py
-│   ├── base_client.py         # Base HTTP client with auth
-│   └── api_clients/           # Specific API clients
-│       ├── reservations.py
-│       ├── front_office.py
-│       ├── housekeeping.py
-│       ├── crm.py
-│       ├── inventory.py
-│       ├── block.py
-│       ├── rates.py
-│       └── cashiering.py
-├── tools/
-│   ├── __init__.py
-│   ├── reservation_tools.py   # Reservation management tools
-│   ├── guest_tools.py          # Guest/CRM tools
-│   ├── room_tools.py           # Room/inventory tools
-│   ├── operation_tools.py     # Daily operations tools
-│   └── financial_tools.py     # Billing/payment tools
-├── resources/
-│   ├── __init__.py
-│   └── api_specs.py           # API spec resources
-├── models/
-│   ├── __init__.py
-│   ├── common.py              # Common data models
-│   ├── reservation.py         # Reservation models
-│   ├── guest.py               # Guest/profile models
-│   ├── room.py                # Room/inventory models
-│   └── financial.py           # Financial models
-├── config/
-│   ├── __init__.py
-│   └── settings.py            # Configuration management
-├── utils/
-│   ├── __init__.py
-│   ├── validators.py          # Input validation
-│   ├── formatters.py          # Data formatting
-│   └── exceptions.py          # Custom exceptions
-└── tests/
-    ├── __init__.py
-    ├── conftest.py
-    ├── unit/
-    │   ├── test_auth.py
-    │   ├── test_clients.py
-    │   └── test_models.py
-    ├── integration/
-    │   ├── test_tools.py
-    │   └── test_workflows.py
-    └── fixtures/
-        └── mock_responses.py
-```
+
+This diagram provides a visual overview of the complete project directory structure, showing the relationships between modules (auth, clients, tools, models, config, utils) and how they depend on each other.
 
 ### 2. Core Components
 
 #### Authentication Module (`auth/oauth_handler.py`)
+
+```mermaid
+docs/diagrams/oauth2-authentication-flow.mmd
+```
+
+This sequence diagram shows the complete OAuth2 authentication flow from MCP client through token request (with caching), API usage, and token refresh on expiration.
 
 ```python
 class OAuthHandler:
@@ -190,6 +144,12 @@ async def search_reservations(
 ```
 
 ## Implementation Phases
+
+```mermaid
+docs/diagrams/implementation-timeline.mmd
+```
+
+This Gantt chart visualizes the 5-phase implementation plan with timelines for each phase: Foundation (Days 1-2), Core APIs (Days 3-5), Extended Operations (Days 6-7), Testing & Documentation (Days 8-9), and Production Readiness (Day 10).
 
 ### Phase 1: Foundation (Days 1-2)
 

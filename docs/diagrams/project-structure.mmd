@@ -1,0 +1,99 @@
+graph TB
+    subgraph "Project Root"
+        Root["opera_cloud_mcp/"]
+
+        subgraph "Core Server"
+            Main["main.py - FastMCP entry point"]
+            CLI["cli.py - Command line interface"]
+        end
+
+        subgraph "Authentication"
+            OAuth["auth/"]
+            OAuthHandler["oauth_handler.py - OAuth2 token management"]
+        end
+
+        subgraph "API Clients"
+            Clients["clients/"]
+            BaseClient["base_client.py - HTTP client with auth"]
+            APIClients["api_clients/"]
+            ResClient["reservations.py - Reservation API"]
+            GuestClient["crm.py - Guest/CRM API"]
+            RoomClient["housekeeping.py - Room API"]
+            FOClient["front_office.py - Front office API"]
+            InvClient["inventory.py - Inventory API"]
+        end
+
+        subgraph "MCP Tools"
+            Tools["tools/"]
+            ResTools["reservation_tools.py - 15 tools"]
+            GuestTools["guest_tools.py - 12 tools"]
+            RoomTools["room_tools.py - 8 tools"]
+            OpsTools["operation_tools.py - 6 tools"]
+            FinTools["financial_tools.py - 4 tools"]
+        end
+
+        subgraph "Data Models"
+            Models["models/"]
+            CommonModels["common.py - Shared models"]
+            ResModels["reservation.py - Reservation models"]
+            GuestModels["guest.py - Guest models"]
+            RoomModels["room.py - Room models"]
+            FinModels["financial.py - Financial models"]
+        end
+
+        subgraph "Configuration"
+            Config["config/"]
+            Settings["settings.py - Pydantic settings"]
+            SecuritySettings["security_settings.py - Security config"]
+        end
+
+        subgraph "Utilities"
+            Utils["utils/"]
+            Validators["validators.py - Input validation"]
+            Formatters["formatters.py - Data formatting"]
+            Exceptions["exceptions.py - Custom exceptions"]
+            Observability["observability.py - Logging & metrics"]
+        end
+
+        subgraph "Testing"
+            Tests["tests/"]
+            UnitTests["unit/ - Unit tests"]
+            IntTests["integration/ - Integration tests"]
+            Fixtures["fixtures/ - Test data"]
+            Conftest["conftest.py - Pytest config"]
+        end
+    end
+
+    Root --> Main
+    Root --> CLI
+    Root --> OAuth
+    Root --> Clients
+    Root --> Tools
+    Root --> Models
+    Root --> Config
+    Root --> Utils
+    Root --> Tests
+
+    Main --> CLI
+    Tools --> Main
+    Clients --> BaseClient
+    Clients --> APIClients
+
+    Tools --> Clients
+    Tools --> Models
+
+    BaseClient --> OAuthHandler
+    BaseClient --> Settings
+    BaseClient --> Observability
+
+    Clients --> Models
+
+    UnitTests --> Clients
+    IntTests --> Tools
+    Tests --> Fixtures
+
+    style Root fill:#3498DB,stroke:#1A5276,color:#fff
+    style Main fill:#E74C3C,stroke:#922B21,color:#fff
+    style Tools fill:#2ECC71,stroke:#1E8449,color:#fff
+    style Clients fill:#F39C12,stroke:#B9770E,color:#fff
+    style OAuth fill:#9B59B6,stroke:#6C3483,color:#fff

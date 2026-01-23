@@ -1,0 +1,64 @@
+graph TB
+    subgraph "MCP Tools Layer"
+        Tools["45+ MCP Tools<br/>(reservations, guests, rooms,<br/>operations, financial)"]
+    end
+
+    subgraph "API Clients Layer"
+        ReservationClient["ReservationClient"]
+        GuestClient["GuestClient"]
+        RoomClient["RoomClient"]
+        OperationClient["OperationClient"]
+        FinancialClient["FinancialClient"]
+    end
+
+    subgraph "BaseAPIClient Core"
+        Base["BaseAPIClient"]
+
+        subgraph "Core Components"
+            RateLimiter["RateLimiter<br/>• Token Bucket Algorithm<br/>• 10 RPS + 20 burst<br/>• Automatic throttling"]
+            HealthMonitor["HealthMonitor<br/>• Request tracking<br/>• Performance analytics<br/>• Real-time status"]
+            DataTransformer["DataTransformer<br/>• Request sanitization<br/>• Response transformation<br/>• Nested field support"]
+            CircuitBreaker["CircuitBreaker<br/>• Failure threshold mgmt<br/>• State transitions<br/>• Service protection"]
+            RequestMetrics["RequestMetrics<br/>• Duration tracking<br/>• Size metrics<br/>• Retry counting"]
+        end
+    end
+
+    subgraph "Authentication Layer"
+        OAuth["OAuth2Handler<br/>• Token caching<br/>• Auto refresh<br/>• Encrypted storage"]
+    end
+
+    subgraph "External Services"
+        OPERA["OPERA Cloud API<br/>• REST Architecture<br/>• OAuth2 Auth<br/>• Rate Limited"]
+    end
+
+    Tools --> ReservationClient
+    Tools --> GuestClient
+    Tools --> RoomClient
+    Tools --> OperationClient
+    Tools --> FinancialClient
+
+    ReservationClient --> Base
+    GuestClient --> Base
+    RoomClient --> Base
+    OperationClient --> Base
+    FinancialClient --> Base
+
+    Base --> RateLimiter
+    Base --> HealthMonitor
+    Base --> DataTransformer
+    Base --> CircuitBreaker
+    Base --> RequestMetrics
+    Base --> OAuth
+
+    Base --> OPERA
+
+    CircuitBreaker -.->|Prevents cascade<br/>failures| OPERA
+    RateLimiter -.->|Throttles requests| OPERA
+    OAuth -.->|Authenticates| OPERA
+
+    style Base fill:#4A90E2,stroke:#1E3A5F,stroke-width:3px,color:#fff
+    style CircuitBreaker fill:#E74C3C,stroke:#922B21,color:#fff
+    style RateLimiter fill:#F39C12,stroke:#B9770E,color:#fff
+    style HealthMonitor fill:#2ECC71,stroke:#1E8449,color:#fff
+    style OAuth fill:#9B59B6,stroke:#6C3483,color:#fff
+    style OPERA fill:#34495E,stroke:#1A252F,color:#fff
