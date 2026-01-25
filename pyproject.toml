@@ -191,4 +191,4 @@ paths = [
 deps-file = "pyproject.toml"
 
 [tool.crackerjack]
-refurb_timeout = 180
+refurb_timeout = 420
