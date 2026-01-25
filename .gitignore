@@ -28,6 +28,7 @@ uv.lock
 # Crackerjack patterns
 .complexipy_cache/
 .oneiric_cache/
+.skylos/
 
 # Build/Distribution
 # Caches
