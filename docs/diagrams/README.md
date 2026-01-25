@@ -182,7 +182,6 @@ When adding new diagrams:
 - [Mermaid Documentation](https://mermaid.js.org/)
 - [Mermaid Live Editor](https://mermaid.live)
 - [Diagram Syntax Guide](https://mermaid.js.org/syntax/flowchart.html)
-- [Examples Gallery](https://mermaid.js.org/ecosystem/gallery.html)
 
 ---
 
