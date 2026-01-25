@@ -26,9 +26,8 @@ uv.lock
 /.benchmarks/
 
 # Crackerjack patterns
-
-
-
+.complexipy_cache/
+.oneiric_cache/
 
 # Build/Distribution
 # Caches
