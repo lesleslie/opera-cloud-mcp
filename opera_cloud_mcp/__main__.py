@@ -13,7 +13,7 @@ from opera_cloud_mcp.main import app, get_settings, initialize_server
 class OperaCloudConfig(OneiricMCPConfig):
     """OPERA Cloud MCP Server Configuration."""
 
-    http_port: int = 3040
+    http_port: int = 3037
     http_host: str = "127.0.0.1"
     enable_http_transport: bool = True
 
@@ -29,6 +29,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
         # Store config with proper type - OperaCloudConfig extends OneiricMCPConfig
         # which is compatible with MCPBaseSettings expected by parent class
         self._opera_config: OperaCloudConfig = config
+        self.config = config  # Required by BaseOneiricServerMixin
         self.app = app  # Use the existing FastMCP instance
 
         # Initialize runtime components using mcp-common helper

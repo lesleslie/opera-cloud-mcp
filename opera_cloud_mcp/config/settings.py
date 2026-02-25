@@ -15,10 +15,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Import mcp-common security utilities for OAuth credential validation
 try:
     from mcp_common.security import APIKeyValidator
+    from mcp_common.security.api_keys import APIKeyFormatError
 
     SECURITY_AVAILABLE = True
 except ImportError:
     SECURITY_AVAILABLE = False
+    APIKeyFormatError = ValueError  # Fallback for type checking
 
 
 class Settings(BaseSettings):
@@ -30,10 +32,10 @@ class Settings(BaseSettings):
 
     # OAuth Configuration
     opera_client_id: str = Field(
-        ..., description="OAuth2 client ID for OPERA Cloud API"
+        default="", description="OAuth2 client ID for OPERA Cloud API"
     )
     opera_client_secret: str = Field(
-        ..., description="OAuth2 client secret for OPERA Cloud API"
+        default="", description="OAuth2 client secret for OPERA Cloud API"
     )
     opera_token_url: str = Field(
         "https://api.oracle-hospitality.com/oauth/v1/tokens",
@@ -48,6 +50,12 @@ class Settings(BaseSettings):
     opera_environment: str = Field(
         "production",
         description="OPERA Cloud environment (production/staging/development)",
+    )
+
+    # Mock mode for testing
+    mock_mode: bool = Field(
+        default=False,
+        description="Use mock data instead of real API (for testing)",
     )
 
     # Default Hotel Configuration
@@ -153,6 +161,10 @@ class Settings(BaseSettings):
         Raises:
             SystemExit: If OAuth credentials are invalid or missing
         """
+        # Skip validation in mock mode
+        if self.mock_mode:
+            return
+
         # Check for missing credentials
         if not self.opera_client_id or not self.opera_client_id.strip():
             sys.exit(1)
@@ -168,7 +180,7 @@ class Settings(BaseSettings):
             try:
                 validator.validate(self.opera_client_id, raise_on_invalid=True)
                 self.get_masked_client_id()
-            except ValueError:
+            except (ValueError, APIKeyFormatError):
                 # Continue silently to maintain backward compatibility
                 _ = "validation_failed_but_continue"  # Explicitly acknowledge error
 
@@ -176,7 +188,7 @@ class Settings(BaseSettings):
             try:
                 validator.validate(self.opera_client_secret, raise_on_invalid=True)
                 self.get_masked_client_secret()
-            except ValueError:
+            except (ValueError, APIKeyFormatError):
                 # Continue silently to maintain backward compatibility
                 _ = "validation_failed_but_continue"  # Explicitly acknowledge error
         else:
