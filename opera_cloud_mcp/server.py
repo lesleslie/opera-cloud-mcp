@@ -8,6 +8,7 @@ Provides AI agents with comprehensive access to hospitality management functions
 import asyncio
 import importlib.util
 import logging
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -33,6 +34,21 @@ logger = logging.getLogger(__name__)
 # Initialize FastMCP app
 app = FastMCP("opera-cloud-mcp")
 
+# HTTP health endpoint for Claude Code compatibility
+@app.custom_route("/health", methods=["GET"])
+async def health_check(request: Any) -> Any:
+    """HTTP health check endpoint for Claude Code `mcp list` compatibility."""
+    from starlette.responses import JSONResponse
+
+    return JSONResponse({"status": "ok", "service": "opera-cloud", "version": "0.1.0"})
+
+@app.custom_route("/healthz", methods=["GET"])
+async def healthz_check(request: Any) -> Any:
+    """Kubernetes-style health check endpoint."""
+    from starlette.responses import JSONResponse
+
+    return JSONResponse({"status": "ok"})
+
 # Add rate limiting middleware (Phase 3 Security Hardening)
 if RATE_LIMITING_AVAILABLE:
     from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
@@ -52,7 +68,6 @@ register_room_tools(app)
 register_operation_tools(app)
 register_financial_tools(app)
 
-# Export ASGI app for uvicorn (standardized startup pattern)
 http_app = app.http_app
 
 
