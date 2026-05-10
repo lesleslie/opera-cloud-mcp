@@ -23,7 +23,7 @@ This directory contains comprehensive documentation for the OPERA Cloud MCP serv
 
 ### Configuration Examples
 
-- **../example.mcp.json** - Production MCP server configuration
+- **[../example.mcp.json](../example.mcp.json)** - Production MCP server configuration
 - **[../example.mcp.dev.json](../example.mcp.dev.json)** - Development MCP server configuration
 
 ## Documentation Structure

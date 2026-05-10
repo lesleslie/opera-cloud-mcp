@@ -6,7 +6,7 @@ loyalty programs, history tracking, and customer relationship management.
 
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import Field, field_validator
@@ -20,7 +20,7 @@ from opera_cloud_mcp.models.common import (
 )
 
 
-class GenderType(str, Enum):
+class GenderType(StrEnum):
     """Guest gender enumeration."""
 
     MALE = "MALE"
@@ -29,7 +29,7 @@ class GenderType(str, Enum):
     NOT_SPECIFIED = "NOT_SPECIFIED"
 
 
-class VIPStatus(str, Enum):
+class VIPStatus(StrEnum):
     """VIP status levels."""
 
     NONE = "NONE"
@@ -40,7 +40,7 @@ class VIPStatus(str, Enum):
     CORPORATE = "CORPORATE"
 
 
-class LoyaltyTier(str, Enum):
+class LoyaltyTier(StrEnum):
     """Loyalty program tier levels."""
 
     BRONZE = "BRONZE"
@@ -51,7 +51,7 @@ class LoyaltyTier(str, Enum):
     ELITE = "ELITE"
 
 
-class PreferenceType(str, Enum):
+class PreferenceType(StrEnum):
     """Guest preference categories."""
 
     ROOM_TYPE = "ROOM_TYPE"
@@ -68,7 +68,7 @@ class PreferenceType(str, Enum):
     OTHER = "OTHER"
 
 
-class StayStatus(str, Enum):
+class StayStatus(StrEnum):
     """Guest stay status."""
 
     COMPLETED = "COMPLETED"
@@ -78,7 +78,7 @@ class StayStatus(str, Enum):
     CHECKED_OUT = "CHECKED_OUT"
 
 
-class ProfileStatus(str, Enum):
+class ProfileStatus(StrEnum):
     """Guest profile status."""
 
     ACTIVE = "ACTIVE"

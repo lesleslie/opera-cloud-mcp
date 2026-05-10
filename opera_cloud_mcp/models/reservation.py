@@ -7,7 +7,7 @@ full validation, transformation, and OPERA Cloud API compatibility.
 """
 
 from datetime import UTC, date, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -20,7 +20,7 @@ from opera_cloud_mcp.utils.validators import (
 )
 
 
-class ReservationStatus(str, Enum):
+class ReservationStatus(StrEnum):
     """Reservation status enumeration."""
 
     CONFIRMED = "CONFIRMED"
@@ -32,7 +32,7 @@ class ReservationStatus(str, Enum):
     CHECKED_OUT = "CHECKED_OUT"
 
 
-class GuaranteeType(str, Enum):
+class GuaranteeType(StrEnum):
     """Guarantee type enumeration."""
 
     CREDIT_CARD = "CREDIT_CARD"
@@ -42,7 +42,7 @@ class GuaranteeType(str, Enum):
     NONE = "NONE"
 
 
-class RoomType(str, Enum):
+class RoomType(StrEnum):
     """Common room type enumeration."""
 
     STANDARD = "STANDARD"
@@ -53,7 +53,7 @@ class RoomType(str, Enum):
     PRESIDENTIAL = "PRESIDENTIAL"
 
 
-class RateType(str, Enum):
+class RateType(StrEnum):
     """Rate type enumeration."""
 
     RACK = "RACK"

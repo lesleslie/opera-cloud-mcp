@@ -549,7 +549,7 @@ def _display_startup_message() -> None:
 
 def _perform_shutdown_cleanup() -> None:
     """Perform cleanup during shutdown."""
-    handler = _current_auth_handler()
+    handler = _current_auth_handler() # type: ignore
     if handler and hasattr(handler, "persistent_cache"):
         logger.info("Performing cleanup...")
 
@@ -569,7 +569,7 @@ async def main() -> None:
         _display_startup_message()
 
         # Run the FastMCP server
-        await app.run()  # type: ignore
+        await app.run()  # type: ignore[func-returns-value]
 
     except KeyboardInterrupt:
         logger.info("Server shutdown requested")

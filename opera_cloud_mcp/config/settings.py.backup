@@ -21,7 +21,7 @@ try:
     SECURITY_AVAILABLE = True
 except ImportError:
     SECURITY_AVAILABLE = False
-    APIKeyFormatError = ValueError  # type: ignore  Fallback for type checking
+    APIKeyFormatError = ValueError  # Fallback for type checking
 
 
 class Settings(BaseSettings):

@@ -107,7 +107,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
 
     def get_app(self) -> object:
         """Get the ASGI application."""
-        return self.app.http_app
+        return self.app.http_app()
 
 
 def main() -> None:

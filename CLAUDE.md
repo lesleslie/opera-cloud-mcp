@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+For a shorter, tool-neutral bootstrap document, start with `AGENTS.md`.
+
 ## Project Overview
 
 This is an MCP (Model Context Protocol) server for Oracle OPERA Cloud API integration. It provides AI agents with comprehensive access to hospitality management functions through 45+ tools across 5 domains: reservations, guests, rooms, operations, and financial management.

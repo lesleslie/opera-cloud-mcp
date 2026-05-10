@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "opera-cloud-mcp": {
+      "args": [
+        "run",
+        "python",
+        "-m",
+        "opera_cloud_mcp"
+      ],
+      "command": "uv",
+      "env": {
+        "CACHE_TTL": "300",
+        "DEFAULT_HOTEL_ID": "HOTEL001",
+        "ENABLE_CACHE": "true",
+        "LOG_FILE_PATH": "logs/opera-cloud-mcp.log",
+        "LOG_LEVEL": "INFO",
+        "OPERA_API_VERSION": "v1",
+        "OPERA_BASE_URL": "https://api.opera-cloud.com/v1",
+        "OPERA_CLIENT_ID": "your-opera-client-id",
+        "OPERA_CLIENT_SECRET": "your-opera-client-secret",
+        "OPERA_ENVIRONMENT": "production",
+        "OPERA_TOKEN_URL": "https://api.opera-cloud.com/oauth/token",
+        "UV_KEYRING_PROVIDER": "subprocess"
+      }
+    }
+  }
+}
