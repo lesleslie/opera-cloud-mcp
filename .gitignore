@@ -68,3 +68,12 @@ dist/
 htmlcov/
 uv.lock
 wheels/
+
+# Backup Files (added by gitignore audit)
+# ============================================================================
+*.backup
+*.bak
+/.backups/
+/.backup/
+.backups/
+.backup/
