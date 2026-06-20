@@ -38,7 +38,7 @@ def setup_logging(settings: Settings) -> None:
     if settings.enable_structured_logging:
         # Structured JSON logging
         class JSONFormatter(logging.Formatter):
-            def format(self, record) -> None:
+            def format(self, record) -> str:
                 log_entry = {
                     "timestamp": self.formatTime(record),
                     "level": record.levelname,
@@ -146,7 +146,7 @@ def _register_tools() -> None:
 _register_tools()
 
 
-def create_oauth_handler(settings: Settings) -> None:
+def create_oauth_handler(settings: Settings) -> auth.OAuthHandler | auth.SecureOAuthHandler:
     """Create the OAuth handler for the current settings."""
     return auth.create_oauth_handler(settings)
 
@@ -170,7 +170,7 @@ oauth_handler = None
 auth_handler = None
 
 
-def _current_auth_handler() -> None:
+def _current_auth_handler() -> auth.OAuthHandler | auth.SecureOAuthHandler | None:
     """Return the active authentication handler, if any."""
     return auth_handler if auth_handler is not None else oauth_handler
 
@@ -371,7 +371,7 @@ async def hotel_configuration() -> ResourceDescriptor:
     )
 
 
-def get_auth_handler() -> None:
+def get_auth_handler() -> auth.OAuthHandler | auth.SecureOAuthHandler:
     """Return the active OAuth handler or raise if unavailable."""
     handler = _current_auth_handler()
     if handler is None:

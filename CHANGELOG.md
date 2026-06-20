@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2026-06-20
+
+### Internal
+
+- Add .cache dir for gitleaks quality tooling
+- gitignore: Add backup file patterns to silence checkpoint tool artifacts
+- Untrack and delete 9 historical *.backup/*.bak files
+
 ## [0.3.5] - 2026-05-10
 
 ### Changed
