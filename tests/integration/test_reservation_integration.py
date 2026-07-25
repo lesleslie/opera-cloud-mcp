@@ -190,13 +190,15 @@ class TestReservationIntegration:
     ):
         """Test complete reservation lifecycle from creation to cancellation."""
         app = integrated_app
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Set up availability
         mock_opera_cloud_api.set_availability("DELUXE", 3)
 
         # Step 1: Check availability
-        availability_tool = tools["check_room_availability"]
+        availability_tool = next(
+            t for t in tools if t.name == "check_room_availability"
+        )
         availability_result = await availability_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             arrival_date="2024-12-15",
@@ -211,7 +213,7 @@ class TestReservationIntegration:
         )
 
         # Step 2: Create reservation
-        create_tool = tools["create_reservation"]
+        create_tool = next(t for t in tools if t.name == "create_reservation")
         create_result = await create_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             guest_profile={
@@ -234,7 +236,7 @@ class TestReservationIntegration:
         assert confirmation_number.startswith("NEW")
 
         # Step 3: Retrieve the created reservation
-        get_tool = tools["get_reservation"]
+        get_tool = next(t for t in tools if t.name == "get_reservation")
         get_result = await get_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number=confirmation_number
         )
@@ -247,7 +249,7 @@ class TestReservationIntegration:
         assert retrieved_reservation["primaryGuest"]["lastName"] == "Smith"
 
         # Step 4: Search for the reservation
-        search_tool = tools["search_reservations"]
+        search_tool = next(t for t in tools if t.name == "search_reservations")
 
         # Add reservation to search results
         mock_opera_cloud_api.set_search_results([retrieved_reservation])
@@ -262,7 +264,7 @@ class TestReservationIntegration:
         assert found_reservation["confirmationNumber"] == confirmation_number
 
         # Step 5: Modify the reservation
-        modify_tool = tools["modify_reservation"]
+        modify_tool = next(t for t in tools if t.name == "modify_reservation")
         modify_result = await modify_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             confirmation_number=confirmation_number,
@@ -273,7 +275,7 @@ class TestReservationIntegration:
         assert modify_result["success"] is True
 
         # Step 6: Cancel the reservation
-        cancel_tool = tools["cancel_reservation"]
+        cancel_tool = next(t for t in tools if t.name == "cancel_reservation")
         cancel_result = await cancel_tool.fn(
             hotel_id="INTEGRATION_HOTEL",
             confirmation_number=confirmation_number,
@@ -297,7 +299,7 @@ class TestReservationIntegration:
     async def test_bulk_reservation_workflow(self, integrated_app):
         """Test bulk reservation creation workflow."""
         app = integrated_app
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Prepare bulk reservation data
         reservations_data = [
@@ -324,7 +326,9 @@ class TestReservationIntegration:
         ]
 
         # Mock bulk operations
-        bulk_create_tool = tools["bulk_create_reservations"]
+        bulk_create_tool = next(
+            t for t in tools if t.name == "bulk_create_reservations"
+        )
 
         # Mock the bulk client operations
         mock_client = AsyncMock()
@@ -361,7 +365,9 @@ class TestReservationIntegration:
             assert "BULK12345" in bulk_result["message"]
 
             # Check bulk operation status
-            status_tool = tools["get_bulk_operation_status"]
+            status_tool = next(
+                t for t in tools if t.name == "get_bulk_operation_status"
+            )
             status_result = await status_tool.fn(
                 hotel_id="INTEGRATION_HOTEL", job_id="BULK12345"
             )
@@ -372,10 +378,10 @@ class TestReservationIntegration:
 
     async def test_error_handling_integration(self, integrated_app):
         """Test error handling across the integrated system."""
-        tools = await integrated_app.get_tools()
+        tools = await integrated_app.list_tools()
 
         # Test getting non-existent reservation
-        get_tool = tools["get_reservation"]
+        get_tool = next(t for t in tools if t.name == "get_reservation")
         get_result = await get_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT"
         )
@@ -384,7 +390,7 @@ class TestReservationIntegration:
         assert "Reservation not found" in get_result["error"]
 
         # Test modifying non-existent reservation
-        modify_tool = tools["modify_reservation"]
+        modify_tool = next(t for t in tools if t.name == "modify_reservation")
         modify_result = await modify_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT", adults=2
         )
@@ -393,7 +399,7 @@ class TestReservationIntegration:
         assert "Reservation not found" in modify_result["error"]
 
         # Test canceling non-existent reservation
-        cancel_tool = tools["cancel_reservation"]
+        cancel_tool = next(t for t in tools if t.name == "cancel_reservation")
         cancel_result = await cancel_tool.fn(
             hotel_id="INTEGRATION_HOTEL", confirmation_number="NONEXISTENT"
         )
@@ -403,11 +409,11 @@ class TestReservationIntegration:
 
     async def test_validation_integration(self, integrated_app):
         """Test validation errors in the integrated system."""
-        tools = await integrated_app.get_tools()
+        tools = await integrated_app.list_tools()
         from opera_cloud_mcp.utils.exceptions import ValidationError
 
         # Test create reservation with invalid date
-        create_tool = tools["create_reservation"]
+        create_tool = next(t for t in tools if t.name == "create_reservation")
         with pytest.raises(ValidationError):
             await create_tool.fn(
                 hotel_id="INTEGRATION_HOTEL",
@@ -424,7 +430,7 @@ class TestReservationIntegration:
             )
 
         # Test search with invalid confirmation number format
-        search_tool = tools["search_reservations"]
+        search_tool = next(t for t in tools if t.name == "search_reservations")
         with pytest.raises(ValidationError):
             await search_tool.fn(
                 hotel_id="INTEGRATION_HOTEL", confirmation_number="invalid"
@@ -432,7 +438,7 @@ class TestReservationIntegration:
 
     async def test_client_metrics_integration(self, integrated_app):
         """Test client metrics collection in integrated environment."""
-        tools = await integrated_app.get_tools()
+        tools = await integrated_app.list_tools()
         mock_client = AsyncMock()
         mock_client.get_metrics.return_value = {
             "operation_metrics": {
@@ -450,7 +456,9 @@ class TestReservationIntegration:
             "opera_cloud_mcp.tools.reservation_tools._get_reservations_client",
             return_value=mock_client,
         ):
-            metrics_tool = tools["get_reservation_client_metrics"]
+            metrics_tool = next(
+                t for t in tools if t.name == "get_reservation_client_metrics"
+            )
             metrics_result = await metrics_tool.fn(hotel_id="INTEGRATION_HOTEL")
 
             assert metrics_result["success"] is True

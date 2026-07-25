@@ -18,8 +18,8 @@ class TestRoomTools:
         register_room_tools(app)
 
         # Check that tools were registered using the correct FastMCP API
-        tools = await app.get_tools()
-        tool_names = list(tools.keys())
+        tools = await app.list_tools()
+        tool_names = [t.name for t in tools]
 
         expected_tools = [
             "get_room_status",
@@ -52,7 +52,7 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test that each tool has the expected attributes
         for tool_name in [
@@ -60,7 +60,7 @@ class TestRoomTools:
             "update_room_status",
             "check_room_availability",
         ]:
-            tool = tools[tool_name]
+            tool = next(t for t in tools if t.name == tool_name)
             assert tool.fn is not None, f"Tool {tool_name} should have a function"
             assert callable(tool.fn), f"Tool {tool_name} function should be callable"
             assert hasattr(tool, "parameters"), (
@@ -75,17 +75,17 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test get_room_status parameters
-        get_tool = tools["get_room_status"]
+        get_tool = next(t for t in tools if t.name == "get_room_status")
         get_params = get_tool.parameters
 
         assert "properties" in get_params
         assert "hotel_id" in get_params["properties"]
 
         # Test update_room_status parameters
-        update_tool = tools["update_room_status"]
+        update_tool = next(t for t in tools if t.name == "update_room_status")
         update_params = update_tool.parameters
 
         assert "properties" in update_params
@@ -103,17 +103,19 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test get_housekeeping_tasks parameters
-        get_tasks_tool = tools["get_housekeeping_tasks"]
+        get_tasks_tool = next(t for t in tools if t.name == "get_housekeeping_tasks")
         get_tasks_params = get_tasks_tool.parameters
 
         assert "properties" in get_tasks_params
         assert "hotel_id" in get_tasks_params["properties"]
 
         # Test create_housekeeping_task parameters
-        create_task_tool = tools["create_housekeeping_task"]
+        create_task_tool = next(
+            t for t in tools if t.name == "create_housekeeping_task"
+        )
         create_task_params = create_task_tool.parameters
 
         assert "properties" in create_task_params
@@ -131,10 +133,12 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test create_maintenance_request parameters
-        maintenance_tool = tools["create_maintenance_request"]
+        maintenance_tool = next(
+            t for t in tools if t.name == "create_maintenance_request"
+        )
         maintenance_params = maintenance_tool.parameters
 
         assert "properties" in maintenance_params
@@ -152,17 +156,21 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test get_inventory_status parameters
-        get_inventory_tool = tools["get_inventory_status"]
+        get_inventory_tool = next(
+            t for t in tools if t.name == "get_inventory_status"
+        )
         get_inventory_params = get_inventory_tool.parameters
 
         assert "properties" in get_inventory_params
         assert "hotel_id" in get_inventory_params["properties"]
 
         # Test update_inventory_stock parameters
-        update_stock_tool = tools["update_inventory_stock"]
+        update_stock_tool = next(
+            t for t in tools if t.name == "update_inventory_stock"
+        )
         update_stock_params = update_stock_tool.parameters
 
         assert "properties" in update_stock_params
@@ -179,10 +187,12 @@ class TestRoomTools:
         app = FastMCP("test-app")
         register_room_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test check_room_availability parameters
-        availability_tool = tools["check_room_availability"]
+        availability_tool = next(
+            t for t in tools if t.name == "check_room_availability"
+        )
         availability_params = availability_tool.parameters
 
         assert "properties" in availability_params
@@ -190,7 +200,7 @@ class TestRoomTools:
         assert "departure_date" in availability_params["properties"]
 
         # Test get_cleaning_schedule parameters
-        cleaning_tool = tools["get_cleaning_schedule"]
+        cleaning_tool = next(t for t in tools if t.name == "get_cleaning_schedule")
         cleaning_params = cleaning_tool.parameters
 
         assert "properties" in cleaning_params

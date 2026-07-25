@@ -232,8 +232,8 @@ class TestMainIntegration:
         """Test that the server module registers tools."""
         import opera_cloud_mcp.server as server_module
 
-        tools = await server_module.app.get_tools()
-        tool_names = list(tools.keys())
+        tools = await server_module.app.list_tools()
+        tool_names = [t.name for t in tools]
 
         expected_tools = [
             "search_reservations",

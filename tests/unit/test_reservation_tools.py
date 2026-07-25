@@ -111,8 +111,8 @@ class TestReservationTools:
         register_reservation_tools(mock_app)
 
         # Check that tools were registered using the correct FastMCP API
-        tools = await mock_app.get_tools()
-        tool_names = list(tools.keys())
+        tools = await mock_app.list_tools()
+        tool_names = [t.name for t in tools]
 
         expected_tools = [
             "search_reservations",
@@ -157,8 +157,8 @@ class TestReservationTools:
         register_reservation_tools(test_app)
 
         # Get the tool function
-        tools = await test_app.get_tools()
-        search_tool = tools["search_reservations"]
+        tools = await test_app.list_tools()
+        search_tool = next(t for t in tools if t.name == "search_reservations")
 
         # Call the function directly
         result = await search_tool.fn(
@@ -203,8 +203,8 @@ class TestReservationTools:
         test_app = FastMCP("test")
         register_reservation_tools(test_app)
 
-        tools = await test_app.get_tools()
-        get_tool = tools["get_reservation"]
+        tools = await test_app.list_tools()
+        get_tool = next(t for t in tools if t.name == "get_reservation")
 
         result = await get_tool.fn(
             confirmation_number="TEST123",
@@ -245,8 +245,10 @@ class TestReservationTools:
         test_app = FastMCP("test")
         register_reservation_tools(test_app)
 
-        tools = await test_app.get_tools()
-        availability_tool = tools["check_room_availability"]
+        tools = await test_app.list_tools()
+        availability_tool = next(
+            t for t in tools if t.name == "check_room_availability"
+        )
 
         result = await availability_tool.fn(
             arrival_date="2024-12-15",
@@ -287,8 +289,8 @@ class TestReservationTools:
         test_app = FastMCP("test")
         register_reservation_tools(test_app)
 
-        tools = await test_app.get_tools()
-        history_tool = tools["get_reservation_history"]
+        tools = await test_app.list_tools()
+        history_tool = next(t for t in tools if t.name == "get_reservation_history")
 
         result = await history_tool.fn(
             guest_email="test@example.com",
@@ -315,8 +317,8 @@ class TestReservationTools:
         test_app = FastMCP("test")
         register_reservation_tools(test_app)
 
-        tools = await test_app.get_tools()
-        search_tool = tools["search_reservations"]
+        tools = await test_app.list_tools()
+        search_tool = next(t for t in tools if t.name == "search_reservations")
 
         # Test with invalid hotel_id (empty string)
         with pytest.raises(ValidationError, match="hotel_id cannot be empty string"):
@@ -351,8 +353,8 @@ class TestReservationTools:
         test_app = FastMCP("test")
         register_reservation_tools(test_app)
 
-        tools = await test_app.get_tools()
-        search_tool = tools["search_reservations"]
+        tools = await test_app.list_tools()
+        search_tool = next(t for t in tools if t.name == "search_reservations")
 
         result = await search_tool.fn(hotel_id="INVALID_HOTEL")
 

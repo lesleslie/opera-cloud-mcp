@@ -18,8 +18,8 @@ class TestReservationToolsSimple:
         register_reservation_tools(app)
 
         # Check that tools were registered using the correct FastMCP API
-        tools = await app.get_tools()
-        tool_names = list(tools.keys())
+        tools = await app.list_tools()
+        tool_names = [t.name for t in tools]
 
         expected_tools = [
             "search_reservations",
@@ -49,7 +49,7 @@ class TestReservationToolsSimple:
         app = FastMCP("test-app")
         register_reservation_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test that each tool has the expected attributes
         for tool_name in [
@@ -57,7 +57,7 @@ class TestReservationToolsSimple:
             "get_reservation",
             "check_room_availability",
         ]:
-            tool = tools[tool_name]
+            tool = next(t for t in tools if t.name == tool_name)
             assert tool.fn is not None, f"Tool {tool_name} should have a function"
             assert callable(tool.fn), f"Tool {tool_name} function should be callable"
             assert hasattr(tool, "parameters"), (
@@ -72,10 +72,10 @@ class TestReservationToolsSimple:
         app = FastMCP("test-app")
         register_reservation_tools(app)
 
-        tools = await app.get_tools()
+        tools = await app.list_tools()
 
         # Test search_reservations parameters
-        search_tool = tools["search_reservations"]
+        search_tool = next(t for t in tools if t.name == "search_reservations")
         search_params = search_tool.parameters
 
         assert "properties" in search_params
@@ -86,7 +86,7 @@ class TestReservationToolsSimple:
         assert "limit" in search_params["properties"]
 
         # Test get_reservation parameters
-        get_tool = tools["get_reservation"]
+        get_tool = next(t for t in tools if t.name == "get_reservation")
         get_params = get_tool.parameters
 
         assert "properties" in get_params

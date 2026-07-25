@@ -36,8 +36,8 @@ class TestFinancialTools:
         """Test that financial tools are registered correctly."""
 
         # Check that tools were registered using the correct FastMCP API
-        tools = await financial_app.get_tools()
-        tool_names = list(tools.keys())
+        tools = await financial_app.list_tools()
+        tool_names = [t.name for t in tools]
 
         expected_tools = [
             "get_guest_folio",
@@ -64,11 +64,11 @@ class TestFinancialTools:
     async def test_financial_tool_functions_exist(self, financial_app):
         """Test that financial tool functions can be accessed."""
 
-        tools = await financial_app.get_tools()
+        tools = await financial_app.list_tools()
 
         # Test that each tool has the expected attributes
         for tool_name in ["get_guest_folio", "post_charge_to_room", "process_payment"]:
-            tool = tools[tool_name]
+            tool = next(t for t in tools if t.name == tool_name)
             assert tool.fn is not None, f"Tool {tool_name} should have a function"
             assert callable(tool.fn), f"Tool {tool_name} function should be callable"
             assert hasattr(tool, "parameters"), (
@@ -81,12 +81,12 @@ class TestFinancialTools:
     async def test_financial_tools_parameters(self, financial_app):
         """Test financial tools have proper parameter structures."""
 
-        tools = await financial_app.get_tools()
+        tools = await financial_app.list_tools()
 
         # Test key financial tools have hotel_id parameter
         key_tools = ["get_guest_folio", "post_charge_to_room", "process_payment"]
         for tool_name in key_tools:
-            tool = tools[tool_name]
+            tool = next(t for t in tools if t.name == tool_name)
             assert "properties" in tool.parameters
             assert "hotel_id" in tool.parameters["properties"], (
                 f"Tool {tool_name} should have hotel_id parameter"
