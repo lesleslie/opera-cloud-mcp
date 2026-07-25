@@ -4,7 +4,7 @@ Simplified unit tests for reservation MCP tools.
 Tests the FastMCP tool registration without complex mocking.
 """
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.reservation_tools import register_reservation_tools
 

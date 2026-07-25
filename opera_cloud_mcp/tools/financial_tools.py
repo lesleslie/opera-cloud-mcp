@@ -8,7 +8,7 @@ and financial transactions through the OPERA Cloud Cashiering API.
 from decimal import Decimal
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import (
     create_cashier_client,

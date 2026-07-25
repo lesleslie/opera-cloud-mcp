@@ -4,7 +4,7 @@ Unit tests for guest MCP tools.
 Tests the FastMCP tool registration for guest profile management functionality.
 """
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.guest_tools import register_guest_tools
 

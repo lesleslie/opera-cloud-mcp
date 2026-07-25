@@ -5,7 +5,7 @@ import tempfile
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp import main
 from opera_cloud_mcp.config.settings import Settings

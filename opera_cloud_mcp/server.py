@@ -11,7 +11,7 @@ import importlib.util
 import logging
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.financial_tools import register_financial_tools
 from opera_cloud_mcp.tools.guest_tools import register_guest_tools
@@ -55,7 +55,7 @@ async def healthz_check(request: Any) -> Any:
 
 # Add rate limiting middleware (Phase 3 Security Hardening)
 if RATE_LIMITING_AVAILABLE:
-    from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
+    from mcp_common.fastmcp import RateLimitingMiddleware
 
     rate_limiter = RateLimitingMiddleware(
         max_requests_per_second=10.0,  # Sustainable rate for hospitality API

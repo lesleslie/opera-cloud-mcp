@@ -7,7 +7,7 @@ Tests the FastMCP tool decorators and integration with ReservationsClient.
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.clients.base_client import APIResponse
 from opera_cloud_mcp.tools.reservation_tools import register_reservation_tools

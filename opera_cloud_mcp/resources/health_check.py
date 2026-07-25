@@ -9,7 +9,7 @@ import asyncio
 import logging
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.main import app, get_settings, oauth_handler
 

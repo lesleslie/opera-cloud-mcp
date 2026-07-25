@@ -8,7 +8,7 @@ import gc
 
 import pytest
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.financial_tools import register_financial_tools
 

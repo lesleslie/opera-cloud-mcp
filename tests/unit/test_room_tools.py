@@ -4,7 +4,7 @@ Unit tests for room MCP tools.
 Tests the FastMCP tool registration for room and inventory management functionality.
 """
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.room_tools import register_room_tools
 

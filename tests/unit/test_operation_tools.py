@@ -4,7 +4,7 @@ Unit tests for operation MCP tools.
 Tests the FastMCP tool registration for front office operations.
 """
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.tools.operation_tools import register_operation_tools
 

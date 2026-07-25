@@ -9,7 +9,7 @@ and tool registration.
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 # Test constants to avoid hardcoded password warnings
 TEST_CLIENT_SECRET = "placeholder_secret_value_for_testing_only"

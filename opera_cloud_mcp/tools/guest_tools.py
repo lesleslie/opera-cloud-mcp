@@ -7,7 +7,7 @@ customer relationship management through the OPERA Cloud CRM API.
 
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import create_crm_client
 from opera_cloud_mcp.utils.exceptions import ValidationError

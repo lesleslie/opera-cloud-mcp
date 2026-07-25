@@ -8,7 +8,7 @@ and inventory operations through the OPERA Cloud Inventory and Housekeeping APIs
 from datetime import date
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import (
     create_housekeeping_client,

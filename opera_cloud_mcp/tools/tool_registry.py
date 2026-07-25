@@ -16,8 +16,8 @@ from enum import Enum
 from functools import wraps
 from typing import Any
 
-from fastmcp import FastMCP
-from fastmcp.tools.tool import Tool
+from mcp_common.fastmcp import FastMCP
+from fastmcp.tools.tool import Tool  # not in mcp_common.fastmcp shim
 
 from opera_cloud_mcp.utils.exceptions import RateLimitError
 

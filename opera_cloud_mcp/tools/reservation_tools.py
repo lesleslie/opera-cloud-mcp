@@ -9,7 +9,7 @@ import inspect
 from datetime import date, datetime
 from typing import Any, cast
 
-from fastmcp import FastMCP
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import create_reservations_client
 from opera_cloud_mcp.utils.exceptions import ValidationError

@@ -189,7 +189,7 @@ class TestHealthCheckModule:
     @patch('opera_cloud_mcp.resources.health_check.logger')
     def test_register_health_resources(self, mock_logger):
         """Test register_health_resources logs registration."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test", version="1.0.0")
 

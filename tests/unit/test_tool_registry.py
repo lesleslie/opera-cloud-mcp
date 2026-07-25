@@ -68,7 +68,7 @@ class TestToolRegistry:
 
     def test_tool_registry_initialization(self):
         """Test ToolRegistry initialization."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -84,7 +84,7 @@ class TestToolRegistry:
 
     def test_register_tool_success(self):
         """Test successful tool registration."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -114,7 +114,7 @@ class TestToolRegistry:
 
     def test_validate_tool_function_async_required(self):
         """Test validation when async function is required but not provided."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -135,7 +135,7 @@ class TestToolRegistry:
 
     def test_validate_tool_function_missing_hotel_id(self):
         """Test validation when hotel-specific tool is missing hotel_id parameter."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -158,7 +158,7 @@ class TestToolRegistry:
 
     def test_create_tool_wrapper_async(self):
         """Test creating async tool wrapper."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -181,7 +181,7 @@ class TestToolRegistry:
 
     def test_create_tool_wrapper_sync(self):
         """Test creating sync tool wrapper."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -205,7 +205,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_execute_with_monitoring_success(self, mock_get_loop):
         """Test _execute_with_monitoring for successful execution."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -241,7 +241,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_execute_with_monitoring_error(self, mock_get_loop):
         """Test _execute_with_monitoring for error execution."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -276,7 +276,7 @@ class TestToolRegistry:
 
     def test_check_rate_limit(self):
         """Test rate limiting functionality."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -294,7 +294,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_get_tools_by_category(self, mock_get_loop):
         """Test getting tools by category."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -326,7 +326,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_get_tool_dependencies(self, mock_get_loop):
         """Test getting tool dependencies."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -358,7 +358,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_get_tool_metrics_single_tool(self, mock_get_loop):
         """Test getting metrics for a single tool."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -398,7 +398,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_get_tool_metrics_all_tools(self, mock_get_loop):
         """Test getting metrics for all tools."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -434,7 +434,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_get_health_status(self, mock_get_loop):
         """Test getting health status."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -459,7 +459,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_list_tools(self, mock_get_loop):
         """Test listing tools with filtering."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -492,7 +492,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_list_tools_with_filtering(self, mock_get_loop):
         """Test listing tools with category filtering."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -535,7 +535,7 @@ class TestToolRegistry:
     @patch('asyncio.get_event_loop')
     def test_cleanup_history(self, mock_get_loop):
         """Test cleaning up old history entries."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
         registry = ToolRegistry(app, hotel_id="HOTEL123")
@@ -575,7 +575,7 @@ class TestGlobalRegistry:
 
     def test_initialize_tool_registry(self):
         """Test initializing the global tool registry."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
 
@@ -590,7 +590,7 @@ class TestGlobalRegistry:
 
     def test_initialize_tool_registry_warning(self):
         """Test initializing registry when already initialized."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         app = FastMCP(name="test_app", version="1.0.0")
 
@@ -615,7 +615,7 @@ class TestRegisterOperaToolDecorator:
     @patch('asyncio.get_event_loop')
     def test_register_opera_tool_decorator(self, mock_get_loop):
         """Test the register_opera_tool decorator."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
@@ -649,7 +649,7 @@ class TestRegisterOperaToolDecorator:
     @patch('asyncio.get_event_loop')
     def test_register_opera_tool_decorator_with_defaults(self, mock_get_loop):
         """Test the register_opera_tool decorator with default values."""
-        from fastmcp import FastMCP
+        from mcp_common.fastmcp import FastMCP
 
         # Mock the event loop
         mock_loop = Mock()
