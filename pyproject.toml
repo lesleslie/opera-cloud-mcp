@@ -19,6 +19,9 @@ dependencies = [
     "mcp-common>=0.17.0",
 ]
 
+[tool.uv.sources]
+mcp-common = { path = "../mcp-common", editable = true }
+
 [project.scripts]
 opera-cloud-mcp = "opera_cloud_mcp.cli:main"
 

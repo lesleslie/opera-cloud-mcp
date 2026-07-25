@@ -12,6 +12,7 @@ import logging
 from typing import Any
 
 from mcp_common.fastmcp import FastMCP
+from mcp_common.health import register_http_health_route
 
 from opera_cloud_mcp.tools.financial_tools import register_financial_tools
 from opera_cloud_mcp.tools.guest_tools import register_guest_tools
@@ -37,12 +38,11 @@ app = FastMCP("opera-cloud-mcp")
 
 
 # HTTP health endpoint for Claude Code compatibility
-@app.custom_route("/health", methods=["GET"])
-async def health_check(request: Any) -> Any:
-    """HTTP health check endpoint for Claude Code `mcp list` compatibility."""
-    from starlette.responses import JSONResponse
-
-    return JSONResponse({"status": "ok", "service": "opera-cloud", "version": "0.1.0"})
+register_http_health_route(
+    app,
+    service_name="opera-cloud",
+    version="0.1.0",
+)
 
 
 @app.custom_route("/healthz", methods=["GET"])
