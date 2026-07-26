@@ -21,7 +21,7 @@ try:
     SECURITY_AVAILABLE = True
 except ImportError:
     SECURITY_AVAILABLE = False
-    APIKeyFormatError = ValueError  # type: ignore  Fallback for type checking
+    APIKeyFormatError = ValueError  # ty: ignore[invalid-assignment]  Fallback when mcp_common.security is unavailable
 
 
 class Settings(BaseSettings):

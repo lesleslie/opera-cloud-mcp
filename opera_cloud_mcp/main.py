@@ -568,8 +568,8 @@ async def main() -> None:
         # Display startup message
         _display_startup_message()
 
-        # Run the FastMCP server
-        await app.run()  # type: ignore
+        # Run the FastMCP server (synchronous; blocks until shutdown)
+        app.run()
 
     except KeyboardInterrupt:
         logger.info("Server shutdown requested")

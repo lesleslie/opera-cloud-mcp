@@ -4,7 +4,7 @@
 from mcp_common.cli import MCPServerCLIFactory
 from mcp_common.server import BaseOneiricServerMixin, create_runtime_components
 from oneiric.core.config import OneiricMCPConfig
-from oneiric.runtime.mcp_health import HealthStatus
+from oneiric.runtime.mcp_health import HealthCheckResponse, HealthStatus
 
 # Import the main server from the existing codebase
 from opera_cloud_mcp.main import app, get_settings, initialize_server
@@ -73,7 +73,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
 
         return time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    async def health_check(self) -> dict[str, object]:
+    async def health_check(self) -> HealthCheckResponse:
         """Perform health check."""
         # Build base health components using mixin helper
         base_components = await self._build_health_components()
@@ -101,9 +101,8 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
             )
         )
 
-        # Create health response
-        # no-any-return: Parent class method returns Any but is actually proper dict
-        return self.runtime.health_monitor.create_health_response(base_components)  # type: ignore[no-any-return]
+        # Create health response (HealthCheckResponse dataclass with status, components, etc.)
+        return self.runtime.health_monitor.create_health_response(base_components)
 
     def get_app(self) -> object:
         """Get the ASGI application."""

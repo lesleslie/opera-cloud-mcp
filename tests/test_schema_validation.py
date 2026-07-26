@@ -106,7 +106,7 @@ class TestOperaBaseModel:
         # Create instance with extra field
         model = TestModel(name="test", extra_field="extra_value")
         assert model.name == "test"
-        assert model.extra_field == "extra_value"  # type: ignore[attr-defined]
+        assert model.extra_field == "extra_value"  # ty: ignore[unresolved-attribute]
 
     def test_extra_fields_stored_in_model(self):
         """Verify extra fields are accessible via __pydantic_extra__."""

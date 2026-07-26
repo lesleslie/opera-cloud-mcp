@@ -235,7 +235,7 @@ class StructuredLogger:
                         return mask_string(obj)
                     return obj
 
-                return mask_recursive(data)  # type: ignore
+                return mask_recursive(data)
 
         return StructuredFormatter(self.hotel_id, enable_masking, self._pii_patterns)
 

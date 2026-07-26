@@ -416,7 +416,7 @@ class DataTransformer:
                 return [_mask_recursive(item) for item in obj]
             return obj
 
-        return _mask_recursive(data)  # type: ignore
+        return _mask_recursive(data)
 
 
 class RequestHandler:

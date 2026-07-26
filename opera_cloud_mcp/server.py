@@ -6,7 +6,6 @@ FastMCP-based Model Context Protocol server for Oracle OPERA Cloud API integrati
 Provides AI agents with comprehensive access to hospitality management functions.
 """
 
-import asyncio
 import importlib.util
 import logging
 from typing import Any
@@ -78,7 +77,7 @@ http_app = app.http_app
 
 def main() -> None:
     """Main entry point for running the server."""
-    asyncio.run(app.run())  # type: ignore
+    app.run()
 
 
 if __name__ == "__main__":
