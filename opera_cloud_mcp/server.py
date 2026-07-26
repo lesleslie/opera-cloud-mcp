@@ -14,6 +14,7 @@ from typing import Any
 from mcp_common.fastmcp import FastMCP
 from mcp_common.health import register_http_health_route
 
+from opera_cloud_mcp import __version__
 from opera_cloud_mcp.tools.financial_tools import register_financial_tools
 from opera_cloud_mcp.tools.guest_tools import register_guest_tools
 from opera_cloud_mcp.tools.operation_tools import register_operation_tools
@@ -38,8 +39,6 @@ app = FastMCP("opera-cloud-mcp")
 
 
 # HTTP health endpoint for Claude Code compatibility
-from opera_cloud_mcp import __version__
-
 register_http_health_route(
     app,
     service_name="opera-cloud",
