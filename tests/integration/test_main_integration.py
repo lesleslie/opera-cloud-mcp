@@ -153,9 +153,9 @@ class TestMainIntegration:
         }
 
         with patch("opera_cloud_mcp.main.auth_handler", healthy_auth):
-            from opera_cloud_mcp.main import health_check
+            from opera_cloud_mcp.main import health_check_cli
 
-            result = health_check()
+            result = health_check_cli()
 
             assert result["status"] == "healthy"
             assert result["checks"]["mcp_server"]
@@ -174,9 +174,9 @@ class TestMainIntegration:
         failing_auth.get_token_info.side_effect = Exception("Auth failed")
 
         with patch("opera_cloud_mcp.main.auth_handler", failing_auth):
-            from opera_cloud_mcp.main import health_check
+            from opera_cloud_mcp.main import health_check_cli
 
-            result = health_check()
+            result = health_check_cli()
 
             assert result["status"] == "unhealthy"
             assert result["checks"]["mcp_server"]
@@ -197,9 +197,9 @@ class TestMainIntegration:
             patch("opera_cloud_mcp.main.auth_handler", None),
             patch("opera_cloud_mcp.main.oauth_handler", None),
         ):
-            from opera_cloud_mcp.main import health_check
+            from opera_cloud_mcp.main import health_check_cli
 
-            result = health_check()
+            result = health_check_cli()
 
             assert result["status"] == "unhealthy"
             assert result["checks"]["mcp_server"]

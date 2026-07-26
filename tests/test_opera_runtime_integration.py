@@ -38,7 +38,7 @@ def test_opera_cloud_config():
     config = OperaCloudConfig()
 
     # Verify default values
-    assert config.http_port == 3040
+    assert config.http_port == 3037
     assert config.http_host == "127.0.0.1"
     assert config.enable_http_transport is True
     assert config.cache_dir is None or config.cache_dir == ".oneiric_cache"

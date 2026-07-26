@@ -792,11 +792,14 @@ class TestCRMClient:
         self, mock_auth_handler: Mock, mock_settings: Settings
     ):
         """Test CRM client as async context manager."""
-        async with CRMClient(
-            auth_handler=mock_auth_handler,
-            hotel_id="TEST_HOTEL",
-            settings=mock_settings,
-        ) as client:
-            assert client is not None
-            health_status = client.get_health_status()
-            assert health_status["hotel_id"] == "TEST_HOTEL"
+        with patch("httpx.AsyncClient") as mock_client_class:
+            mock_client = AsyncMock()
+            mock_client_class.return_value = mock_client
+            async with CRMClient(
+                auth_handler=mock_auth_handler,
+                hotel_id="TEST_HOTEL",
+                settings=mock_settings,
+            ) as client:
+                assert client is not None
+                health_status = client.get_health_status()
+                assert health_status["hotel_id"] == "TEST_HOTEL"

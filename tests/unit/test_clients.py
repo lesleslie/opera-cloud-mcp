@@ -245,9 +245,12 @@ class TestBaseAPIClient:
         self, mock_auth_handler: Mock, mock_settings: Settings
     ):
         """Test async context manager usage."""
-        async with BaseAPIClient(
-            mock_auth_handler, "TEST_HOTEL", mock_settings
-        ) as client:
-            assert client._session is not None
+        with patch("httpx.AsyncClient") as mock_client_class:
+            mock_client = AsyncMock()
+            mock_client_class.return_value = mock_client
+            async with BaseAPIClient(
+                mock_auth_handler, "TEST_HOTEL", mock_settings
+            ) as client:
+                assert client._session is not None
 
         # Session should be closed after exiting context

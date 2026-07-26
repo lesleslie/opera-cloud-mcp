@@ -72,7 +72,7 @@ class TestMainModule:
         mock_loop.time.return_value = 12345.0
         mock_get_loop.return_value = mock_loop
 
-        result = main.health_check()
+        result = main.health_check_cli()
 
         assert isinstance(result, dict)
         assert "status" in result
