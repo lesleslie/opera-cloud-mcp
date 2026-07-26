@@ -38,10 +38,12 @@ app = FastMCP("opera-cloud-mcp")
 
 
 # HTTP health endpoint for Claude Code compatibility
+from opera_cloud_mcp import __version__
+
 register_http_health_route(
     app,
     service_name="opera-cloud",
-    version="0.1.0",
+    version=__version__,
 )
 
 
