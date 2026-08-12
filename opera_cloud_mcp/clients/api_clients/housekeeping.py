@@ -9,7 +9,7 @@ import asyncio
 from datetime import date, datetime, time
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -54,8 +54,9 @@ class RoomStatusUpdate(OperaBaseModel):
     updated_by: str = Field(alias="updatedBy")
     updated_at: datetime = Field(default_factory=datetime.now, alias="updatedAt")
 
-    @validator("housekeeping_status")
-    def validate_housekeeping_status(self, v):
+    @field_validator("housekeeping_status")
+    @classmethod
+    def validate_housekeeping_status(cls, v):
         allowed = ["clean", "dirty", "out_of_order", "maintenance", "inspected"]
         if v not in allowed:
             raise ValueError(f"Invalid housekeeping status. Must be one of: {allowed}")
@@ -75,8 +76,9 @@ class MaintenanceRequest(OperaBaseModel):
     estimated_completion: datetime | None = Field(None, alias="estimatedCompletion")
     parts_needed: list[str] | None = Field(None, alias="partsNeeded")
 
-    @validator("category")
-    def validate_category(self, v):
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v):
         allowed = [
             "electrical",
             "plumbing",
@@ -104,8 +106,9 @@ class CleaningSchedule(OperaBaseModel):
     )  # VIP, maintenance, etc.
     estimated_completion: time = Field(alias="estimatedCompletion")
 
-    @validator("shift")
-    def validate_shift(self, v):
+    @field_validator("shift")
+    @classmethod
+    def validate_shift(cls, v):
         allowed = ["morning", "afternoon", "night"]
         if v not in allowed:
             raise ValueError(f"Invalid shift. Must be one of: {allowed}")

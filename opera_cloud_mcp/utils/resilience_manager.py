@@ -708,8 +708,8 @@ class ResilienceManager:
 
     def get_overall_health(self) -> dict[str, Any]:
         """Get overall resilience health status."""
-        circuit_health = []
-        bulkhead_health = []
+        circuit_health: list[dict[str, Any]] = []
+        bulkhead_health: list[dict[str, Any]] = []
 
         # Collect circuit breaker health
         for name, cb in self.circuit_breakers.items():

@@ -10,7 +10,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -38,8 +38,9 @@ class RoomBlock(OperaBaseModel):
     created_by: str = Field(alias="createdBy")
     created_at: datetime = Field(alias="createdAt")
 
-    @validator("status")
-    def validate_status(self, v):
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v):
         allowed = ["tentative", "definite", "cancelled", "picked_up", "active"]
         if v not in allowed:
             raise ValueError(f"Invalid block status. Must be one of: {allowed}")

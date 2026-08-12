@@ -16,7 +16,7 @@ from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -180,7 +180,7 @@ class StructuredLogger:
 
                 # Add extra fields
                 if hasattr(record, "extra") and record.extra:
-                    log_entry.update(record.extra)
+                    log_entry.update(cast("dict[str, object]", record.extra))
 
                 # Add exception info
                 if record.exc_info:

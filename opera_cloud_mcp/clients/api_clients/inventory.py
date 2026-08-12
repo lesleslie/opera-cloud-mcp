@@ -8,7 +8,7 @@ through the OPERA Cloud INV API.
 from datetime import date, datetime
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -26,9 +26,10 @@ class AvailabilityRequest(OperaBaseModel):
     corporate_id: str | None = Field(None, alias="corporateId")
     promo_code: str | None = Field(None, alias="promoCode")
 
-    @validator("departure_date")
-    def validate_departure_after_arrival(self, v, values):
-        if "arrival_date" in values and v <= values["arrival_date"]:
+    @field_validator("departure_date")
+    @classmethod
+    def validate_departure_after_arrival(cls, v, info):
+        if "arrival_date" in info.data and v <= info.data["arrival_date"]:
             raise ValueError("Departure date must be after arrival date")
         return v
 

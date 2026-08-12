@@ -275,8 +275,11 @@ def _validate_security_settings(
         cast("list[str]", validation_result["warnings"]).extend(security_warnings)
 
         # Check for production readiness
-        if hasattr(security_settings, "validate_production_readiness"):
-            production_errors = security_settings.validate_production_readiness()
+        validate_production_readiness = getattr(
+            security_settings, "validate_production_readiness", None
+        )
+        if validate_production_readiness is not None:
+            production_errors = validate_production_readiness()
             if production_errors:
                 cast("list[str]", validation_result["errors"]).extend(production_errors)
                 validation_result["valid"] = False

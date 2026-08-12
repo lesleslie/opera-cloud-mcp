@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """OPERA Cloud MCP Server - Oneiric CLI Entry Point."""
 
+from typing import Any, cast
+
 from mcp_common.cli import MCPServerCLIFactory
 from mcp_common.server import BaseOneiricServerMixin, create_runtime_components
 from oneiric.core.config import OneiricMCPConfig
@@ -29,7 +31,7 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
         # Store config with proper type - OperaCloudConfig extends OneiricMCPConfig
         # which is compatible with MCPBaseSettings expected by parent class
         self._opera_config: OperaCloudConfig = config
-        self.config = config  # Required by BaseOneiricServerMixin
+        self.config = cast("Any", config)  # Required by BaseOneiricServerMixin
         self.app = app  # Use the existing FastMCP instance
 
         # Initialize runtime components using mcp-common helper

@@ -16,8 +16,8 @@ from enum import Enum
 from functools import wraps
 from typing import Any
 
+from fastmcp.tools import Tool  # not in mcp_common.fastmcp shim
 from mcp_common.fastmcp import FastMCP
-from fastmcp.tools.tool import Tool  # not in mcp_common.fastmcp shim
 
 from opera_cloud_mcp.utils.exceptions import RateLimitError
 
@@ -483,7 +483,7 @@ class ToolRegistry:
         Returns:
             List of tool information
         """
-        filtered_tools = []
+        filtered_tools: list[dict[str, Any]] = []
 
         for registration in self.tools.values():
             metadata = registration.metadata
@@ -614,9 +614,9 @@ def register_opera_tool(
         Decorated function
     """
 
-    def decorator(func: Callable) -> Tool:
+    def decorator(func: Callable[..., Any]) -> Tool:
         # Get function name and create metadata
-        func_name = func.__name__
+        func_name = getattr(func, "__name__", "unknown")
 
         metadata = ToolMetadata(
             name=func_name,

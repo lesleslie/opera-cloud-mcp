@@ -10,7 +10,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -42,8 +42,9 @@ class RateCode(OperaBaseModel):
     market_segment: str | None = Field(None, alias="marketSegment")
     source_code: str | None = Field(None, alias="sourceCode")
 
-    @validator("rate_category")
-    def validate_rate_category(self, v):
+    @field_validator("rate_category")
+    @classmethod
+    def validate_rate_category(cls, v):
         allowed = [
             "corporate",
             "leisure",
@@ -77,8 +78,9 @@ class RatePlan(OperaBaseModel):
     marketing_text: str | None = Field(None, alias="marketingText")
     is_active: bool = Field(True, alias="isActive")
 
-    @validator("plan_type")
-    def validate_plan_type(self, v):
+    @field_validator("plan_type")
+    @classmethod
+    def validate_plan_type(cls, v):
         allowed = ["standard", "package", "promotion", "corporate", "group"]
         if v not in allowed:
             raise ValueError(f"Invalid plan type. Must be one of: {allowed}")
@@ -99,8 +101,9 @@ class RateRestriction(OperaBaseModel):
     stop_sell: bool = Field(False, alias="stopSell")
     master_restriction: bool = Field(False, alias="masterRestriction")
 
-    @validator("minimum_los", "maximum_los")
-    def validate_los(self, v):
+    @field_validator("minimum_los", "maximum_los")
+    @classmethod
+    def validate_los(cls, v):
         if v is not None and v < 1:
             raise ValueError("Length of stay must be at least 1")
         return v
@@ -128,8 +131,9 @@ class YieldConfiguration(OperaBaseModel):
     maximum_rate: Decimal = Field(alias="maximumRate")
     auto_yield_enabled: bool = Field(True, alias="autoYieldEnabled")
 
-    @validator("occupancy_thresholds")
-    def validate_occupancy_thresholds(self, v):
+    @field_validator("occupancy_thresholds")
+    @classmethod
+    def validate_occupancy_thresholds(cls, v):
         for threshold in v:
             if not (0 <= int(threshold) <= 100):
                 raise ValueError("Occupancy thresholds must be between 0 and 100")
@@ -157,8 +161,9 @@ class PromotionalRate(OperaBaseModel):
     combinable: bool = Field(False)  # Can be combined with other promos
     qualification_criteria: str | None = Field(None, alias="qualificationCriteria")
 
-    @validator("discount_type")
-    def validate_discount_type(self, v):
+    @field_validator("discount_type")
+    @classmethod
+    def validate_discount_type(cls, v):
         allowed = ["percentage", "amount", "fixed_rate"]
         if v not in allowed:
             raise ValueError(f"Invalid discount type. Must be one of: {allowed}")

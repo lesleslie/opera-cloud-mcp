@@ -29,6 +29,10 @@ class APIClientProtocol(Protocol):
         **kwargs: Any,
     ) -> None: ...
 
+    async def health_check(self) -> dict[str, Any]: ...
+
+    async def close(self) -> None: ...
+
 
 class ClientFactory:
     """

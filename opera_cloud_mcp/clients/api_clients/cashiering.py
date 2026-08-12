@@ -10,7 +10,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
@@ -60,9 +60,10 @@ class PaymentRequest(OperaBaseModel):
     reference_number: str | None = Field(None, alias="referenceNumber")
     comments: str | None = None
 
-    @validator("card_number")
-    def validate_card_number(self, v, values):
-        if values.get("payment_method") in ("CREDIT", "DEBIT") and not v:
+    @field_validator("card_number")
+    @classmethod
+    def validate_card_number(cls, v, info):
+        if info.data.get("payment_method") in ("CREDIT", "DEBIT") and not v:
             raise ValueError("Card number required for credit/debit payments")
         return v
 

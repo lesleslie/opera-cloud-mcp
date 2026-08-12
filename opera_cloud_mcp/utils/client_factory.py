@@ -137,7 +137,7 @@ def create_cashier_client(hotel_id: str | None = None):
     Returns:
         CashierClient instance
     """
-    from opera_cloud_mcp.clients.api_clients.cashier import CashierClient
+    from opera_cloud_mcp.clients.api_clients.cashiering import CashieringClient
 
     settings = get_settings()
     auth_handler = get_oauth_handler()
@@ -145,7 +145,7 @@ def create_cashier_client(hotel_id: str | None = None):
     if hotel_id is None:
         hotel_id = settings.default_hotel_id
 
-    return CashierClient(
+    return CashieringClient(
         auth_handler=auth_handler, hotel_id=hotel_id, settings=settings
     )
 
