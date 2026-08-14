@@ -13,7 +13,7 @@
 - `uv sync` installs production + dev dependencies pinned by `uv.lock`.
 - `uv run python -m opera_cloud_mcp` starts the local MCP server.
 - `uv run pytest` runs the default test suite.
-- `uv run pytest --cov=opera_cloud_mcp --cov-report=html` enforces 80% coverage and emits `htmlcov/`.
+- `uv run pytest --cov=opera_cloud_mcp --cov-report=html` enforces the current `--cov-fail-under` threshold (set in `pyproject.toml` `[tool.pytest.ini_options].addopts`) and emits `htmlcov/`.
 - `uv run crackerjack` executes the full quality gate (ruff, mypy, bandit, pytest).
 - `docker build -t opera-cloud-mcp .` produces the hardened container image.
 
@@ -28,7 +28,7 @@
 
 - Tests live under `tests/` and follow `test_<module>.py` filenames with `Test*` classes and `test_*` functions.
 - Use `pytest.mark.asyncio` for coroutine scenarios.
-- Keep coverage ≥80%; add regression tests alongside new tools (e.g., `tests/test_reservations.py::TestReservationFlows::test_create_reservation`).
+- Keep coverage at or above the threshold configured in `pyproject.toml` (`--cov-fail-under` under `[tool.pytest.ini_options].addopts`); add regression tests alongside new tools (e.g., `tests/test_reservations.py::TestReservationFlows::test_create_reservation`).
 - Run `uv run pytest -k your_feature` before pushing incremental updates.
 
 ## Commit & Pull Request Guidelines

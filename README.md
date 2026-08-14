@@ -13,7 +13,7 @@ Unofficial Model Context Protocol (MCP) server for Oracle OPERA Cloud API integr
 - **Complete OPERA Cloud Integration**: Access to reservations, guests, rooms, operations, and financial data
 - **FastMCP Framework**: Built on FastMCP for high-performance MCP protocol support
 - **Production Ready**: Security, monitoring, rate limiting, and Docker deployment
-- **45+ Tools**: Comprehensive API coverage across 5 core domains
+- **56 Tools**: Comprehensive API coverage across 5 core domains (plus 3 server/auth tools)
 - **Enterprise Security**: OAuth2 authentication, token refresh, and audit logging
 
 ## Quick Start
@@ -37,12 +37,15 @@ cp .env.example .env
 Edit `.env` with your OPERA Cloud credentials:
 
 ```env
-OPERA_CLOUD_BASE_URL=https://your-opera-instance.com/api/v1
-OPERA_CLOUD_CLIENT_ID=your_client_id
-OPERA_CLOUD_CLIENT_SECRET=your_client_secret
-OPERA_CLOUD_USERNAME=your_username
-OPERA_CLOUD_PASSWORD=your_password
+OPERA_BASE_URL=https://api.oracle-hospitality.com
+OPERA_TOKEN_URL=https://api.oracle-hospitality.com/oauth/v1/tokens
+OPERA_API_VERSION=v1
+OPERA_CLIENT_ID=your_client_id
+OPERA_CLIENT_SECRET=your_client_secret
+OPERA_ENVIRONMENT=production
 ```
+
+Authentication uses OAuth2 client credentials only — there are no `OPERA_CLOUD_USERNAME` / `OPERA_CLOUD_PASSWORD` variables. See `.env.example` for the full list including optional `OPERA_SECURITY_*` knobs.
 
 ### Running the Server
 
@@ -68,11 +71,12 @@ Add to your `claude_desktop_config.json`:
       "args": ["-m", "opera_cloud_mcp"],
       "cwd": "/path/to/opera-cloud-mcp",
       "env": {
-        "OPERA_CLOUD_BASE_URL": "https://your-opera-instance.com/api/v1",
-        "OPERA_CLOUD_CLIENT_ID": "your_client_id",
-        "OPERA_CLOUD_CLIENT_SECRET": "your_client_secret",
-        "OPERA_CLOUD_USERNAME": "your_username",
-        "OPERA_CLOUD_PASSWORD": "your_password"
+        "OPERA_BASE_URL": "https://api.oracle-hospitality.com",
+        "OPERA_TOKEN_URL": "https://api.oracle-hospitality.com/oauth/v1/tokens",
+        "OPERA_API_VERSION": "v1",
+        "OPERA_CLIENT_ID": "your_client_id",
+        "OPERA_CLIENT_SECRET": "your_client_secret",
+        "OPERA_ENVIRONMENT": "production"
       }
     }
   }
@@ -85,42 +89,51 @@ See `example.mcp.json` and `example.mcp.dev.json` for configuration templates.
 
 ## Available Tools
 
-The server provides 45+ tools across 5 domains:
+The server provides 56 tools across 5 domains (plus 3 server/auth tools in `main.py`):
 
-### Reservation Management (15 tools)
+### Reservation Management (10 tools)
 
-- Search reservations by date, guest, or status
-- Create, modify, and cancel reservations
-- Handle check-in/check-out operations
-- Manage group bookings and waitlists
+- `search_reservations`, `get_reservation`, `create_reservation`, `modify_reservation`, `cancel_reservation`
+- `check_room_availability`, `get_reservation_history`
+- `bulk_create_reservations`, `get_bulk_operation_status`
+- `get_reservation_client_metrics`
 
-### Guest Management (12 tools)
+### Guest Management (9 tools)
 
-- Guest profile creation and updates
-- Loyalty program management
-- Communication preferences
-- Guest history and analytics
+- `search_guests`, `get_guest_profile`, `create_guest_profile`, `update_guest_profile`
+- `get_guest_preferences`, `update_guest_preferences`
+- `get_guest_stay_history`
+- `merge_guest_profiles`
+- `get_guest_loyalty_info`
 
-### Room Management (8 tools)
+### Room Management (13 tools)
 
-- Room availability and inventory
-- Housekeeping status updates
-- Room assignments and moves
-- Maintenance coordination
+- `get_room_status`, `update_room_status`, `check_room_availability`
+- `get_housekeeping_tasks`, `create_housekeeping_task`, `complete_housekeeping_task`
+- `get_inventory_levels`, `update_inventory`, `get_inventory_status`, `update_inventory_stock`
+- `get_room_inspection`, `create_maintenance_request`
+- `get_cleaning_schedule`
 
-### Operations Management (6 tools)
+### Operations Management (12 tools)
 
-- Daily operations reporting
-- Occupancy forecasting
-- Revenue management
-- Event coordination
+- `check_in_guest`, `check_out_guest`, `process_walk_in`
+- `get_arrivals_report`, `get_departures_report`, `get_occupancy_report`, `get_no_show_report`, `get_front_desk_summary`
+- `assign_room`, `get_in_house_guests`
+- `create_activity_booking`, `create_dining_reservation`
 
-### Financial Management (4 tools)
+### Financial Management (9 tools)
 
-- Billing and invoicing
-- Payment processing
-- Revenue reporting
-- Financial analytics
+- `get_guest_folio`, `post_charge_to_room`
+- `process_payment`, `process_refund`
+- `generate_folio_report`, `get_daily_revenue_report`, `get_outstanding_balances`
+- `transfer_charges`, `void_transaction`
+
+### Server / Auth (3 tools, in `main.py`)
+
+- `get_auth_status`, `validate_auth_credentials`
+- `get_server_info`
+
+For full input/output schemas see [`AGENTS.md`](AGENTS.md) or query the live server with `opera-cloud-mcp mcp list-tools`.
 
 ## Development
 
@@ -144,6 +157,9 @@ uv run pytest
 
 # With coverage
 uv run pytest --cov=opera_cloud_mcp --cov-report=html
+
+# The `--cov-fail-under` threshold (currently 39%) is set in `pyproject.toml` under
+# `[tool.pytest.ini_options].addopts`. Raise it as you add tests.
 ```
 
 ## Production Deployment
@@ -157,7 +173,7 @@ docker build -t opera-cloud-mcp .
 # Run container
 docker run -d \
   --name opera-cloud-mcp \
-  -p 8000:8000 \
+  -p 3037:3037 \
   --env-file .env \
   opera-cloud-mcp
 ```
@@ -179,16 +195,31 @@ Includes:
 
 ### Environment Variables
 
+All variables use the `OPERA_` env_prefix defined in `opera_cloud_mcp/config/settings.py`.
+See `.env.example` for the authoritative list. The most-used ones:
+
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `OPERA_CLOUD_BASE_URL` | OPERA Cloud API base URL | Yes |
-| `OPERA_CLOUD_CLIENT_ID` | OAuth2 client ID | Yes |
-| `OPERA_CLOUD_CLIENT_SECRET` | OAuth2 client secret | Yes |
-| `OPERA_CLOUD_USERNAME` | OPERA Cloud username | Yes |
-| `OPERA_CLOUD_PASSWORD` | OPERA Cloud password | Yes |
-| `OPERA_CLOUD_TIMEOUT` | Request timeout (seconds) | No (default: 30) |
-| `OPERA_CLOUD_MAX_CONNECTIONS` | Max HTTP connections | No (default: 50) |
-| `OPERA_CLOUD_RATE_LIMIT` | Rate limit (requests/second) | No (default: 10) |
+| `OPERA_BASE_URL` | OPERA Cloud API base URL | Yes |
+| `OPERA_TOKEN_URL` | OAuth2 token endpoint URL | Yes |
+| `OPERA_API_VERSION` | OPERA Cloud API version (e.g. `v1`) | Yes |
+| `OPERA_CLIENT_ID` | OAuth2 client ID | Yes |
+| `OPERA_CLIENT_SECRET` | OAuth2 client secret | Yes |
+| `OPERA_ENVIRONMENT` | `production`, `staging`, or `development` | Yes |
+| `OPERA_DEFAULT_HOTEL_ID` | Default hotel identifier when none is supplied | No |
+| `OPERA_REQUEST_TIMEOUT` | HTTP request timeout (seconds) | No (default: 30) |
+| `OPERA_MAX_RETRIES` | Retry attempts for transient HTTP errors | No (default: 3) |
+| `OPERA_OAUTH_MAX_RETRIES` | Retry attempts for OAuth token fetches | No (default: 3) |
+| `OPERA_OAUTH_RETRY_BACKOFF` | OAuth retry backoff (seconds) | No (default: 1.0) |
+| `OPERA_ENABLE_CACHE` | Enable in-memory response caching | No (default: true) |
+| `OPERA_CACHE_TTL` | Cache TTL (seconds) | No (default: 300) |
+| `OPERA_ENABLE_PERSISTENT_TOKEN_CACHE` | Persist OAuth tokens across restarts | No (default: true) |
+| `OPERA_LOG_LEVEL` | Log level (`DEBUG`/`INFO`/`WARNING`/`ERROR`) | No (default: `INFO`) |
+| `OPERA_LOG_FORMAT` | Log record format string | No |
+| `OPERA_ENABLE_STRUCTURED_LOGGING` | Emit JSON logs | No (default: true) |
+| `OPERA_SECURITY_*` | Production security knobs (rate limiting, audit, anomaly detection, etc.) — see `.env.example` | No |
+
+Authentication is OAuth2 client-credentials only. There is no `OPERA_USERNAME` / `OPERA_PASSWORD` pair.
 
 ## Monitoring
 

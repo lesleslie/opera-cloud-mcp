@@ -6,7 +6,7 @@ This guide provides instructions for deploying and monitoring the OPERA Cloud MC
 
 ### System Requirements
 
-- **Python Version**: 3.11 or higher
+- **Python Version**: 3.13 or higher (per `requires-python = ">=3.13"` in `pyproject.toml`)
 - **Memory**: Minimum 2GB RAM (4GB recommended)
 - **CPU**: 2 cores minimum (4 cores recommended)
 - **Storage**: 10GB available disk space
@@ -17,7 +17,7 @@ This guide provides instructions for deploying and monitoring the OPERA Cloud MC
 #### Docker Deployment (Recommended)
 
 ```dockerfile
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ RUN pip install uv && uv sync --frozen
 COPY . .
 
 # Expose port (if using HTTP transport)
-EXPOSE 8000
+EXPOSE 3037
 
 # Run the application
 CMD ["uv", "run", "python", "-m", "opera_cloud_mcp.main"]
@@ -308,7 +308,7 @@ The server persists OAuth tokens for recovery:
 
 ```bash
 # Check service health
-curl http://localhost:8000/health
+curl http://localhost:3037/health
 
 # Check logs
 journalctl -u opera-cloud-mcp -f
