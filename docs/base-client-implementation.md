@@ -36,7 +36,75 @@ This document summarizes the complete implementation of the production-ready Bas
 - **Authentication Retry**: Special handling for token expiry scenarios
 
 ```mermaid
-docs/diagrams/request-flow-retry-logic.mmd
+flowchart TD
+    Start([Tool Request Received]) --> Validate[Validate Input Parameters]
+
+    Validate -->|Invalid| Error1([Return ValidationError])
+    Validate -->|Valid| GetToken[Get OAuth2 Token]
+
+    GetToken --> CheckRateLimit{Check Rate Limiter}
+
+    CheckRateLimit -->|Limit exceeded| Wait[Wait for token refill]
+    Wait --> CheckRateLimit
+
+    CheckRateLimit -->|Under limit| CheckCircuit{Check Circuit Breaker}
+
+    CheckCircuit -->|Circuit OPEN| Error2([Return Service Unavailable])
+    CheckCircuit -->|Circuit CLOSED| MakeRequest[Make HTTP Request]
+
+    MakeRequest --> Response{HTTP Response}
+
+    Response -->|Success 2xx| Transform[Transform Response]
+    Response -->|Client Error 4xx| ClassifyClient{Classify Error}
+    Response -->|Server Error 5xx| ClassifyServer{Classify Error}
+
+    Transform --> UpdateMetrics[Update Metrics]
+    UpdateMetrics --> ResetCircuit[Reset Circuit Breaker]
+    ResetCircuit --> Return1([Return Success])
+
+    ClassifyClient -->|401 Unauthorized| Refresh[Refresh Token]
+    ClassifyClient -->|Other 4xx| ErrorClient[Log Error]
+    Refresh --> GetToken
+
+    ClassifyServer -->|Retryable| CheckRetries{Retry Count<br/>< Max?}
+    ClassifyServer -->|Non-retryable| ErrorServer[Log Error]
+
+    ErrorClient --> Error3([Return Error])
+    ErrorServer --> Error3
+
+    CheckRetries -->|Yes| Error4([Return Max Retries Exceeded])
+    CheckRetries -->|No| CalculateBackoff[Calculate Exponential Backoff]
+
+    CalculateBackoff --> Jitter[Add Random Jitter]
+    Jitter --> WaitRetry[Wait Backoff + Jitter]
+    WaitRetry --> MakeRequest
+
+    UpdateMetrics --> RecordSuccess[Record Success Metrics]
+    RecordSuccess --> Return1
+
+    subgraph "Circuit Breaker Logic"
+        CheckCircuit
+        ResetCircuit
+        IncrementFail[Increment Failure Count]
+    end
+
+    Response -->|Failure| IncrementFail
+    IncrementFail --> CheckThreshold{Failure Count<br/>> Threshold?}
+
+    CheckThreshold -->|Yes| TripCircuit[Trip Circuit to OPEN]
+    CheckThreshold -->|No| RecordFailure[Record Failure]
+
+    TripCircuit --> Error5([Return Circuit Open])
+    RecordFailure --> CheckRetries
+
+    style Error1 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error2 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error3 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error4 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Error5 fill:#E74C3C,stroke:#922B21,color:#fff
+    style Return1 fill:#2ECC71,stroke:#1E8449,color:#fff
+    style TripCircuit fill:#F39C12,stroke:#B9770E,color:#fff
+    style CheckCircuit fill:#9B59B6,stroke:#6C3483,color:#fff
 ```
 
 This flowchart illustrates the complete request processing flow, including input validation, rate limiting, circuit breaking, error classification, retry logic with exponential backoff and jitter, and circuit breaker integration.
@@ -77,7 +145,43 @@ This flowchart illustrates the complete request processing flow, including input
 - **Service Protection**: Prevents cascade failures
 
 ```mermaid
-docs/diagrams/circuit-breaker-state-machine.mmd
+stateDiagram-v2
+    [*] --> Closed: Initialize
+
+    Closed --> Closed: Request succeeds<br/>(Reset failure count)
+
+    Closed --> Open: Failure threshold<br/>exceeded (default: 5)
+
+    note right of Closed
+        Normal operation
+        • All requests pass through
+        • Track failure count
+        • Reset on success
+    end note
+
+    Open --> Half-Open: Recovery timeout<br/>expires (default: 60s)
+
+    note right of Open
+        Circuit tripped
+        • Block all requests
+        • Prevent cascade failures
+        • Allow recovery timeout
+    end note
+
+    Half-Open --> Closed: Test request<br/>succeeds
+
+    Half-Open --> Open: Test request<br/>fails
+
+    note right of Half-Open
+        Testing recovery
+        • Allow one test request
+        • Verify service health
+        • Transition based on result
+    end note
+
+    Closed: Active state
+    Open: Tripped state
+    Half-Open: Testing state
 ```
 
 This state diagram illustrates the three circuit breaker states (Closed, Open, Half-Open) and the conditions that trigger transitions between them, protecting against cascade failures.
@@ -94,7 +198,70 @@ This state diagram illustrates the three circuit breaker states (Closed, Open, H
 ### BaseAPIClient Architecture
 
 ```mermaid
-docs/diagrams/base-client-architecture.mmd
+graph TB
+    subgraph "MCP Tools Layer"
+        Tools["53 MCP Tools<br/>(reservations, guests, rooms,<br/>operations, financial)"]
+    end
+
+    subgraph "API Clients Layer"
+        ReservationClient["ReservationClient"]
+        GuestClient["GuestClient"]
+        RoomClient["RoomClient"]
+        OperationClient["OperationClient"]
+        FinancialClient["FinancialClient"]
+    end
+
+    subgraph "BaseAPIClient Core"
+        Base["BaseAPIClient"]
+
+        subgraph "Core Components"
+            RateLimiter["RateLimiter<br/>• Token Bucket Algorithm<br/>• 10 RPS + 20 burst<br/>• Automatic throttling"]
+            HealthMonitor["HealthMonitor<br/>• Request tracking<br/>• Performance analytics<br/>• Real-time status"]
+            DataTransformer["DataTransformer<br/>• Request sanitization<br/>• Response transformation<br/>• Nested field support"]
+            CircuitBreaker["CircuitBreaker<br/>• Failure threshold mgmt<br/>• State transitions<br/>• Service protection"]
+            RequestMetrics["RequestMetrics<br/>• Duration tracking<br/>• Size metrics<br/>• Retry counting"]
+        end
+    end
+
+    subgraph "Authentication Layer"
+        OAuth["OAuth2Handler<br/>• Token caching<br/>• Auto refresh<br/>• Encrypted storage"]
+    end
+
+    subgraph "External Services"
+        OPERA["OPERA Cloud API<br/>• REST Architecture<br/>• OAuth2 Auth<br/>• Rate Limited"]
+    end
+
+    Tools --> ReservationClient
+    Tools --> GuestClient
+    Tools --> RoomClient
+    Tools --> OperationClient
+    Tools --> FinancialClient
+
+    ReservationClient --> Base
+    GuestClient --> Base
+    RoomClient --> Base
+    OperationClient --> Base
+    FinancialClient --> Base
+
+    Base --> RateLimiter
+    Base --> HealthMonitor
+    Base --> DataTransformer
+    Base --> CircuitBreaker
+    Base --> RequestMetrics
+    Base --> OAuth
+
+    Base --> OPERA
+
+    CircuitBreaker -.->|Prevents cascade<br/>failures| OPERA
+    RateLimiter -.->|Throttles requests| OPERA
+    OAuth -.->|Authenticates| OPERA
+
+    style Base fill:#4A90E2,stroke:#1E3A5F,stroke-width:3px,color:#fff
+    style CircuitBreaker fill:#E74C3C,stroke:#922B21,color:#fff
+    style RateLimiter fill:#F39C12,stroke:#B9770E,color:#fff
+    style HealthMonitor fill:#2ECC71,stroke:#1E8449,color:#fff
+    style OAuth fill:#9B59B6,stroke:#6C3483,color:#fff
+    style OPERA fill:#34495E,stroke:#1A252F,color:#fff
 ```
 
 This diagram illustrates how the 45+ MCP tools interact with the API client layer, which in turn uses the BaseAPIClient with its core components (RateLimiter, HealthMonitor, DataTransformer, CircuitBreaker, RequestMetrics) to communicate with the OPERA Cloud API through OAuth2 authentication.
@@ -142,7 +309,93 @@ class BaseAPIClient:
 ### API Request Lifecycle
 
 ```mermaid
-docs/diagrams/api-request-lifecycle.mmd
+sequenceDiagram
+    participant Client as MCP Client
+    participant Tool as MCP Tool
+    participant APIClient as API Client
+    participant RateLimiter as Rate Limiter
+    participant CircuitBreaker as Circuit Breaker
+    participant BaseClient as BaseAPIClient
+    participant OAuth as OAuth2 Handler
+    participant OPERA as OPERA Cloud API
+
+    Client->>Tool: Invoke tool (e.g., search_reservations)
+    activate Tool
+    Tool->>APIClient: Call API method
+    activate APIClient
+
+    APIClient->>RateLimiter: Check rate limit
+    activate RateLimiter
+
+    alt Rate limit exceeded
+        RateLimiter-->>APIClient: Throttled (wait required)
+        APIClient->>APIClient: Calculate wait time
+        RateLimiter->>RateLimiter: Wait for token refill
+        RateLimiter-->>APIClient: Proceed
+    end
+
+    deactivate RateLimiter
+
+    APIClient->>CircuitBreaker: Check circuit state
+    activate CircuitBreaker
+
+    alt Circuit is OPEN
+        CircuitBreaker-->>APIClient: CircuitOpenException
+        APIClient-->>Tool: Error: Service temporarily unavailable
+    else Circuit is CLOSED/HALF-OPEN
+        CircuitBreaker-->>APIClient: Allow request
+    end
+
+    deactivate CircuitBreaker
+
+    APIClient->>BaseClient: Make HTTP request
+    activate BaseClient
+
+    BaseClient->>OAuth: Get access token
+    activate OAuth
+    OAuth-->>BaseClient: Bearer token
+    deactivate OAuth
+
+    BaseClient->>OPERA: GET /api/v1/reservations
+    Note over BaseClient,OPERA: Authorization: Bearer {token}
+    activate OPERA
+
+    alt Success Response (200-299)
+        OPERA-->>BaseClient: 200 OK + JSON data
+        BaseClient->>CircuitBreaker: Record success
+        CircuitBreaker->>CircuitBreaker: Reset failure count
+        BaseClient->>RateLimiter: Record success
+        BaseClient->>BaseClient: Transform response
+        BaseClient-->>APIClient: Response(data, success=True)
+    else Client Error (400-499)
+        OPERA-->>BaseClient: 400/404/401 etc.
+        BaseClient->>BaseClient: Classify error
+        BaseClient->>CircuitBreaker: Record failure
+        BaseClient-->>APIClient: Response(error, success=False, retriable=false)
+    else Server Error (500-599)
+        OPERA-->>BaseClient: 500/502/503 etc.
+        BaseClient->>BaseClient: Check retry eligibility
+        BaseClient->>CircuitBreaker: Record failure
+
+        alt Below failure threshold
+            BaseClient->>BaseClient: Calculate backoff (exponential)
+            BaseClient->>BaseClient: Wait {backoff}ms
+            BaseClient->>OPERA: Retry request
+        else Exceeds failure threshold
+            CircuitBreaker->>CircuitBreaker: Trip to OPEN
+            BaseClient-->>APIClient: CircuitBreakerException
+        end
+    end
+
+    deactivate OPERA
+    deactivate BaseClient
+
+    APIClient->>APIClient: Update metrics
+    APIClient-->>Tool: Return result
+    deactivate APIClient
+
+    Tool-->>Client: Return formatted data
+    deactivate Tool
 ```
 
 This sequence diagram shows the complete lifecycle of an API request from tool invocation through rate limiting, circuit breaking, authentication, and error handling with retry logic.

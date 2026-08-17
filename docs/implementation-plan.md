@@ -45,7 +45,105 @@ Based on the Oracle Hospitality API documentation:
 ### 1. Project Structure
 
 ```mermaid
-docs/diagrams/project-structure.mmd
+graph TB
+    subgraph "Project Root"
+        Root["opera_cloud_mcp/"]
+
+        subgraph "Core Server"
+            Main["main.py - FastMCP entry point"]
+            CLI["cli.py - Command line interface"]
+        end
+
+        subgraph "Authentication"
+            OAuth["auth/"]
+            OAuthHandler["oauth_handler.py - OAuth2 token management"]
+        end
+
+        subgraph "API Clients"
+            Clients["clients/"]
+            BaseClient["base_client.py - HTTP client with auth"]
+            APIClients["api_clients/"]
+            ResClient["reservations.py - Reservation API"]
+            GuestClient["crm.py - Guest/CRM API"]
+            RoomClient["housekeeping.py - Room API"]
+            FOClient["front_office.py - Front office API"]
+            InvClient["inventory.py - Inventory API"]
+        end
+
+        subgraph "MCP Tools"
+            Tools["tools/"]
+            ResTools["reservation_tools.py - 10 tools"]
+            GuestTools["guest_tools.py - 9 tools"]
+            RoomTools["room_tools.py - 13 tools"]
+            OpsTools["operation_tools.py - 12 tools"]
+            FinTools["financial_tools.py - 9 tools"]
+        end
+
+        subgraph "Data Models"
+            Models["models/"]
+            CommonModels["common.py - Shared models"]
+            ResModels["reservation.py - Reservation models"]
+            GuestModels["guest.py - Guest models"]
+            RoomModels["room.py - Room models"]
+            FinModels["financial.py - Financial models"]
+        end
+
+        subgraph "Configuration"
+            Config["config/"]
+            Settings["settings.py - Pydantic settings"]
+            SecuritySettings["security_settings.py - Security config"]
+        end
+
+        subgraph "Utilities"
+            Utils["utils/"]
+            Validators["validators.py - Input validation"]
+            Formatters["formatters.py - Data formatting"]
+            Exceptions["exceptions.py - Custom exceptions"]
+            Observability["observability.py - Logging & metrics"]
+        end
+
+        subgraph "Testing"
+            Tests["tests/"]
+            UnitTests["unit/ - Unit tests"]
+            IntTests["integration/ - Integration tests"]
+            Fixtures["fixtures/ - Test data"]
+            Conftest["conftest.py - Pytest config"]
+        end
+    end
+
+    Root --> Main
+    Root --> CLI
+    Root --> OAuth
+    Root --> Clients
+    Root --> Tools
+    Root --> Models
+    Root --> Config
+    Root --> Utils
+    Root --> Tests
+
+    Main --> CLI
+    Tools --> Main
+    Clients --> BaseClient
+    Clients --> APIClients
+
+    Tools --> Clients
+    Tools --> Models
+
+    BaseClient --> OAuthHandler
+    BaseClient --> Settings
+    BaseClient --> Observability
+
+    Clients --> Models
+
+    UnitTests --> Clients
+    IntTests --> Tools
+    Tests --> Fixtures
+
+    style Root fill:#3498DB,stroke:#1A5276,color:#fff
+    style Main fill:#E74C3C,stroke:#922B21,color:#fff
+    style Tools fill:#2ECC71,stroke:#1E8449,color:#fff
+    style Clients fill:#F39C12,stroke:#B9770E,color:#fff
+    style OAuth fill:#9B59B6,stroke:#6C3483,color:#fff
 ```
 
 This diagram provides a visual overview of the complete project directory structure, showing the relationships between modules (auth, clients, tools, models, config, utils) and how they depend on each other.
@@ -55,7 +153,61 @@ This diagram provides a visual overview of the complete project directory struct
 #### Authentication Module (`auth/oauth_handler.py`)
 
 ```mermaid
-docs/diagrams/oauth2-authentication-flow.mmd
+sequenceDiagram
+    participant MCP as MCP Client
+    participant Server as FastMCP Server
+    participant Tool as MCP Tool
+    participant OAuth as OAuth2Handler
+    participant TokenAPI as OAuth Token Endpoint
+    participant API as OPERA Cloud API
+
+    MCP->>Server: Initialize connection
+    activate Server
+    Server->>OAuth: Create handler with credentials
+    activate OAuth
+    OAuth-->>Server: Handler initialized
+    deactivate OAuth
+    Server-->>MCP: Server ready
+
+    MCP->>Tool: Call tool (e.g., search_reservations)
+    activate Tool
+    Tool->>OAuth: get_token()
+    activate OAuth
+
+    alt Token cached and valid
+        OAuth-->>Tool: Return cached token
+    else No token or expired
+        OAuth->>TokenAPI: POST /oauth/tokens
+        Note over OAuth,TokenAPI: Client credentials flow
+        activate TokenAPI
+        TokenAPI-->>OAuth: access_token + expires_in
+        deactivate TokenAPI
+        OAuth->>OAuth: Cache token with expiry
+        OAuth-->>Tool: Return new token
+    end
+
+    deactivate OAuth
+
+    Tool->>API: GET /api/v1/reservations
+    Note over Tool,API: Authorization: Bearer {token}
+    activate API
+
+    alt Token valid
+        API-->>Tool: 200 OK + data
+    else Token expired (401)
+        API-->>Tool: 401 Unauthorized
+        Tool->>OAuth: Token refresh required
+        OAuth->>TokenAPI: Refresh token
+        TokenAPI-->>OAuth: New access_token
+        OAuth-->>Tool: New token
+        Tool->>API: Retry request with new token
+        API-->>Tool: 200 OK + data
+    end
+
+    deactivate API
+
+    Tool-->>MCP: Return results
+    deactivate Tool
 ```
 
 This sequence diagram shows the complete OAuth2 authentication flow from MCP client through token request (with caching), API usage, and token refresh on expiration.
@@ -146,7 +298,31 @@ async def search_reservations(
 ## Implementation Phases
 
 ```mermaid
-docs/diagrams/implementation-timeline.mmd
+gantt
+    title OPERA Cloud MCP Implementation Timeline
+    dateFormat  YYYY-MM-DD
+    section Phase 1: Foundation
+    Project Setup               :done, p1a, 2024-01-01, 1d
+    OAuth Implementation        :done, p1b, after p1a, 1d
+    Base Infrastructure         :done, p1c, after p1b, 1d
+
+    section Phase 2: Core APIs
+    Reservation Tools          :active, p2a, 2024-01-04, 2d
+    Guest Operations           :p2b, after p2a, 2d
+    Room Management            :p2c, after p2b, 1d
+
+    section Phase 3: Extended Operations
+    Front Office Operations    :p3a, after p2c, 2d
+    Financial Operations       :p3b, after p3a, 2d
+
+    section Phase 4: Testing & Documentation
+    Unit Tests                 :p4a, after p3b, 2d
+    Integration Tests          :p4b, after p4a, 2d
+    Documentation              :p4c, after p4a, 2d
+
+    section Phase 5: Production Readiness
+    Performance Optimization   :p5a, after p4b, 2d
+    Monitoring Setup           :p5b, after p4c, 1d
 ```
 
 This Gantt chart visualizes the 5-phase implementation plan with timelines for each phase: Foundation (Days 1-2), Core APIs (Days 3-5), Extended Operations (Days 6-7), Testing & Documentation (Days 8-9), and Production Readiness (Day 10).

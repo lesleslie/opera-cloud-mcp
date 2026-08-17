@@ -9,7 +9,75 @@ This guide provides comprehensive documentation for the production-grade securit
 ### Core Security Components
 
 ```mermaid
-docs/diagrams/security-architecture.mmd
+graph TB
+    subgraph "MCP Client Layer"
+        MCPClient["MCP Client<br/>Claude Desktop, etc."]
+    end
+
+    subgraph "Application Layer"
+        MCPFastMCP["FastMCP Server<br/>53 Tools"]
+    end
+
+    subgraph "Security Layer"
+        subgraph "Core Security Components"
+            SecureOAuth["SecureOAuthHandler<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Token binding & validation<br/>• Security monitoring<br/>• Encrypted token cache<br/>• Credential rotation"]
+
+            SecurityMiddleware["SecurityMiddleware<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Request validation<br/>• Rate limiting enforcement<br/>• IP whitelist/blacklist<br/>• Threat detection integration"]
+
+            AuditLogger["AuditLogger<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Tamper-resistant logging<br/>• Encrypted audit database<br/>• Security event tracking<br/>• Compliance reporting"]
+
+            SecurityMonitor["SecurityMonitor<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Behavioral anomaly detection<br/>• Risk scoring & analysis<br/>• Real-time threat assessment<br/>• Automated incident response"]
+
+            SecureTokenCache["SecureTokenCache<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• AES-256 encryption<br/>• Integrity protection<br/>• Automatic expiration<br/>• Secure persistence"]
+        end
+    end
+
+    subgraph "External Integration"
+        OAuthEndpoint["OAuth2 Token Endpoint<br/>Oracle Hospitality"]
+        OPERAAPI["OPERA Cloud API<br/>Production/Sandbox"]
+
+        subgraph "Alerting & Monitoring"
+            AlertSystem["Alerting System<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Webhook notifications<br/>• Email alerts<br/>• Slack integration"]
+
+            MonitoringSystem["Monitoring Dashboard<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Grafana metrics<br/>• Prometheus integration<br/>• Security analytics"]
+        end
+    end
+
+    subgraph "Data Protection"
+        EncryptedDB["Encrypted Audit DB<br/>SQLite + AES-256"]
+        TokenCache["Encrypted Token Cache<br/>File-based + Integrity"]
+    end
+
+    MCPClient --> MCPFastMCP
+    MCPFastMCP --> SecureOAuth
+    MCPFastMCP --> SecurityMiddleware
+
+    SecureOAuth --> SecureTokenCache
+    SecureOAuth --> SecurityMonitor
+
+    SecurityMiddleware --> SecurityMonitor
+    SecurityMiddleware --> AuditLogger
+
+    SecurityMonitor --> AuditLogger
+    SecurityMonitor --> AlertSystem
+
+    SecureOAuth --> OAuthEndpoint
+    SecureOAuth --> OPERAAPI
+
+    AuditLogger --> EncryptedDB
+    SecureTokenCache --> TokenCache
+
+    AlertSystem --> MonitoringSystem
+
+    style SecureOAuth fill:#9B59B6,stroke:#6C3483,stroke-width:3px,color:#fff
+    style SecurityMiddleware fill:#E74C3C,stroke:#922B21,stroke-width:3px,color:#fff
+    style AuditLogger fill:#3498DB,stroke:#1A5276,stroke-width:3px,color:#fff
+    style SecurityMonitor fill:#F39C12,stroke:#B9770E,stroke-width:3px,color:#fff
+    style SecureTokenCache fill:#2ECC71,stroke:#1E8449,stroke-width:3px,color:#fff
+    style EncryptedDB fill:#34495E,stroke:#1A252F,color:#fff
+    style TokenCache fill:#34495E,stroke:#1A252F,color:#fff
+    style AlertSystem fill:#E67E22,stroke:#B9770E,color:#fff
+    style MonitoringSystem fill:#16A085,stroke:#0E6655,color:#fff
 ```
 
 This diagram shows the complete security infrastructure including SecureOAuthHandler, SecurityMiddleware, AuditLogger, SecurityMonitor, and SecureTokenCache, plus their integration with external alerting and monitoring systems.
@@ -199,7 +267,66 @@ print(f"Security Status: {status}")
 ### Real-Time Monitoring
 
 ```mermaid
-docs/diagrams/oauth2-token-lifecycle.mmd
+sequenceDiagram
+    participant App as Application
+    participant OAuth as OAuth2Handler
+    participant Cache as TokenCache
+    participant AuthAPI as OAuth Token API
+    participant Secure as SecurityMonitor
+
+    App->>OAuth: Initialize with credentials
+    activate OAuth
+    OAuth->>Cache: Check for cached token
+    activate Cache
+
+    alt Cached token exists and valid
+        Cache-->>OAuth: Return cached token
+        OAuth->>Secure: Log cache hit
+    else No cached token or expired
+        Cache-->>OAuth: Cache miss/expired
+        OAuth->>AuthAPI: Request new token<br/>POST /oauth/tokens
+        activate AuthAPI
+        Note over OAuth,AuthAPI: Client credentials grant:<br/>client_id + client_secret
+        AuthAPI-->>OAuth: access_token + expires_in
+        deactivate AuthAPI
+        OAuth->>OAuth: Validate token format
+        OAuth->>Cache: Store encrypted token
+        OAuth->>Secure: Log token issued
+        Cache-->>OAuth: Token stored
+    end
+
+    deactivate Cache
+
+    OAuth-->>App: OAuth2Handler ready
+    deactivate OAuth
+
+    Note over App,Secure: ────────────────────────<br/>Token Usage Phase<br/>────────────────────────
+
+    App->>OAuth: get_token()
+    activate OAuth
+    OAuth->>Cache: Retrieve token
+    activate Cache
+    Cache-->>OAuth: Return token
+    deactivate Cache
+
+    alt Token expired (near expiry)
+        OAuth->>OAuth: Check expiry threshold<br/>(default: 5 min before)
+        OAuth->>AuthAPI: Refresh token
+        activate AuthAPI
+        AuthAPI-->>OAuth: New access_token
+        deactivate AuthAPI
+        OAuth->>Cache: Update cached token
+        OAuth->>Secure: Log token refresh
+    end
+
+    OAuth-->>App: Valid access_token
+    deactivate OAuth
+
+    Note over App,Secure: ────────────────────────<br/>Security Monitoring<br/>────────────────────────
+
+    Secure->>Secure: Track token lifecycle events
+    Secure->>Secure: Monitor for suspicious patterns
+    Secure->>Secure: Calculate risk scores
 ```
 
 This sequence diagram illustrates the complete OAuth2 token lifecycle from initialization through issuance, caching, usage, refresh, and security monitoring, showing how tokens are managed securely throughout their lifetime.
@@ -327,7 +454,62 @@ security_settings = SecuritySettings(
 ### Custom Threat Detection
 
 ```mermaid
-docs/diagrams/threat-detection-flow.mmd
+flowchart TD
+    Start([Security Event Detected]) --> Analyze{Event Type}
+
+    Analyze -->|Auth Event| AuthCheck{Authentication<br/>Result?}
+    Analyze -->|API Request| RequestCheck{Request<br/>Pattern?}
+    Analyze -->|Token Operation| TokenCheck{Token<br/>Activity?}
+
+    AuthCheck -->|Success| LogSuccess["Log successful auth"]
+    AuthCheck -->|Failure| CheckFailures{Failed attempts<br/>in window?}
+
+    LogSuccess --> UpdateRisk["Update risk score"]
+    CheckFailures -->|Yes| IncrementFail["Increment failure count"]
+    CheckFailures -->|No| LogFailure["Log failed attempt"]
+
+    IncrementFail --> ThresholdCheck{Exceeds<br/>threshold?}
+    ThresholdCheck -->|Yes| BlockClient["Block client IP"]
+    ThresholdCheck -->|No| LogFailure
+
+    RequestCheck -->|Normal pattern| LogRequest["Log API request"]
+    RequestCheck -->|Unusual pattern| AnomalyCheck{Anomaly score<br/>> threshold?}
+
+    AnomalyCheck -->|Yes| IncreaseRisk["Increase monitoring"]
+    AnomalyCheck -->|No| LogRequest
+
+    TokenCheck -->|Valid operation| LogToken["Log token use"]
+    TokenCheck -->|Invalid operation| SecurityAlert["Generate security alert"]
+
+    BlockClient --> Incident[Incident Response]
+    IncreaseRisk --> Incident
+    SecurityAlert --> Incident
+
+    Incident --> ThreatLevel{Calculate<br/>Threat Level}
+
+    ThreatLevel -->|Low| LogIncident["Log for review"]
+    ThreatLevel -->|Medium| MonitorIncident["Increase monitoring<br/>Add to watchlist"]
+    ThreatLevel -->|High| ImmediateAction["Block source<br/>Send alerts<br/>Auto-remediate"]
+
+    UpdateRisk --> AssessRisk[Assess overall risk]
+    LogSuccess --> AssessRisk
+    LogRequest --> AssessRisk
+    LogToken --> AssessRisk
+    LogIncident --> AssessRisk
+    MonitorIncident --> AssessRisk
+    ImmediateAction --> AssessRisk
+
+    AssessRisk --> RiskScore{Risk Score}
+    RiskScore -->|< 30| Normal([Normal Operations])
+    RiskScore -->|30-70| Warning([Warning State])
+    RiskScore -->|> 70| Critical([Critical State])
+
+    style BlockClient fill:#E74C3C,stroke:#922B21,color:#fff
+    style Incident fill:#F39C12,stroke:#B9770E,color:#fff
+    style ImmediateAction fill:#E74C3C,stroke:#922B21,color:#fff
+    style Critical fill:#E74C3C,stroke:#922B21,color:#fff
+    style Warning fill:#F39C12,stroke:#B9770E,color:#fff
+    style Normal fill:#2ECC71,stroke:#1E8449,color:#fff
 ```
 
 This flowchart shows how security events are analyzed, risk scores are calculated, and incident responses are triggered based on threat levels (low, medium, high).
