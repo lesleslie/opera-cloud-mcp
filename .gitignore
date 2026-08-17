@@ -78,3 +78,15 @@ wheels/
 /.backup/
 .backups/
 .backup/
+
+# Canonical runtime artifacts (bodai cleanup 2026-08-17)
+# ============================================================================
+.crackerjack/outputs/
+.crackerjack-state/
+.crackerjack-hooks-updated/
+.crackerjack-mcp/
+*.bak2
+*.backup.*
+*.pyo
+*.pyd
+example.mcp.json
