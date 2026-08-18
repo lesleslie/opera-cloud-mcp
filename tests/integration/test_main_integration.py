@@ -11,6 +11,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from mcp_common.fastmcp import FastMCP
 
+# Import server at module level so the tool-profile registration happens
+# in a sync context (no running event loop). Importing inside an async
+# test would cause ``apply_tool_profile`` (sync wrapper) to raise because
+# a loop is already running. The W0 helper's sync entrypoint is designed
+# to spin its own loop via ``asyncio.run``; that requires a sync caller.
+import opera_cloud_mcp.server  # noqa: F401  (registers tools on `app`)
+
 # Test constants to avoid hardcoded password warnings
 TEST_CLIENT_SECRET = "placeholder_secret_value_for_testing_only"
 TEST_TOKEN_URL = "https://placeholder.example.com/token"
@@ -230,7 +237,7 @@ class TestMainIntegration:
 
     async def test_tool_registration(self):
         """Test that the server module registers tools."""
-        import opera_cloud_mcp.server as server_module
+        import opera_cloud_mcp.server as server_module  # noqa: F811 (re-import for clarity; sys.modules cache)
 
         tools = await server_module.app.list_tools()
         tool_names = [t.name for t in tools]

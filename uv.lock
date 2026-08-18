@@ -2110,7 +2110,7 @@ wheels = [
 
 [[package]]
 name = "mcp-common"
-version = "0.17.9"
+version = "0.18.0"
 source = { editable = "../mcp-common" }
 dependencies = [
     { name = "cryptography" },
@@ -2603,7 +2603,7 @@ wheels = [
 
 [[package]]
 name = "opera-cloud-mcp"
-version = "0.3.7"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },

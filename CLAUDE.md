@@ -122,6 +122,16 @@ The `opera_cloud_mcp/config/security_settings.py` provides enterprise-grade secu
 
 Always use the security settings in production and never commit credentials to the repository.
 
+## Tool Profile System
+
+opera-cloud-mcp uses the shared `apply_tool_profile()` helper from `mcp-common` (0.18.0+).
+
+- Env var: `OPERA_CLOUD_TOOL_PROFILE` (values: `minimal` / `standard` / `full`; default `full`).
+- See `docs/architecture/tool-profile-rationale.md` for bucket mapping and per-tier behavioral contract.
+- 3 tiers: `MINIMAL` = 0 business tools; `STANDARD` = `search_reservations` + `search_guests` (read-only); `FULL` = all 52 unique tools (53 decorators, but `check_room_availability` is registered in two modules and the second wins).
+- `discover_tools()` meta-tool is registered at every profile.
+- Invalid env-var values raise `InvalidProfileError`; UNSET falls through to `full`.
+
 <!-- CRACKERJACK_START -->
 
 ## Crackerjack Integration

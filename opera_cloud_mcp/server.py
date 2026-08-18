@@ -12,13 +12,14 @@ from typing import Any
 
 from mcp_common.fastmcp import FastMCP
 from mcp_common.health import register_http_health_route
+from mcp_common.tools.dispatch import apply_tool_profile
 
 from opera_cloud_mcp import __version__
-from opera_cloud_mcp.tools.financial_tools import register_financial_tools
-from opera_cloud_mcp.tools.guest_tools import register_guest_tools
-from opera_cloud_mcp.tools.operation_tools import register_operation_tools
-from opera_cloud_mcp.tools.reservation_tools import register_reservation_tools
-from opera_cloud_mcp.tools.room_tools import register_room_tools
+from opera_cloud_mcp.tools.profiles import (
+    PROFILE_REGISTRATIONS,
+    REGISTRATION_MAP,
+    register_all_tool_groups,
+)
 
 # Check FastMCP rate limiting middleware availability (Phase 3.3 M2: improved pattern)
 RATE_LIMITING_AVAILABLE = (
@@ -65,12 +66,28 @@ if RATE_LIMITING_AVAILABLE:
     app.add_middleware(rate_limiter)
     logger.info("Rate limiting enabled: 10 req/sec, burst 20")
 
-# Register all MCP tools
-register_reservation_tools(app)
-register_guest_tools(app)
-register_room_tools(app)
-register_operation_tools(app)
-register_financial_tools(app)
+# Apply the tool profile (reads OPERA_CLOUD_TOOL_PROFILE env var).
+#
+# This replaces the previous direct register_*_tools(app) calls. The W0
+# helper from mcp-common 0.18.0+ dispatches by group name and always
+# registers the `discover_tools` meta-tool. The default (no env var)
+# remains FULL = all 52 unique tool names (53 decorators, but
+# check_room_availability is registered in two modules and FastMCP
+# dedups to 1) — the previous behavior is preserved.
+#
+# The sync ``apply_tool_profile`` wrapper from mcp-common handles the
+# no-running-loop case via ``asyncio.run``; it raises ``RuntimeError``
+# when called from within a running event loop (forcing async callers
+# to use ``_apply_tool_profile_async`` instead). At module import time
+# of server.py no event loop is running, so this works in normal CLI
+# / HTTP-server startup paths.
+apply_tool_profile(
+    app,
+    profile_env_var="OPERA_CLOUD_TOOL_PROFILE",
+    registrations=PROFILE_REGISTRATIONS,
+    registration_map=REGISTRATION_MAP,
+    register_all_fn=register_all_tool_groups,
+)
 
 http_app = app.http_app
 
