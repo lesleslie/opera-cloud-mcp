@@ -90,3 +90,6 @@ wheels/
 *.pyo
 *.pyd
 example.mcp.json
+
+# Canonical runtime-artifact patterns (bodai cleanup 2026-08-20)
+.pyscn/
