@@ -193,4 +193,8 @@ paths = [
 deps-file = "pyproject.toml"
 
 [tool.crackerjack]
+# Baseline configuration (auto-bootstrapped 2026-08-20).
+# Hook stages run on `crackerjack run`; see crackerjack --help for the
+# full lifecycle. refurb_timeout raised from default 300s to 420s because
+# large refactor passes on first run can exceed 5 minutes on cold cache.
 refurb_timeout = 420
