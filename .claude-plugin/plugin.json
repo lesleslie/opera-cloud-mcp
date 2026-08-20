@@ -1,0 +1,17 @@
+{
+  "author": {
+    "name": "Bodai"
+  },
+  "description": "Bodai plugin for the opera-cloud-mcp hotel management server.",
+  "keywords": [
+    "bodai",
+    "mcp",
+    "opera-cloud",
+    "hospitality",
+    "pms"
+  ],
+  "mcpServers": "./.mcp.json",
+  "name": "opera-cloud",
+  "schema_version": "1.0.0",
+  "version": "0.1.0"
+}

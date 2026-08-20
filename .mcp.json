@@ -1,0 +1,6 @@
+{
+  "opera-cloud": {
+    "type": "http",
+    "url": "http://localhost:3037/mcp"
+  }
+}
