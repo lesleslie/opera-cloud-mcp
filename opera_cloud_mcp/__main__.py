@@ -103,7 +103,8 @@ class OperaCloudMCPServer(BaseOneiricServerMixin):
             )
         )
 
-        # Create health response (HealthCheckResponse dataclass with status, components, etc.)
+        # Create health response
+        # (HealthCheckResponse dataclass with status, components, etc.)
         return self.runtime.health_monitor.create_health_response(base_components)
 
     def get_app(self) -> object:
