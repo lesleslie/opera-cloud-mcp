@@ -146,7 +146,9 @@ def _register_tools() -> None:
 _register_tools()
 
 
-def create_oauth_handler(settings: Settings) -> auth.OAuthHandler | auth.SecureOAuthHandler:
+def create_oauth_handler(
+    settings: Settings,
+) -> auth.OAuthHandler | auth.SecureOAuthHandler:
     """Create the OAuth handler for the current settings."""
     return auth.create_oauth_handler(settings)
 

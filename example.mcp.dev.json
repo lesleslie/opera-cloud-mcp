@@ -1,13 +1,13 @@
 {
   "mcpServers": {
     "opera-cloud-mcp": {
-      "command": "uv",
       "args": [
         "run",
         "python",
         "-m",
         "opera_cloud_mcp"
       ],
+      "command": "uv",
       "cwd": "/path/to/opera-cloud-mcp",
       "env": {
         "OPERA_API_VERSION": "v1",

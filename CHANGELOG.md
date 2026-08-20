@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump oneiric dep to >=0.16.0
 - Fix FastMCP 3.x test drift surfaced by pin bump
 - Fix pre-existing test failures surfaced by FastMCP 3.x bump
-- Migrate MCPBaseSettings → OneiricMCPConfig, bump fastmcp to >=3.4.0,<4
+- Migrate MCPBaseSettings → OneiricMCPConfig, bump fastmcp to >=3.4.0,\<4
 - Normalize LICENSE attribution to Robert Leslie and Wedgwood Web Works, 2026
 - opera-cloud-mcp: Migrate # type: ignore stragglers to ty syntax or fix
 - Use __version__ instead of hardcoded version literal
