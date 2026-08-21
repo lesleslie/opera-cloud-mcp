@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-20
+
+### Added
+
+- opera-cloud-mcp: Adopt apply_tool_profile() with OPERA_CLOUD_TOOL_PROFILE
+- opera-cloud: Bodai plugin conversion (manifest, mcp.json, slash commands)
+
+### Fixed
+
+- opera-cloud-mcp: Broaden PROFILE_REGISTRATIONS type and drop unused ty:ignore
+- opera-cloud-mcp: In-progress WIP commit before dep refresh
+- opera-cloud-mcp: Shorten E501 line in __main__.py
+- opera-cloud-mcp: Sync __init__.py version to pyproject.toml
+- opera-cloud-mcp: Untrack .pyscn/reports/ artifacts
+
+### Documentation
+
+- opera-cloud-mcp: Inline mermaid diagrams + fix OPFRA typo + update tool counts
+- opera-cloud-mcp: Reconcile audit findings across README, AGENTS, example config
+
+### Internal
+
+- Gitignore runtime artifacts + untrack user-authorized cache files (bodai cleanup 2026-08-17)
+- gitignore: Untrack .pyscn/ (bodai 2026-08-20)
+- opera-cloud-mcp: Annotate [tool.crackerjack] baseline + uv sync upgrade
+- opera-cloud-mcp: Gitignore .lycheecache (file, not just dir)
+- opera-cloud-mcp: Gitignore .lycheecache + .hypothesis
+- opera-cloud-mcp: Refresh oneiric + mcp-common deps
+- opera-cloud-mcp: Untrack .lycheecache (final)
+- Untrack backup files (.backup, .backup.json, .bak)
+
 ## [0.4.0] - 2026-08-12
 
 ### Fixed
