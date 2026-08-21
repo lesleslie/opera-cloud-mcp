@@ -71,7 +71,7 @@ REGISTRATION_MAP: dict[str, RegisterFn] = {
 # Values: list of group names (resolved via REGISTRATION_MAP), or
 # ``ALL_TOOLS`` sentinel for "register every group via
 # ``register_all_tool_groups``".
-PROFILE_REGISTRATIONS: dict[ToolProfile, list[str] | type[ALL_TOOLS]] = {
+PROFILE_REGISTRATIONS: dict[ToolProfile, list[str | Callable] | type[ALL_TOOLS]] = {
     ToolProfile.MINIMAL: list(MANDATORY_TOOLS),  # empty — no business tools
     ToolProfile.STANDARD: [
         # Daily-driver read-only lookups for front-desk / concierge agents.
