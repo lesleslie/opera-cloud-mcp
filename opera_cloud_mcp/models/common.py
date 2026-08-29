@@ -5,13 +5,15 @@ Provides base models and common structures used across
 different OPERA Cloud API domains.
 """
 
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict
 from pydantic import Field as PydanticField
 from sqlmodel import Field as SQLModelField
 from sqlmodel import SQLModel
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class OperaBaseModel(BaseModel):

@@ -35,7 +35,7 @@ def get_server_pid() -> int | None:
             # Process doesn't exist, remove stale PID file
             PID_FILE.unlink(missing_ok=True)
             return None
-    except (ValueError, FileNotFoundError):
+    except ValueError, FileNotFoundError:
         return None
 
 

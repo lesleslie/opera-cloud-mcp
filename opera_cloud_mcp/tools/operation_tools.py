@@ -6,15 +6,16 @@ management tasks through the OPERA Cloud Front Office API.
 """
 
 from datetime import date
-from typing import Any
-
-from mcp_common.fastmcp import FastMCP
+from typing import TYPE_CHECKING, Any
 
 from opera_cloud_mcp.utils.client_factory import (
     create_activities_client,
     create_front_office_client,
 )
 from opera_cloud_mcp.utils.exceptions import ValidationError
+
+if TYPE_CHECKING:
+    from mcp_common.fastmcp import FastMCP
 
 
 def _validate_check_in_guest_params(

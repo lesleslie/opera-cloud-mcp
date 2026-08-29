@@ -10,16 +10,19 @@ import inspect
 import logging
 import time
 from collections import defaultdict
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastmcp.tools import Tool  # not in mcp_common.fastmcp shim
-from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.exceptions import RateLimitError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from mcp_common.fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 

@@ -10,15 +10,12 @@ import json
 import logging
 import time
 from collections import defaultdict, deque
-from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 from pydantic import BaseModel, Field
 
-from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
-from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
 from opera_cloud_mcp.config.settings import Settings, get_settings
 from opera_cloud_mcp.utils.cache_manager import OperaCacheManager
 from opera_cloud_mcp.utils.exceptions import (
@@ -32,6 +29,12 @@ from opera_cloud_mcp.utils.exceptions import (
     ValidationError,
 )
 from opera_cloud_mcp.utils.observability import DistributedTracer, get_observability
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
+    from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
 
 logger = logging.getLogger(__name__)
 
@@ -422,7 +425,7 @@ class DataTransformer:
 class RequestHandler:
     """Handles individual request execution with reduced complexity."""
 
-    def __init__(self, client: "BaseAPIClient"):
+    def __init__(self, client: BaseAPIClient):
         self.client = client
 
     async def check_cache(
@@ -524,7 +527,7 @@ class RequestHandler:
 class RetryHandler:
     """Handles retry logic with reduced complexity."""
 
-    def __init__(self, client: "BaseAPIClient"):
+    def __init__(self, client: BaseAPIClient):
         self.client = client
 
     def should_retry(self, error: Exception, attempt: int) -> bool:
@@ -579,7 +582,7 @@ class ResponseHandler:
         504: (TimeoutError, "Gateway timeout"),
     }
 
-    def __init__(self, client: "BaseAPIClient"):
+    def __init__(self, client: BaseAPIClient):
         self.client = client
 
     async def handle_response(
@@ -854,7 +857,7 @@ class BaseAPIClient:
         except Exception:
             logger.warning("Tracing not available - observability not initialized")
 
-    async def __aenter__(self) -> "BaseAPIClient":
+    async def __aenter__(self) -> BaseAPIClient:
         """Async context manager entry."""
         await self._ensure_session()
         return self

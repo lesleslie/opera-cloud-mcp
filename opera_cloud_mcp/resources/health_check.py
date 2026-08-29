@@ -7,11 +7,12 @@ the MCP server and its dependencies.
 
 import asyncio
 import logging
-from typing import Any
-
-from mcp_common.fastmcp import FastMCP
+from typing import TYPE_CHECKING, Any
 
 from opera_cloud_mcp.main import app, get_settings, oauth_handler
+
+if TYPE_CHECKING:
+    from mcp_common.fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 

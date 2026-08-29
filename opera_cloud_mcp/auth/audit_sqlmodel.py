@@ -10,12 +10,15 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cryptography.fernet import Fernet
 from sqlmodel import Session, SQLModel, create_engine, desc, select
 
-from opera_cloud_mcp.auth.audit_logger import AuditRecord
 from opera_cloud_mcp.models.common import AuditRecordDB
+
+if TYPE_CHECKING:
+    from opera_cloud_mcp.auth.audit_logger import AuditRecord
 
 logger = logging.getLogger(__name__)
 

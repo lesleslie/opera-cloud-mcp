@@ -11,14 +11,16 @@ import ipaddress
 import logging
 import time
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 from pydantic import BaseModel
 
 from opera_cloud_mcp.auth.audit_logger import audit_logger
-from opera_cloud_mcp.config.security_settings import SecuritySettings
 from opera_cloud_mcp.utils.exceptions import SecurityError
+
+if TYPE_CHECKING:
+    from opera_cloud_mcp.config.security_settings import SecuritySettings
 
 logger = logging.getLogger(__name__)
 

@@ -7,13 +7,16 @@ OPERA Cloud API domains with shared resources and configuration.
 
 import asyncio
 import logging
-from pathlib import Path
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
 from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
-from opera_cloud_mcp.config.settings import Settings
 from opera_cloud_mcp.utils.exceptions import ConfigurationError
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from opera_cloud_mcp.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +92,7 @@ class ClientFactory:
         enable_token_binding: bool = True,
         cache_dir: Path | None = None,
         master_key: bytes | None = None,
-    ) -> "ClientFactory":
+    ) -> ClientFactory:
         """
         Create a ClientFactory with enhanced OAuth2 security components.
 
@@ -147,7 +150,7 @@ class ClientFactory:
         settings: Settings,
         hotel_id: str | None = None,
         cache_dir: Path | None = None,
-    ) -> "ClientFactory":
+    ) -> ClientFactory:
         """
         Create a ClientFactory with basic OAuth2 authentication.
 

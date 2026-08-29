@@ -181,7 +181,7 @@ class Settings(BaseSettings):
             try:
                 validator.validate(self.opera_client_id, raise_on_invalid=True)
                 self.get_masked_client_id()
-            except (ValueError, APIKeyFormatError):
+            except ValueError, APIKeyFormatError:
                 # Continue silently to maintain backward compatibility
                 _ = "validation_failed_but_continue"  # Explicitly acknowledge error
 
@@ -189,7 +189,7 @@ class Settings(BaseSettings):
             try:
                 validator.validate(self.opera_client_secret, raise_on_invalid=True)
                 self.get_masked_client_secret()
-            except (ValueError, APIKeyFormatError):
+            except ValueError, APIKeyFormatError:
                 # Continue silently to maintain backward compatibility
                 _ = "validation_failed_but_continue"  # Explicitly acknowledge error
         else:

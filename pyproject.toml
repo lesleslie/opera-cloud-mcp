@@ -1,6 +1,6 @@
 [project]
 name = "opera-cloud-mcp"
-version = "0.6.0"
+version = "0.6.1"
 description = "Unofficial MCP Server for the Opera Cloud API"
 readme = "README.md"
 authors = [
@@ -18,9 +18,6 @@ dependencies = [
     "typer>=0.9.0",
     "mcp-common>=0.18.0",
 ]
-
-[tool.uv.sources]
-mcp-common = { path = "../mcp-common", editable = true }
 
 [project.scripts]
 opera-cloud-mcp = "opera_cloud_mcp.cli:main"

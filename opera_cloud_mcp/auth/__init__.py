@@ -6,8 +6,7 @@ for the OPERA Cloud MCP server, including OAuth2 authentication,
 security monitoring, audit logging, and threat detection.
 """
 
-from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from opera_cloud_mcp.auth.audit_logger import AuditLogger, audit_logger
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler, Token, TokenCache
@@ -24,7 +23,11 @@ from opera_cloud_mcp.auth.security_middleware import (
     create_security_middleware,
 )
 from opera_cloud_mcp.config.security_settings import SecuritySettings
-from opera_cloud_mcp.config.settings import Settings
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from opera_cloud_mcp.config.settings import Settings
 
 
 def create_enhanced_oauth_security(

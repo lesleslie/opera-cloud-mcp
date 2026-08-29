@@ -13,8 +13,7 @@ import logging
 import math
 import secrets
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 from pydantic import BaseModel
@@ -29,6 +28,9 @@ from opera_cloud_mcp.auth.security_enhancements import (
     security_monitor,
 )
 from opera_cloud_mcp.utils.exceptions import AuthenticationError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

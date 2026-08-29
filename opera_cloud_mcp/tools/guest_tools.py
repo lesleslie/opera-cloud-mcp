@@ -5,12 +5,13 @@ Provides MCP tools for managing guest profiles, preferences, and
 customer relationship management through the OPERA Cloud CRM API.
 """
 
-from typing import Any
-
-from mcp_common.fastmcp import FastMCP
+from typing import TYPE_CHECKING, Any
 
 from opera_cloud_mcp.utils.client_factory import create_crm_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
+
+if TYPE_CHECKING:
+    from mcp_common.fastmcp import FastMCP
 
 
 def _validate_search_guests_params(hotel_id: str | None, limit: int) -> None:
