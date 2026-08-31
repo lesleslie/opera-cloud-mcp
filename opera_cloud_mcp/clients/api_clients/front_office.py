@@ -5,6 +5,8 @@ Handles front office operations including check-in, check-out,
 and daily operational reports through the OPERA Cloud FOF API.
 """
 
+from __future__ import annotations
+
 import asyncio
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
@@ -13,9 +15,7 @@ from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
-
-if TYPE_CHECKING:
-    from opera_cloud_mcp.models.guest import GuestProfile
+from opera_cloud_mcp.models.guest import GuestProfile
 
 
 class CheckInRequest(OperaBaseModel):
