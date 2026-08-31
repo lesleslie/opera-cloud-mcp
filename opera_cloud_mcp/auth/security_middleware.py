@@ -13,7 +13,7 @@ import time
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from pydantic import BaseModel
 
 from opera_cloud_mcp.auth.audit_logger import audit_logger

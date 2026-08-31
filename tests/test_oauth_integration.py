@@ -129,7 +129,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -158,7 +158,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             # Configure mock to fail first, then succeed
             mock_post = AsyncMock(
                 side_effect=[mock_response_fail, mock_response_success]
@@ -182,7 +182,7 @@ class TestOAuthHandler:
             "error_description": "Invalid client credentials",
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -201,7 +201,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -247,7 +247,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -277,7 +277,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -387,7 +387,7 @@ class TestOAuthIntegration:
                 "expires_in": 3600,
             }
 
-            with patch("httpx.AsyncClient") as mock_client:
+            with patch("httpx2.AsyncClient") as mock_client:
                 mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                     return_value=mock_response
                 )
@@ -399,7 +399,7 @@ class TestOAuthIntegration:
             mock_response.status_code = 401
             mock_response.json.return_value = {"error": "invalid_client"}
 
-            with patch("httpx.AsyncClient") as mock_client:
+            with patch("httpx2.AsyncClient") as mock_client:
                 mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                     return_value=mock_response
                 )

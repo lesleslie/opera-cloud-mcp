@@ -15,7 +15,7 @@ import secrets
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from pydantic import BaseModel
 
 from opera_cloud_mcp.auth.oauth_handler import DEFAULT_TOKEN_TYPE, OAuthHandler

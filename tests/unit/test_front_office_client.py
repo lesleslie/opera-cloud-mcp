@@ -791,7 +791,7 @@ class TestFrontOfficeClient:
         """Test handling of network errors."""
         from unittest.mock import patch
 
-        from httpx import RequestError
+        from httpx2 import RequestError
 
         # Mock the get method to raise a RequestError
         with patch.object(front_office_client, "get") as mock_get:

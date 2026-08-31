@@ -105,7 +105,7 @@ class TestActivitiesClient:
         )
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -152,7 +152,7 @@ class TestActivitiesClient:
         )
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -200,7 +200,7 @@ class TestActivitiesClient:
         mock_response.url = "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/bookings"
         mock_response.request = Mock(method="POST")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -264,7 +264,7 @@ class TestActivitiesClient:
         mock_response.url = "https://api.test.com/v1/act/v1/hotels/TEST_HOTEL/activities/ACT123/schedule/2024-12-15"
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -305,7 +305,7 @@ class TestActivitiesClient:
         )
         mock_response.request = Mock(method="POST")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response

@@ -12,7 +12,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 
 logger = logging.getLogger(__name__)
 

@@ -90,7 +90,7 @@ class TestBaseAPIClient:
         mock_response.headers = {"content-type": "application/json"}
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -125,7 +125,7 @@ class TestBaseAPIClient:
         mock_responses[1].headers = {"content-type": "application/json"}
         mock_responses[1].request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.side_effect = mock_responses
@@ -154,7 +154,7 @@ class TestBaseAPIClient:
         mock_response.headers = {}
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -178,7 +178,7 @@ class TestBaseAPIClient:
         mock_response.headers = {}
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -201,7 +201,7 @@ class TestBaseAPIClient:
         mock_response.headers = {"content-type": "application/json"}
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -224,7 +224,7 @@ class TestBaseAPIClient:
         mock_response.headers = {"content-type": "application/json"}
         mock_response.request = Mock(method="GET")
 
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             mock_client.request.return_value = mock_response
@@ -245,7 +245,7 @@ class TestBaseAPIClient:
         self, mock_auth_handler: Mock, mock_settings: Settings
     ):
         """Test async context manager usage."""
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             async with BaseAPIClient(

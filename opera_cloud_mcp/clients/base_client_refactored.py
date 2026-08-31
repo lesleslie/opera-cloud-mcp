@@ -13,7 +13,7 @@ from collections import defaultdict, deque
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpx2 as httpx
 from pydantic import BaseModel, Field
 
 from opera_cloud_mcp.config.settings import Settings, get_settings

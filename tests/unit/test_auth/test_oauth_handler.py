@@ -9,7 +9,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
-import httpx
+import httpx2 as httpx
 
 from opera_cloud_mcp.auth.oauth_handler import (
     Token,

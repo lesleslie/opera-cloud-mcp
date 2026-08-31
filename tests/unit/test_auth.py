@@ -7,7 +7,7 @@ Tests OAuth2 token handling, caching, and error scenarios.
 from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler, Token
@@ -92,7 +92,7 @@ class TestOAuthHandler:
             "expires_in": 3600,
         }
 
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json.return_value = mock_response_data
@@ -110,7 +110,7 @@ class TestOAuthHandler:
     @pytest.mark.asyncio
     async def test_refresh_token_failure(self, oauth_handler: OAuthHandler):
         """Test token refresh failure."""
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 400
             mock_response.text = "Invalid credentials"
@@ -128,7 +128,7 @@ class TestOAuthHandler:
     @pytest.mark.asyncio
     async def test_refresh_token_network_error(self, oauth_handler: OAuthHandler):
         """Test token refresh network error."""
-        with patch("httpx.AsyncClient") as mock_client:
+        with patch("httpx2.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.post.side_effect = (
                 httpx.ConnectTimeout("Connection timeout")
             )

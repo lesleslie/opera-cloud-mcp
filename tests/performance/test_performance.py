@@ -71,7 +71,7 @@ class TestPerformance:
         mock_response.content = b'{"data": "test_response"}'
         mock_response.headers = {}
 
-        with patch("httpx.AsyncClient") as mock_http_client:
+        with patch("httpx2.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             mock_client_instance.request = AsyncMock(return_value=mock_response)
             mock_http_client.return_value = mock_client_instance
@@ -113,7 +113,7 @@ class TestPerformance:
         mock_response.content = b'{"data": "cached_response"}'
         mock_response.headers = {}
 
-        with patch("httpx.AsyncClient") as mock_http_client:
+        with patch("httpx2.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             mock_client_instance.request = AsyncMock(return_value=mock_response)
             mock_http_client.return_value = mock_client_instance
@@ -147,7 +147,7 @@ class TestPerformance:
         mock_response.content = b'{"data": "test_response"}'
         mock_response.headers = {}
 
-        with patch("httpx.AsyncClient") as mock_http_client:
+        with patch("httpx2.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             mock_client_instance.request = AsyncMock(return_value=mock_response)
             mock_http_client.return_value = mock_client_instance
@@ -192,7 +192,7 @@ class TestPerformance:
         mock_success_response.content = b'{"data": "success_after_retry"}'
         mock_success_response.headers = {}
 
-        with patch("httpx.AsyncClient") as mock_http_client:
+        with patch("httpx2.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             # First call fails, second succeeds
             mock_client_instance.request = AsyncMock(
@@ -288,7 +288,7 @@ class TestPerformance:
         mock_response.content = b'{"data": "test_response"}'
         mock_response.headers = {}
 
-        with patch("httpx.AsyncClient") as mock_http_client:
+        with patch("httpx2.AsyncClient") as mock_http_client:
             mock_client_instance = AsyncMock()
             mock_client_instance.request = AsyncMock(return_value=mock_response)
             mock_http_client.return_value = mock_client_instance

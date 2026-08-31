@@ -530,7 +530,7 @@ class TestReservationsClient:
 
     async def test_context_manager_support(self, reservations_client):
         """Test that client can be used as async context manager."""
-        with patch("httpx.AsyncClient") as mock_client_class:
+        with patch("httpx2.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client_class.return_value = mock_client
             async with reservations_client as client:

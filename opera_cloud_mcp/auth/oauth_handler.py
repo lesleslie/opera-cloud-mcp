@@ -14,7 +14,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 from cryptography.fernet import Fernet
 from pydantic import BaseModel
 
