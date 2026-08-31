@@ -7,17 +7,19 @@ modify, and cancel reservations through the OPERA Cloud RSV API.
 
 import logging
 from datetime import date
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
-from opera_cloud_mcp.models.reservation import Guest, RoomStay
 from opera_cloud_mcp.utils.exceptions import ValidationError
 from opera_cloud_mcp.utils.validators import (
     validate_confirmation_number,
     validate_date_format,
 )
+
+if TYPE_CHECKING:
+    from opera_cloud_mcp.models.reservation import Guest, RoomStay
 
 logger = logging.getLogger(__name__)
 

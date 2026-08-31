@@ -21,7 +21,9 @@ try:
     SECURITY_AVAILABLE = True
 except ImportError:
     SECURITY_AVAILABLE = False
-    APIKeyFormatError = ValueError  # Fallback when mcp_common.security is unavailable
+
+    class APIKeyFormatError(ValueError):
+        """Fallback APIKeyFormatError when mcp_common.security is unavailable."""
 
 
 class Settings(BaseSettings):

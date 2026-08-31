@@ -15,7 +15,9 @@ from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
-from opera_cloud_mcp.models.guest import GuestProfile
+
+if TYPE_CHECKING:
+    from opera_cloud_mcp.models.guest import GuestProfile
 
 
 class CheckInRequest(OperaBaseModel):
