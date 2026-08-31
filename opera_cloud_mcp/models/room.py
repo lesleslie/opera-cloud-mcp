@@ -5,6 +5,7 @@ Provides Pydantic models for room information, availability,
 and housekeeping entities.
 """
 
+from datetime import date
 from typing import TYPE_CHECKING
 
 from pydantic import Field
@@ -12,7 +13,7 @@ from pydantic import Field
 from opera_cloud_mcp.models.common import OperaBaseModel
 
 if TYPE_CHECKING:
-    from datetime import date
+    pass
 
 
 class Room(OperaBaseModel):
