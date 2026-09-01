@@ -7,15 +7,13 @@ through the OPERA Cloud BLK API.
 
 import asyncio
 from datetime import date, datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 from pydantic import Field, field_validator
 
 from opera_cloud_mcp.clients.base_client import APIResponse, BaseAPIClient
 from opera_cloud_mcp.models.common import OperaBaseModel
-
-if TYPE_CHECKING:
-    from decimal import Decimal
 
 
 class RoomBlock(OperaBaseModel):
