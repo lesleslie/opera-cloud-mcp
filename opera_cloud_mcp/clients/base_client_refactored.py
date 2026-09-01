@@ -10,12 +10,15 @@ import json
 import logging
 import time
 from collections import defaultdict, deque
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import httpx2 as httpx
 from pydantic import BaseModel, Field
 
+from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
+from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
 from opera_cloud_mcp.config.settings import Settings, get_settings
 from opera_cloud_mcp.utils.cache_manager import OperaCacheManager
 from opera_cloud_mcp.utils.exceptions import (
@@ -29,12 +32,6 @@ from opera_cloud_mcp.utils.exceptions import (
     ValidationError,
 )
 from opera_cloud_mcp.utils.observability import DistributedTracer, get_observability
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
-    from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
 
 logger = logging.getLogger(__name__)
 

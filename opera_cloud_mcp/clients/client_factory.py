@@ -7,16 +7,13 @@ OPERA Cloud API domains with shared resources and configuration.
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Protocol
+from pathlib import Path
+from typing import Any, Protocol
 
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler
 from opera_cloud_mcp.auth.secure_oauth_handler import SecureOAuthHandler
+from opera_cloud_mcp.config.settings import Settings
 from opera_cloud_mcp.utils.exceptions import ConfigurationError
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from opera_cloud_mcp.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 
