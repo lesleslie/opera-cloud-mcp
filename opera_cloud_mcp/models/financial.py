@@ -5,16 +5,11 @@ Provides Pydantic models for billing, payments,
 and financial transaction entities.
 """
 
-from typing import TYPE_CHECKING
+from datetime import datetime
 
 from pydantic import Field
 
 from opera_cloud_mcp.models.common import Money, OperaBaseModel
-
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    pass
 
 
 class Charge(OperaBaseModel):
