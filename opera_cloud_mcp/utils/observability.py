@@ -11,15 +11,13 @@ import operator
 import sys
 import time
 from collections import defaultdict, deque
+from collections.abc import AsyncGenerator, Generator
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 from uuid import uuid4
-
-if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Generator
 
 logger = logging.getLogger(__name__)
 
