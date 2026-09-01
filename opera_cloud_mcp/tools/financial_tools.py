@@ -6,16 +6,15 @@ and financial transactions through the OPERA Cloud Cashiering API.
 """
 
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import (
     create_cashier_client,
     create_front_office_client,
 )
 from opera_cloud_mcp.utils.exceptions import ValidationError
-
-if TYPE_CHECKING:
-    from mcp_common.fastmcp import FastMCP
 
 
 def _validate_get_guest_folio_params(hotel_id: str | None, folio_type: str) -> None:

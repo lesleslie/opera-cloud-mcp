@@ -6,16 +6,15 @@ and inventory operations through the OPERA Cloud Inventory and Housekeeping APIs
 """
 
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import (
     create_housekeeping_client,
     create_inventory_client,
 )
 from opera_cloud_mcp.utils.exceptions import ValidationError
-
-if TYPE_CHECKING:
-    from mcp_common.fastmcp import FastMCP
 
 
 def _validate_get_room_status_params(hotel_id: str | None) -> None:

@@ -7,14 +7,13 @@ hotel reservations through the OPERA Cloud Reservations API.
 
 import inspect
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
+
+from mcp_common.fastmcp import FastMCP
 
 from opera_cloud_mcp.utils.client_factory import create_reservations_client
 from opera_cloud_mcp.utils.exceptions import ValidationError
 from opera_cloud_mcp.utils.validators import validate_confirmation_number
-
-if TYPE_CHECKING:
-    from mcp_common.fastmcp import FastMCP
 
 
 def _get_reservations_client(hotel_id: str | None = None):
