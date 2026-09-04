@@ -11,10 +11,9 @@ import json
 import logging
 import time
 from collections import defaultdict, deque
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
-
-from collections.abc import Callable
 
 import httpx2 as httpx
 from pydantic import BaseModel, Field

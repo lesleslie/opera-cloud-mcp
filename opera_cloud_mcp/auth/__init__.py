@@ -7,7 +7,7 @@ security monitoring, audit logging, and threat detection.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 from opera_cloud_mcp.auth.audit_logger import AuditLogger, audit_logger
 from opera_cloud_mcp.auth.oauth_handler import OAuthHandler, Token, TokenCache

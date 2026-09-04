@@ -8,7 +8,7 @@ and folio management through the OPERA Cloud CSH API.
 import asyncio
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import Field, field_validator
 

@@ -8,7 +8,7 @@ through the OPERA Cloud RTP API.
 import asyncio
 from datetime import date
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import Field, field_validator
 

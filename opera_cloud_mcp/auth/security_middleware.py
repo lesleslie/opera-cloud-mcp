@@ -11,7 +11,7 @@ import ipaddress
 import logging
 import time
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import httpx2 as httpx
 from pydantic import BaseModel

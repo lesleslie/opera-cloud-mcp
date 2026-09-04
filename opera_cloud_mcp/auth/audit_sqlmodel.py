@@ -10,7 +10,6 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from cryptography.fernet import Fernet
 from sqlmodel import Session, SQLModel, create_engine, desc, select

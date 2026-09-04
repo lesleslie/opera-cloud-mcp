@@ -7,7 +7,7 @@ modify, and cancel reservations through the OPERA Cloud RSV API.
 
 import logging
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
