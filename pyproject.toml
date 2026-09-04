@@ -77,7 +77,10 @@ select = [
     "S",
     "T20",
     "SIM",
-    "TCH",
+    # NOTE: TCH (flake8-type-checking) disabled — its autofix moves runtime imports
+    # to TYPE_CHECKING blocks, which the crackerjack tc-refs audit then flags as
+    # runtime violations when files lack `from __future__ import annotations`.
+    # See crackerjack memory `crackerjack-fast-hooks-ruff-autofix.md`.
 ]
 ignore = [
     "S101",
