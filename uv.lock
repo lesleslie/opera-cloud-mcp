@@ -2124,7 +2124,7 @@ wheels = [
 
 [[package]]
 name = "mcp-common"
-version = "0.24.3"
+version = "0.26.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
@@ -2139,9 +2139,9 @@ dependencies = [
     { name = "typer" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/32/bc/123f1d87ab071f194df1b3743d61817cb4a69f311d4541137836fe552de6/mcp_common-0.24.3.tar.gz", hash = "sha256:b468ba2f618b90c42269bcfe6052a9fe28d9c709c4068a320639c06a49eedec0", size = 975949, upload-time = "2026-09-04T06:28:40.669Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/fe/c59133220f225a42e0becc3dc876fb6b781dfb0db156561dbc125a7301e6/mcp_common-0.26.0.tar.gz", hash = "sha256:26fecaacec8df0ff0f70a0246d8892f3b04de2dda2a2c9895411cd44a5072106", size = 1089253, upload-time = "2026-09-14T08:50:14.373Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/7d/088d6bdf269481bcfbf7b5a78de8c5c2829f7d5384e45875e1988f6b4e44/mcp_common-0.24.3-py3-none-any.whl", hash = "sha256:a2784749d0f0a69cfe03c9171267041b439629f5dd17221d4fbf348e56664df0", size = 405389, upload-time = "2026-09-04T06:28:38.92Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/a4/9ae692cab3f8a444505e070b18b36c4852e7b07d6de696205a07dd2739da/mcp_common-0.26.0-py3-none-any.whl", hash = "sha256:cb303438ccea67782a5411f5900bcfde0a541ed84bfbe343c9475b1ce8074a9b", size = 436579, upload-time = "2026-09-14T08:50:12.864Z" },
 ]
 
 [[package]]
@@ -2570,7 +2570,7 @@ wheels = [
 
 [[package]]
 name = "opera-cloud-mcp"
-version = "0.6.3"
+version = "0.6.4"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
@@ -2601,7 +2601,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=41.0.0" },
     { name = "fastmcp", specifier = ">=3.4.0,<4" },
     { name = "httpx2", specifier = ">=0.28.1" },
-    { name = "mcp-common", specifier = ">=0.18.0" },
+    { name = "mcp-common", specifier = ">=0.26.0,<0.27.0" },
     { name = "oneiric", specifier = ">=0.16.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.5.0" },
     { name = "pydantic-settings", specifier = ">=2.1.0" },
