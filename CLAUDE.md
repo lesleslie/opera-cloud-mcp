@@ -278,8 +278,7 @@ ______________________________________________________________________
 Before writing common primitives (HMAC, token gen, schema validation,
 retries, redaction, HTTP probing, serialization, compression, hashing,
 data transforms), check `oneiric.actions` — catalog lives at
-`oneiric/docs/action-kits.md` in the oneiric project. Discovery hint:
-`mahavishnu/.claude/decisions/promote-oneiric-action-kits.md`.
+`oneiric/docs/action-kits.md` in the oneiric project.
 
 ## MCP Backend Wiring Discipline
 
@@ -292,21 +291,10 @@ Every registered tool must have a working data feed exposing
 End-to-end smoke tests in CI must spin up the server and assert non-empty
 responses per tool. Monthly cross-repo audit cadence.
 
-Canonical rule: `.claude/decisions/mcp-backend-wiring-discipline.md`
-(lives in the mahavishnu repo and is cross-referenced for the ecosystem).
+Canonical rule: `.claude/decisions/mcp-backend-wiring-discipline.md`.
 
 When adding any new MCP tool to this repo:
 - [ ] Tool registration includes `tests/integration/test_<tool>_e2e.py`.
 - [ ] Data feed exposes the four mandatory metrics.
 - [ ] `/health` aggregator includes this feed's state.
 - [ ] CI smoke test calls this tool and asserts non-empty response.
-
-## Bodai integration
-
-When installed alongside the [Bodai ecosystem](https://github.com/lesleslie/bodai),
-`opera-cloud-mcp` follows the shared cross-repo conventions: Crackerjack for CI/CD
-quality gates, the four mcp-common baseline tools (`discover_tools`,
-`get_liveness`, `get_readiness`, `health_check_all`), and the MCP wiring
-discipline documented in `mahavishnu/.claude/decisions/mcp-backend-wiring-discipline.md`.
-No Bodai-specific code is imported at runtime — integration is purely via
-shared conventions.

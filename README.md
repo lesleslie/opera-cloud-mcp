@@ -287,3 +287,7 @@ BSD 3-Clause License - see [LICENSE](LICENSE) for details.
 ______________________________________________________________________
 
 Built for the hospitality industry using [FastMCP](https://github.com/jlowin/fastmcp) and Oracle OPERA Cloud.
+
+Built on [Oneiric](https://github.com/lesleslie/oneiric) for runtime configuration
+and [mcp-common](https://github.com/lesleslie/mcp-common) for the FastMCP
+baseline. [Crackerjack](https://github.com/lesleslie/crackerjack) gates every commit.
