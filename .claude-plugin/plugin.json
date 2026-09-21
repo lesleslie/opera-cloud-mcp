@@ -1,14 +1,12 @@
 {
   "author": {
-    "name": "Bodai"
+    "name": "Wedgwood Web Works"
   },
-  "description": "Bodai plugin for the opera-cloud-mcp hotel management server.",
+  "description": "Plugin for the opera-cloud-mcp hotel management server.",
   "keywords": [
-    "bodai",
     "mcp",
     "opera-cloud",
-    "hospitality",
-    "pms"
+    "hospitality"
   ],
   "mcpServers": "./.mcp.json",
   "name": "opera-cloud",

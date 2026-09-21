@@ -255,9 +255,9 @@ Authentication is OAuth2 client-credentials only. There is no `OPERA_USERNAME` /
 
 See `docs/security-implementation.md` for detailed security configuration.
 
-## Installation via Bodai Marketplace
+## Installation via Claude Code marketplace
 
-This repo ships a Bodai Claude Code plugin. The plugin manifest (`.claude-plugin/plugin.json`) registers the local MCP server (`.mcp.json`, default `http://localhost:3037/mcp`) under the `opera-cloud` namespace and exposes three slash commands: `/opera-cloud-reservations`, `/opera-cloud-guests`, `/opera-cloud-rooms`. To install, add the Bodai marketplace once and then install the plugin: `claude plugin marketplace add /Users/les/Projects/bodai-plugins` followed by `claude plugin install opera-cloud --marketplace bodai-plugins`. Once installed, start the server with `opera-cloud-mcp` (HTTP on port 3037) and the slash commands will see the live `mcp__opera-cloud__*` tools.
+This repo ships a Claude Code plugin. The plugin manifest (`.claude-plugin/plugin.json`) registers the local MCP server (`.mcp.json`, default `http://localhost:3037/mcp`) under the `opera-cloud` namespace and exposes three slash commands: `/opera-cloud-reservations`, `/opera-cloud-guests`, `/opera-cloud-rooms`. To install, register the [www-mcp-servers marketplace](https://github.com/lesleslie/www-mcp-servers) once with Claude Code and then install the plugin: `claude plugin install opera-cloud --marketplace www-mcp-servers`. Once installed, start the server with `opera-cloud-mcp` (HTTP on port 3037) and the slash commands will see the live `mcp__opera-cloud__*` tools.
 
 ## Documentation
 
