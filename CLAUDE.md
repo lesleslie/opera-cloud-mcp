@@ -294,6 +294,7 @@ responses per tool. Monthly cross-repo audit cadence.
 Canonical rule: `.claude/decisions/mcp-backend-wiring-discipline.md`.
 
 When adding any new MCP tool to this repo:
+
 - [ ] Tool registration includes `tests/integration/test_<tool>_e2e.py`.
 - [ ] Data feed exposes the four mandatory metrics.
 - [ ] `/health` aggregator includes this feed's state.

@@ -177,7 +177,7 @@ class ToolRegistry:
         warned = False
 
         # Check if async when required
-        if metadata.async_execution and not asyncio.iscoroutinefunction(function):
+        if metadata.async_execution and not inspect.iscoroutinefunction(function):
             raise ValueError(
                 f"Tool {metadata.name} requires async execution "
                 + "but function is not async"

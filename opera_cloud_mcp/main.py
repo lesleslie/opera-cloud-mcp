@@ -104,7 +104,11 @@ async def health_check(request: Any) -> Any:
     from starlette.responses import JSONResponse
 
     return JSONResponse(
-        {"status": StatusValue.HEALTHY.value, "service": "opera-cloud", "version": "0.1.0"}
+        {
+            "status": StatusValue.HEALTHY.value,
+            "service": "opera-cloud",
+            "version": "0.1.0",
+        }
     )
 
 

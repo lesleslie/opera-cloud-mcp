@@ -8,7 +8,6 @@ Provides AI agents with comprehensive access to hospitality management functions
 
 import importlib.util
 import logging
-from typing import Any
 
 from mcp_common.fastmcp import FastMCP
 from mcp_common.health import register_http_health_route

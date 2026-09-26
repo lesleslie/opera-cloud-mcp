@@ -6,6 +6,7 @@ and failure recovery patterns optimized for hotel operations.
 """
 
 import asyncio
+import inspect
 import logging
 import secrets
 import time
@@ -142,7 +143,7 @@ class CircuitBreaker:
         if len(self.request_window) < 5:  # Need minimum requests
             return 0.0
 
-        failures = sum(1 for success in self.request_window if not success)
+        failures = sum(1 for _, success in self.request_window if not success)
         return failures / len(self.request_window)
 
     async def call(self, func: Callable, *args, **kwargs) -> Any:
@@ -180,7 +181,7 @@ class CircuitBreaker:
             # Execute the function
             result = (
                 await func(*args, **kwargs)
-                if asyncio.iscoroutinefunction(func)
+                if inspect.iscoroutinefunction(func)
                 else func(*args, **kwargs)
             )
 
@@ -320,7 +321,7 @@ class BulkheadIsolator:
                 # Execute the function
                 result = (
                     await func(*args, **kwargs)
-                    if asyncio.iscoroutinefunction(func)
+                    if inspect.iscoroutinefunction(func)
                     else func(*args, **kwargs)
                 )
                 return result
@@ -544,7 +545,7 @@ class RetryManager:
             try:
                 result = (
                     await func(*args, **kwargs)
-                    if asyncio.iscoroutinefunction(func)
+                    if inspect.iscoroutinefunction(func)
                     else func(*args, **kwargs)
                 )
 
@@ -689,7 +690,7 @@ class ResilienceManager:
                 return await bulkhead.execute(func, *args, **kwargs)
             return (
                 await func(*args, **kwargs)
-                if asyncio.iscoroutinefunction(func)
+                if inspect.iscoroutinefunction(func)
                 else func(*args, **kwargs)
             )
 
