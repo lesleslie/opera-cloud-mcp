@@ -43,7 +43,7 @@ check someone in to the wrong room.
 
 opera-cloud-mcp does not expose the canonical
 `get_liveness` / `get_readiness` / `get_health` MCP tool names — it
-exposes `/healthz` as an HTTP route (not an MCP tool). The MANDATORY
+exposes `/health` as an HTTP route (not an MCP tool). The MANDATORY
 groups subset check is therefore opted out via the default empty
 `MANDATORY_GROUPS` / `MANDATORY_TOOLS` from `mcp_common`.
 

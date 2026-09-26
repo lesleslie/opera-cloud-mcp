@@ -99,7 +99,7 @@ def register_all_tool_groups(server: FastMCP) -> None:
 # Mandatory groups: registration_map keys that are always registered at every
 # profile (in addition to the per-profile list). opera-cloud-mcp does not
 # expose the canonical ``get_liveness`` / ``get_readiness`` / ``get_health``
-# MCP tool names (it exposes ``/healthz`` as an HTTP route, not an MCP tool),
+# MCP tool names (it exposes ``/health`` as an HTTP route, not an MCP tool),
 # so the subset check is opted out via the default empty
 # ``MANDATORY_GROUPS`` / ``MANDATORY_TOOLS`` from ``mcp_common``.
 async def apply_opera_cloud_tool_profile(server: FastMCP) -> None:
