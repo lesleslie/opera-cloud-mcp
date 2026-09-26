@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2026-09-26
+
+### Added
+
+- opera-cloud-mcp: Drop /healthz duplicates, bump mcp-common to 0.30.0
+
+### Fixed
+
+- opera-cloud-mcp: Clear ty warnings
+
+### Documentation
+
+- Add docs/assets/images/ + .scratch/ convention
+- CLAUDE.md: Cross-reference MCP backend wiring discipline (Bodai-wide)
+- Consolidate Bodai/Vishnu references to bottom section
+- Drop Bodai integration framing and add substrate note
+- opera-cloud-mcp: Replace stale /healthz references with /health
+- Update FastMCP badge URL to PrefectHQ org (canonical since v3.0 GA)
+
+### Internal
+
+- deps: Bump mcp-common floor to >=0.26.0,<0.27.0 (Phase 2.5)
+- gitignore: Apply Bodai canonical snippet
+- opera-cloud-mcp: Refresh uv.lock for mcp-common 0.30.0
+- plugin: Rebadge from Bodai + update install instructions
+
 ## [0.6.4] - 2026-09-04
 
 ### Fixed
