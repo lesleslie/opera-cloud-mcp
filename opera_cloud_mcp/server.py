@@ -46,14 +46,6 @@ register_http_health_route(
 )
 
 
-@app.custom_route("/healthz", methods=["GET"])
-async def healthz_check(request: Any) -> Any:
-    """Kubernetes-style health check endpoint."""
-    from starlette.responses import JSONResponse
-
-    return JSONResponse({"status": "ok"})
-
-
 # Add rate limiting middleware (Phase 3 Security Hardening)
 if RATE_LIMITING_AVAILABLE:
     from mcp_common.fastmcp import RateLimitingMiddleware

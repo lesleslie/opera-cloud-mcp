@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from mcp_common.fastmcp import FastMCP
+from mcp_common.health.feed import StatusValue
 
 from opera_cloud_mcp import auth
 from opera_cloud_mcp.config.settings import Settings
@@ -102,15 +103,9 @@ async def health_check(request: Any) -> Any:
     """HTTP health check endpoint for Claude Code `mcp list` compatibility."""
     from starlette.responses import JSONResponse
 
-    return JSONResponse({"status": "ok", "service": "opera-cloud", "version": "0.1.0"})
-
-
-@app.custom_route("/healthz", methods=["GET"])
-async def healthz_check(request: Any) -> Any:
-    """Kubernetes-style health check endpoint."""
-    from starlette.responses import JSONResponse
-
-    return JSONResponse({"status": "ok"})
+    return JSONResponse(
+        {"status": StatusValue.HEALTHY.value, "service": "opera-cloud", "version": "0.1.0"}
+    )
 
 
 # Add rate limiting middleware (Phase 3 Security Hardening)
